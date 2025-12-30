@@ -1,0 +1,6 @@
+# Unity 项目忽略规则
+Temp/
+Library/
+Logs/
+UserSettings/
+.vsconfig
