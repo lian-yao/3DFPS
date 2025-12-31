@@ -1,9 +1,22 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: 196099752783ec349bb5b5550e96b3ae
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
   externalObjects: {}
+=======
+guid: 8eed4313cd450404e8f0e3c071c14c98
+ModelImporter:
+  serializedVersion: 22200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_mat_ccc40402
+    second: {fileID: 2100000, guid: c719e38f25a9480abd2480ab621a2949, type: 2}
+>>>>>>> 61ef99c (更新Resources下的敌人、枪等模型文件)
   materials:
     materialImportMode: 2
     materialName: 0
