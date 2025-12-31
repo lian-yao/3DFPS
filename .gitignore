@@ -1,6 +1,9 @@
-# Unity 项目忽略规则
-Temp/
+# Visual Studio 缓存
+.vs/
+# Unity 额外忽略（可选，根据Unity项目规范补充）
 Library/
+Temp/
+obj/
 Logs/
 UserSettings/
-.vsconfig
+Packages/packages-lock.json
