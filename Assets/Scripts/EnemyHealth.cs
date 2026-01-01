@@ -106,7 +106,7 @@ public class EnemyHealth : MonoBehaviour
         }
 
         // 5. 标记为"Dead"标签
-        gameObject.tag = "Dead";
+        //gameObject.tag = "Dead";
 
         // 6. 立即销毁
         Log($"立即销毁 {gameObject.name}");
