@@ -7,3 +7,6 @@ obj/
 Logs/
 UserSettings/
 Packages/packages-lock.json
+obj/
+Library/
+Temp/
