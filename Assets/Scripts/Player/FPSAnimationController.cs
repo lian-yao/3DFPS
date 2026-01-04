@@ -27,13 +27,14 @@ public class FPSAnimationController : MonoBehaviour
 
         if (input.magnitude > 0.1f) // 有输入
         {
-            if (Input.GetKey(KeyCode.LeftShift) && vertical > 0)
+            // 关键修改：添加射击检测
+            if (Input.GetKey(KeyCode.LeftShift) && vertical > 0 && !Input.GetMouseButton(0))
             {
-                speed = 1.0f; // 向前跑步
+                speed = 1.0f; // 向前跑步（不在射击时）
             }
             else
             {
-                speed = 0.5f; // 走路
+                speed = 0.5f; // 走路 或 射击时移动
             }
         }
         else
@@ -62,6 +63,7 @@ public class FPSAnimationController : MonoBehaviour
         if (animator == null) return;
 
         GUI.Label(new Rect(10, 10, 300, 20), $"速度值: {animator.GetFloat("Speed"):F2}");
+        GUI.Label(new Rect(10, 30, 300, 20), $"射击中: {Input.GetMouseButton(0)}");
 
         string state = "unknown";
         float speed = animator.GetFloat("Speed");
@@ -69,6 +71,6 @@ public class FPSAnimationController : MonoBehaviour
         else if (speed < 0.7f) state = "walking";
         else state = "running";
 
-        GUI.Label(new Rect(10, 30, 300, 20), $"当前状态: {state}");
+        GUI.Label(new Rect(10, 50, 300, 20), $"当前状态: {state}");
     }
 }
