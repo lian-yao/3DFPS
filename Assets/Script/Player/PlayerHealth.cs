@@ -39,6 +39,7 @@ public class PlayerHealth : MonoBehaviour
         // Íæ¼ÒËÀÍöÂß¼­
         Debug.Log("Íæ¼ÒËÀÍö");
         Time.timeScale = 0f; // ÔİÍ£ÓÎÏ·
+
         //deathUI.SetActive(true);
         //Cursor.lockState = CursorLockMode.None;
     }
