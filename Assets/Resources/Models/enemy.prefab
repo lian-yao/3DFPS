@@ -125,15 +125,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3268772231076932376}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4287863448467718214}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
-        type: 3}
-      insertIndex: -1
       addedObject: {fileID: 6794987470368951648}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3206952430835846843}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6839066721683746617}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
         type: 3}
       insertIndex: -1
@@ -145,47 +145,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 7606733721734626611}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3268772231076932376
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7300869175763206242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26fb95435217134449073440323d5d0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  rotationSpeed: 4
-  stoppingDistance: 1
-  gravity: 9.81
-  groundedGravity: -2
-  detectionRange: 10
-  checkInterval: 0.3
-  attackDamage: 0
-  attackCooldown: 1
-  showGizmos: 1
-  characterController: {fileID: 0}
-  enemyModel: {fileID: 7379712362121161600}
---- !u!114 &4287863448467718214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7300869175763206242}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54fb40dbafc35e34db47f3d5e6060d11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 200
-  isDead: 0
-  deathEffect: {fileID: 0}
-  damageMaterial: {fileID: 0}
-  debugMode: 1
 --- !u!95 &6794987470368951648
 Animator:
   serializedVersion: 5
@@ -207,6 +166,47 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3206952430835846843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7300869175763206242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54fb40dbafc35e34db47f3d5e6060d11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 50
+  isDead: 0
+  deathEffect: {fileID: 0}
+  damageMaterial: {fileID: 0}
+  debugMode: 1
+--- !u!114 &-6839066721683746617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7300869175763206242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26fb95435217134449073440323d5d0b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 3
+  rotationSpeed: 5
+  stoppingDistance: 2
+  gravity: 9.81
+  groundedGravity: -2
+  detectionRange: 10
+  checkInterval: 0.3
+  attackDamage: 10
+  attackCooldown: 1
+  showGizmos: 1
+  characterController: {fileID: 0}
+  enemyModel: {fileID: 0}
 --- !u!143 &8019945949855949062
 CharacterController:
   m_ObjectHideFlags: 0
@@ -233,9 +233,3 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &7379712362121161600 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1151388028547126963, guid: 373ea93d00d91c14fb43d1a3c31a2bfd,
-    type: 3}
-  m_PrefabInstance: {fileID: 7606733721734626611}
-  m_PrefabAsset: {fileID: 0}
