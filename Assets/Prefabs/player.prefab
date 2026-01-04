@@ -2876,6 +2876,7 @@ MonoBehaviour:
   currentHealth: 0
   healthBar: {fileID: 0}
   deathUI: {fileID: 0}
+  clampHealth: 1
 --- !u!114 &8811865133396931290
 MonoBehaviour:
   m_ObjectHideFlags: 0
