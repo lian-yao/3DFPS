@@ -180,6 +180,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 50
   isDead: 0
+  isBoss: 0
+  screenHealthSlider: {fileID: 0}
+  worldHealthSlider: {fileID: 0}
+  lookAtCamera: 1
   deathEffect: {fileID: 0}
   damageMaterial: {fileID: 0}
   debugMode: 1
@@ -204,6 +208,7 @@ MonoBehaviour:
   checkInterval: 0.3
   attackDamage: 10
   attackCooldown: 1
+  maxAttackHeight: 2
   showGizmos: 1
   characterController: {fileID: 0}
   enemyModel: {fileID: 0}

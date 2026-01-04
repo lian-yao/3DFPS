@@ -2,25 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SimpleEnemyAI : MonoBehaviour
+public class RemotEnemyAI : MonoBehaviour
 {
     [Header("移动设置")]
     public float moveSpeed = 3f;
     public float rotationSpeed = 5f;
-    public float stoppingDistance = 2f;
+    public float stoppingDistance = 8f; // 远程：停在8米外攻击（原近战2米）
 
     [Header("重力设置")]
     public float gravity = 9.81f;
     public float groundedGravity = -2f; // 小的向下力确保站在地面上
 
     [Header("检测设置")]
-    public float detectionRange = 10f;
+    public float detectionRange = 15f; // 远程：检测范围更远（原10米）
     public float checkInterval = 0.3f;
+    public bool checkLineOfSight = true; // 远程：是否检测视野（穿墙不攻击）
 
-    [Header("攻击设置")]
+    [Header("远程攻击设置")]
     public float attackDamage = 10f;
-    public float attackCooldown = 1f;
+    public float attackCooldown = 2f; // 远程：攻击冷却更长（原1秒）
     public float maxAttackHeight = 4f;
+    public GameObject projectilePrefab; // 子弹/技能预制体（需手动拖入）
+    public Transform firePoint; // 攻击发射点（怪物枪口/技能释放点）
+    public float projectileSpeed = 15f; // 子弹速度
+    public float attackWindup = 0.5f; // 攻击前摇（抬手时间）
+    public float projectileLifetime = 3f; // 子弹生命周期（避免内存泄漏）
 
     [Header("调试")]
     public bool showGizmos = true;
@@ -38,6 +44,7 @@ public class SimpleEnemyAI : MonoBehaviour
     private bool isChasing = false;
     private Vector3 velocity; // 用于重力计算
     private bool isGrounded;
+    private bool isAttacking = false; // 标记是否在攻击前摇中
 
     void Start()
     {
@@ -53,7 +60,10 @@ public class SimpleEnemyAI : MonoBehaviour
         // 4. 验证必要组件
         ValidateComponents();
 
-        UnityEngine.Debug.Log($"{name} AI初始化完成");
+        // 5. 远程攻击参数验证
+        ValidateRangedAttackSettings();
+
+        UnityEngine.Debug.Log($"{name} 远程AI初始化完成");
     }
 
     void GetComponentReferences()
@@ -105,6 +115,26 @@ public class SimpleEnemyAI : MonoBehaviour
         {
             UnityEngine.Debug.LogError($"{name}: 未找到玩家！");
             enabled = false;
+        }
+    }
+
+    // 验证远程攻击参数
+    void ValidateRangedAttackSettings()
+    {
+        if (projectilePrefab == null)
+        {
+            UnityEngine.Debug.LogWarning($"{name}: 未赋值子弹预制体！请拖入projectilePrefab字段");
+        }
+
+        if (firePoint == null)
+        {
+            UnityEngine.Debug.LogWarning($"{name}: 未设置攻击发射点！请创建空物体作为firePoint并拖入");
+            // 自动创建默认发射点（备用）
+            GameObject defaultFirePoint = new GameObject("DefaultFirePoint");
+            defaultFirePoint.transform.parent = transform;
+            defaultFirePoint.transform.localPosition = new Vector3(0, 1.5f, 0.5f); // 怪物头部/枪口位置
+            firePoint = defaultFirePoint.transform;
+            UnityEngine.Debug.Log($"自动创建默认发射点: {firePoint.name}，请调整位置到怪物攻击点");
         }
     }
 
@@ -270,14 +300,21 @@ public class SimpleEnemyAI : MonoBehaviour
         playerPos.y = enemyPos.y;
         float horizontalDistance = Vector3.Distance(enemyPos, playerPos);
 
-        // 简单距离检测
-        if (horizontalDistance <= detectionRange)
+        // 简单距离检测 + 视野检测（远程专属）
+        bool hasLineOfSight = true;
+        if (checkLineOfSight)
+        {
+            hasLineOfSight = CheckLineOfSightToPlayer();
+        }
+
+        // 只有在检测范围内且有视野时，才开始追逐
+        if (horizontalDistance <= detectionRange && hasLineOfSight)
         {
             if (!isChasing)
             {
                 // 开始追踪
                 targetPosition = player.position;
-                UnityEngine.Debug.Log($"{name} 开始追踪玩家");
+                UnityEngine.Debug.Log($"{name} 发现玩家，开始远程追踪");
             }
             isChasing = true;
         }
@@ -285,16 +322,47 @@ public class SimpleEnemyAI : MonoBehaviour
         {
             if (isChasing)
             {
-                UnityEngine.Debug.Log($"{name} 失去玩家视野");
+                UnityEngine.Debug.Log($"{name} 失去玩家视野/超出范围");
             }
             isChasing = false;
         }
+    }
+
+    // 射线检测：是否有视野（穿墙不攻击）
+    bool CheckLineOfSightToPlayer()
+    {
+        if (player == null || firePoint == null) return false;
+
+        // 射线起点：发射点，终点：玩家中心（加Y偏移避免地面遮挡）
+        Vector3 targetPos = player.position + new Vector3(0, 1f, 0);
+        Vector3 direction = targetPos - firePoint.position;
+
+        // 射线检测（忽略自身、忽略触发器）
+        RaycastHit hit;
+        if (Physics.Raycast(firePoint.position, direction.normalized, out hit, detectionRange))
+        {
+            // 检测是否命中玩家
+            if (hit.collider.CompareTag("Player"))
+            {
+                return true;
+            }
+            else
+            {
+                // 命中障碍物（墙/地形）
+                UnityEngine.Debug.DrawLine(firePoint.position, hit.point, Color.yellow);
+                return false;
+            }
+        }
+
+        // 无命中（超出范围）
+        return false;
     }
 
     void ChasePlayer()
     {
         if (player == null) return;
         if (characterController == null) return;
+        if (isAttacking) return; // 攻击前摇中不移动
 
         // 更新目标位置
         targetPosition = player.position;
@@ -304,7 +372,7 @@ public class SimpleEnemyAI : MonoBehaviour
         horizontalDirection.y = 0;
         float horizontalDistance = horizontalDirection.magnitude;
 
-        // 如果水平距离大于停止距离，继续移动
+        // 远程逻辑：距离大于停止距离（8米）则移动，否则停止并攻击
         if (horizontalDistance > stoppingDistance)
         {
             if (horizontalDirection.magnitude > 0.1f)
@@ -324,22 +392,18 @@ public class SimpleEnemyAI : MonoBehaviour
                     characterController.Move(moveVector);
                 }
 
-                // 旋转面向移动方向
+                // 旋转面向玩家（远程需要始终朝向玩家）
                 if (direction.magnitude > 0.01f)
                 {
                     Quaternion targetRotation = Quaternion.LookRotation(direction);
 
-                    // 如果模型需要旋转修正，在这里处理
                     if (enemyModel != null)
                     {
-                        // 旋转父物体（AI控制器）
                         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
                                                              rotationSpeed * Time.deltaTime);
-                        // 模型子物体保持自己的localRotation（在编辑器中设置）
                     }
                     else
                     {
-                        // 没有单独模型子物体，直接旋转自己
                         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
                                                              rotationSpeed * Time.deltaTime);
                     }
@@ -348,49 +412,111 @@ public class SimpleEnemyAI : MonoBehaviour
         }
         else
         {
-            // 在攻击范围内
+            // 远程攻击范围：检查高度差 + 视野
             float verticalDistance = Mathf.Abs(targetPosition.y - transform.position.y);
-            //float maxAttackHeight = 4f;
+            bool hasLineOfSight = checkLineOfSight ? CheckLineOfSightToPlayer() : true;
 
-            if (verticalDistance <= maxAttackHeight)
+            if (verticalDistance <= maxAttackHeight && hasLineOfSight)
             {
-                TryAttack();
+                TryRangedAttack(); // 远程攻击（替代原近战TryAttack）
             }
         }
     }
 
-    void TryAttack()
+    // 远程攻击核心逻辑
+    void TryRangedAttack()
     {
-        // 检查攻击冷却
-        if (attackTimer > 0) return;
+        // 检查攻击冷却 + 不在攻击前摇中
+        if (attackTimer > 0 || isAttacking) return;
 
-        // 攻击玩家
-        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
-        {
-            playerHealth.TakeDamage(attackDamage);
-            UnityEngine.Debug.Log($"{name} 攻击玩家，造成 {attackDamage} 点伤害");
-        }
+        UnityEngine.Debug.Log($"{name} 准备远程攻击玩家");
+        StartCoroutine(RangedAttackCoroutine()); // 协程处理攻击前摇
+    }
 
-        // 重置攻击冷却
+    // 攻击前摇 + 发射子弹
+    IEnumerator RangedAttackCoroutine()
+    {
+        isAttacking = true;
+
+        // 攻击前摇（抬手动画时间）
+        yield return new WaitForSeconds(attackWindup);
+
+        // 发射子弹
+        FireProjectile();
+
+        // 重置状态
         attackTimer = attackCooldown;
+        isAttacking = false;
     }
 
-    // 碰撞攻击
-    void OnControllerColliderHit(ControllerColliderHit hit)
+    // 发射子弹/技能
+    void FireProjectile()
     {
-        if (hit.gameObject.CompareTag("Player"))
+        if (projectilePrefab == null || firePoint == null)
         {
-            PlayerHealth playerHealth = hit.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null && attackTimer <= 0)
-            {
-                playerHealth.TakeDamage(attackDamage);
-                attackTimer = attackCooldown;
-            }
+            UnityEngine.Debug.LogError($"{name} 子弹预制体/发射点未设置，无法发射");
+            return;
         }
+
+        // 1. 计算子弹朝向（瞄准玩家，加微小随机偏移增加难度）
+        Vector3 targetPos = player.position + new Vector3(0, 1f, 0); // 瞄准玩家胸部
+        Vector3 fireDirection = (targetPos - firePoint.position).normalized;
+
+        // 可选：添加弹道随机偏移（模拟瞄准误差）
+        fireDirection += new Vector3(
+            Random.Range(-0.05f, 0.05f),
+            Random.Range(-0.03f, 0.03f),
+            Random.Range(-0.05f, 0.05f)
+        );
+        fireDirection.Normalize();
+
+        // 2. 生成子弹预制体
+        GameObject projectile = Instantiate(
+            projectilePrefab,
+            firePoint.position,
+            Quaternion.LookRotation(fireDirection)
+        );
+
+        // 3. 给子弹添加速度
+        Rigidbody rb = projectile.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.velocity = fireDirection * projectileSpeed;
+        }
+        else
+        {
+            // 没有Rigidbody则添加（备用方案）
+            rb = projectile.AddComponent<Rigidbody>();
+            rb.velocity = fireDirection * projectileSpeed;
+            rb.useGravity = false; // 远程子弹默认无重力（可根据需求调整）
+        }
+
+        // 4. 设置子弹伤害 + 自动销毁
+        ProjectileDamage projectileDamage = projectile.GetComponent<ProjectileDamage>();
+        if (projectileDamage != null)
+        {
+            projectileDamage.damage = attackDamage;
+        }
+        else
+        {
+            // 自动添加子弹伤害组件（如果没有）
+            projectileDamage = projectile.AddComponent<ProjectileDamage>();
+            projectileDamage.damage = attackDamage;
+        }
+
+        // 5. 子弹超时销毁（避免内存泄漏）
+        Destroy(projectile, projectileLifetime);
+
+        UnityEngine.Debug.Log($"{name} 发射子弹，速度: {projectileSpeed}，伤害: {attackDamage}");
     }
 
-    // 在编辑器中绘制调试信息
+    // 移除远程不需要的碰撞攻击（注释/删除均可）
+    // void OnControllerColliderHit(ControllerColliderHit hit)
+    // {
+    //     原近战碰撞攻击逻辑...
+    // }
+
+    // 在编辑器中绘制调试信息（新增远程攻击相关Gizmos）
     void OnDrawGizmos()
     {
         if (!showGizmos) return;
@@ -399,14 +525,21 @@ public class SimpleEnemyAI : MonoBehaviour
         Gizmos.color = isChasing ? Color.red : Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // 停止距离
+        // 远程攻击停止距离（绿色）
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, stoppingDistance);
 
-        // 到玩家的线
+        // 到玩家的线（红色=有视野，黄色=无视野）
         if (player != null)
         {
-            Gizmos.color = isChasing ? Color.red : Color.gray;
+            if (checkLineOfSight && Application.isPlaying)
+            {
+                Gizmos.color = CheckLineOfSightToPlayer() ? Color.red : Color.yellow;
+            }
+            else
+            {
+                Gizmos.color = isChasing ? Color.red : Color.gray;
+            }
             Gizmos.DrawLine(transform.position, player.position);
         }
 
@@ -420,6 +553,14 @@ public class SimpleEnemyAI : MonoBehaviour
         // 接地状态
         Gizmos.color = isGrounded ? Color.green : Color.red;
         Gizmos.DrawSphere(transform.position + Vector3.up * 0.5f, 0.1f);
+
+        // 远程发射点（紫色）
+        if (firePoint != null)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawSphere(firePoint.position, 0.15f);
+            Gizmos.DrawRay(firePoint.position, firePoint.forward * 1f);
+        }
     }
 
     // 玩家手动赋值方法（可以在其他脚本中调用）
@@ -446,7 +587,7 @@ public class SimpleEnemyAI : MonoBehaviour
     void Reset()
     {
         // 当组件第一次添加到GameObject时调用
-        UnityEngine.Debug.Log($"正在为 {name} 设置SimpleEnemyAI组件...");
+        UnityEngine.Debug.Log($"正在为 {name} 设置远程AI组件...");
 
         // 尝试自动获取CharacterController
         characterController = GetComponent<CharacterController>();
@@ -457,6 +598,36 @@ public class SimpleEnemyAI : MonoBehaviour
 
         // 查找模型子物体
         FindEnemyModel();
+
+        // 远程默认参数初始化
+        stoppingDistance = 8f;
+        detectionRange = 15f;
+        attackCooldown = 2f;
+        projectileSpeed = 15f;
     }
 #endif
+}
+
+// 子弹伤害组件（需挂载到子弹预制体，或由AI自动添加）
+[RequireComponent(typeof(Collider))]
+public class ProjectileDamage : MonoBehaviour
+{
+    public float damage = 10f;
+
+    void OnCollisionEnter(Collision collision)
+    {
+        // 检测是否命中玩家
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(damage);
+                Debug.Log($"子弹命中玩家，造成 {damage} 点伤害");
+            }
+        }
+
+        // 命中后销毁子弹（无论是否命中玩家）
+        Destroy(gameObject);
+    }
 }
