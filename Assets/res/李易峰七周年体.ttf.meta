@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 87c01abb6b0decd4db9dbab250f328a1
+timeCreated: 1512621767
+licenseType: Pro
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: QisiHeiti SC
+  fontNames:
+  - QisiHeiti SC
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
