@@ -101,7 +101,6 @@
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Character\InventoryBehaviour.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\ScopeBehaviour.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Demo\DisplayMaterialName.cs" />
-    <Compile Include="Assets\Scripts\Player\FollowCamera.cs" />
     <Compile Include="Assets\Scripts\AutoPlayerShoot.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\ExplosiveBarrelScript.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\TextTutorial.cs" />
@@ -109,7 +108,6 @@
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\TextTimescale.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\ExplosionScript.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\TextAmmunitionCurrent.cs" />
-    <Compile Include="Assets\Scripts\Player\ModelRotationHandler.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\MagazineBehaviour.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Services\ServiceLocator.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\WeaponBehaviour.cs" />
