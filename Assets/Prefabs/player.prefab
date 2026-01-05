@@ -3353,7 +3353,11 @@ MonoBehaviour:
   damage: 35
   range: 100
   fireRate: 0.2
+  rayStartOffset: 0.5
   playerCamera: {fileID: 5864857108828124829}
+  ignoredObjects:
+  - {fileID: 7759151255444879224}
+  ignoreSelf: 1
   autoGenerateEffects: 1
 --- !u!1001 &1998073637275690803
 PrefabInstance:
@@ -3448,7 +3452,11 @@ MonoBehaviour:
   damage: 100
   range: 100
   fireRate: 1
+  rayStartOffset: 0.5
   playerCamera: {fileID: 5864857108828124829}
+  ignoredObjects:
+  - {fileID: 7759151255444879224}
+  ignoreSelf: 1
   autoGenerateEffects: 1
 --- !u!4 &2031171941290639576 stripped
 Transform:
@@ -3560,7 +3568,11 @@ MonoBehaviour:
   damage: 25
   range: 100
   fireRate: 0.2
+  rayStartOffset: 0.5
   playerCamera: {fileID: 5864857108828124829}
+  ignoredObjects:
+  - {fileID: 7759151255444879224}
+  ignoreSelf: 1
   autoGenerateEffects: 1
 --- !u!1001 &6148959032042804495
 PrefabInstance:
