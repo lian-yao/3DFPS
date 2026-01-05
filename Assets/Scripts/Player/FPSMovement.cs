@@ -26,6 +26,9 @@ public class FPSMovement : MonoBehaviour
     [Header("摄像机下蹲偏移")]
     public float cameraCrouchOffset = -0.5f;  // 下蹲时摄像机下降高度
 
+    [Header("动画控制")]
+    public FPSAnimationController animationController; // 新增：引用动画控制器
+
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
@@ -37,8 +40,10 @@ public class FPSMovement : MonoBehaviour
     private float currentControllerHeight;
     private Vector3 cameraOriginalPosition;
 
-    // 射击状态变量（新增）
-    private bool isShooting = false;
+    // 移动输入
+    private float horizontalInput;
+    private float verticalInput;
+    private bool isSprinting;
 
     void Start()
     {
@@ -55,12 +60,20 @@ public class FPSMovement : MonoBehaviour
         {
             cameraOriginalPosition = playerCamera.localPosition;
         }
+
+        // 如果没有指定动画控制器，尝试自动获取
+        if (animationController == null)
+        {
+            animationController = GetComponent<FPSAnimationController>();
+        }
     }
 
     void Update()
     {
-        // ====== 更新射击状态（新增）======
-        isShooting = Input.GetMouseButton(0);
+        // ====== 获取输入 ======
+        horizontalInput = Input.GetAxis("Horizontal");
+        verticalInput = Input.GetAxis("Vertical");
+        isSprinting = Input.GetKey(KeyCode.LeftShift);
 
         // ====== 视角控制 ======
         HandleMouseLook();
@@ -73,6 +86,13 @@ public class FPSMovement : MonoBehaviour
 
         // ====== 跳跃和重力 ======
         HandleJumpAndGravity();
+
+        // ====== 更新动画（简化！）======
+        if (animationController != null)
+        {
+            // 这里调用的是正确的SetMovementInput方法
+            animationController.SetMovementInput(horizontalInput, verticalInput, isSprinting);
+        }
     }
 
     void HandleMouseLook()
@@ -168,32 +188,28 @@ public class FPSMovement : MonoBehaviour
     {
         isGrounded = controller.isGrounded;
 
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        // 获取射击状态
+        bool isShooting = false;
+        if (animationController != null)
+        {
+            isShooting = animationController.IsShooting();
+        }
 
-        // === 修改点：按下鼠标左键时强制使用走路速度 ===
-        if (isShooting) // 使用射击状态变量
+        // === 简化速度计算 ===
+        if (isCrouching)
+        {
+            currentSpeed = crouchSpeed;
+        }
+        else if (isShooting || !isSprinting) // 射击时不能奔跑
         {
             currentSpeed = walkSpeed;
         }
         else
         {
-            // 正常的移动速度判断
-            if (isCrouching)
-            {
-                currentSpeed = crouchSpeed;
-            }
-            else if (Input.GetKey(KeyCode.LeftShift))
-            {
-                currentSpeed = runSpeed;
-            }
-            else
-            {
-                currentSpeed = walkSpeed;
-            }
+            currentSpeed = runSpeed;
         }
 
-        Vector3 move = transform.right * x + transform.forward * z;
+        Vector3 move = transform.right * horizontalInput + transform.forward * verticalInput;
 
         // 限制下蹲时的移动方向
         if (isCrouching)
@@ -228,39 +244,6 @@ public class FPSMovement : MonoBehaviour
         controller.Move(velocity * Time.deltaTime);
     }
 
-    // === 新增：公开方法获取射击状态 ===
-    public bool IsShooting()
-    {
-        return isShooting;
-    }
-
-    // === 新增：获取当前移动模式 ===
-    public MovementState GetMovementState()
-    {
-        if (isCrouching)
-        {
-            return MovementState.Crouching;
-        }
-        else if (isShooting)
-        {
-            return MovementState.Walking; // 射击时强制为走路
-        }
-        else if (Input.GetKey(KeyCode.LeftShift))
-        {
-            return MovementState.Running;
-        }
-        else
-        {
-            return MovementState.Walking;
-        }
-    }
-
-    // === 新增：判断是否正在跑步 ===
-    public bool IsRunning()
-    {
-        return !isShooting && Input.GetKey(KeyCode.LeftShift) && !isCrouching;
-    }
-
     // 供其他脚本查询状态的方法
     public bool IsCrouching()
     {
@@ -279,11 +262,38 @@ public class FPSMovement : MonoBehaviour
 
     public bool IsMoving()
     {
-        return Input.GetAxis("Horizontal") != 0 || Input.GetAxis("Vertical") != 0;
+        return horizontalInput != 0 || verticalInput != 0;
+    }
+
+    // 新增：获取移动状态
+    public MovementState GetMovementState()
+    {
+        if (isCrouching)
+        {
+            return MovementState.Crouching;
+        }
+
+        bool isShooting = animationController != null && animationController.IsShooting();
+        if (isShooting)
+        {
+            return MovementState.Walking; // 射击时强制为走路
+        }
+        else if (isSprinting && verticalInput > 0)
+        {
+            return MovementState.Running;
+        }
+        else if (IsMoving())
+        {
+            return MovementState.Walking;
+        }
+        else
+        {
+            return MovementState.Idle;
+        }
     }
 }
 
-// === 新增：移动状态枚举 ===
+// 移动状态枚举
 public enum MovementState
 {
     Idle,

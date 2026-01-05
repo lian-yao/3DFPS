@@ -1,76 +1,106 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FPSAnimationController : MonoBehaviour
 {
     public Animator animator;
-    private CharacterController characterController;
+
+    // 核心：只需要这两个参数！
+    private const string SPEED_PARAM = "Speed";
+    private const string IS_SHOOTING_PARAM = "IsShooting";
+
+    // 输入状态缓存
+    private float horizontalInput;
+    private float verticalInput;
+    private bool isSprinting;
+    private bool isShooting;
 
     void Start()
     {
-        if (animator == null) animator = GetComponent<Animator>();
-        characterController = GetComponent<CharacterController>();
+        if (animator == null)
+            animator = GetComponent<Animator>();
     }
 
     void Update()
     {
         if (animator == null) return;
 
-        // 获取输入
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        Vector2 input = new Vector2(horizontal, vertical);
-
-        // 计算速度值（0=idle, 0.5=walk, 1=run）
-        float speed = 0f;
-
-        if (input.magnitude > 0.1f) // 有输入
+        // 获取射击输入
+        bool shootingInput = Input.GetMouseButton(0);
+        if (shootingInput != isShooting)
         {
-            // 关键修改：添加射击检测
-            if (Input.GetKey(KeyCode.LeftShift) && vertical > 0 && !Input.GetMouseButton(0))
+            isShooting = shootingInput;
+            animator.SetBool(IS_SHOOTING_PARAM, isShooting);
+        }
+
+        // 更新速度值
+        UpdateSpeedValue();
+    }
+
+    // 外部调用：设置移动输入
+    public void SetMovementInput(float horizontal, float vertical, bool sprinting)
+    {
+        horizontalInput = horizontal;
+        verticalInput = vertical;
+        isSprinting = sprinting;
+    }
+
+    void UpdateSpeedValue()
+    {
+        // 计算是否在移动
+        bool isMoving = (Mathf.Abs(horizontalInput) > 0.1f || Mathf.Abs(verticalInput) > 0.1f);
+
+        // === 核心逻辑：计算速度值 ===
+        // 0 = 静止，0.5 = 行走，1 = 奔跑
+        float speedValue = 0f;
+
+        if (isMoving)
+        {
+            if (isShooting)
             {
-                speed = 1.0f; // 向前跑步（不在射击时）
+                // 射击时：强制为行走速度（0.5）
+                speedValue = 0.5f;
+            }
+            else if (isSprinting && verticalInput > 0)
+            {
+                // 向前奔跑：不在射击状态
+                speedValue = 1.0f;
             }
             else
             {
-                speed = 0.5f; // 走路 或 射击时移动
+                // 正常行走
+                speedValue = 0.5f;
             }
         }
         else
         {
-            speed = 0f; // 静止
+            // 静止
+            speedValue = 0f;
         }
 
-        // 只用一个参数控制！
-        animator.SetFloat("Speed", speed);
-
-        // 如果需要跳跃
-        if (characterController != null && characterController.isGrounded)
-        {
-            if (Input.GetButtonDown("Jump"))
-            {
-                animator.SetTrigger("Jump");
-            }
-        }
-
-        // 调试显示
-        //OnGUI();
+        // 设置到Animator
+        animator.SetFloat(SPEED_PARAM, speedValue);
     }
 
+    // 公共方法：获取射击状态
+    public bool IsShooting()
+    {
+        return isShooting;
+    }
+
+    // 调试信息
     void OnGUI()
     {
         if (animator == null) return;
 
-        GUI.Label(new Rect(10, 10, 300, 20), $"速度值: {animator.GetFloat("Speed"):F2}");
-        GUI.Label(new Rect(10, 30, 300, 20), $"射击中: {Input.GetMouseButton(0)}");
+        float speed = animator.GetFloat(SPEED_PARAM);
+        string state;
 
-        string state = "unknown";
-        float speed = animator.GetFloat("Speed");
-        if (speed < 0.1f) state = "idle";
-        else if (speed < 0.7f) state = "walking";
-        else state = "running";
+        if (speed < 0.1f) state = isShooting ? "站立射击" : "待机";
+        else if (speed < 0.7f) state = isShooting ? "行走射击" : "行走";
+        else state = "奔跑";
 
-        GUI.Label(new Rect(10, 50, 300, 20), $"当前状态: {state}");
+        GUI.Label(new Rect(10, 10, 300, 20), $"速度值: {speed:F2}");
+        GUI.Label(new Rect(10, 30, 300, 20), $"射击中: {isShooting}");
+        GUI.Label(new Rect(10, 50, 300, 20), $"状态: {state}");
     }
 }
