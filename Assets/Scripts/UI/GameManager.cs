@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,84 +18,128 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // 监听玩家死亡事件
+        // 初始化鼠标（新场景启动时锁定鼠标）
+        LockCursor();
+
+        // 防护：清空旧监听，避免重复绑定
+        UnsubscribeAllEvents();
+
+        // 监听玩家死亡事件（增加日志，方便排查）
         if (playerHealth != null)
         {
             playerHealth.OnPlayerDead += ShowGameOver;
+            Debug.Log($"[{gameObject.name}] 已绑定玩家死亡事件");
         }
-        // 监听所有野怪死亡事件
-        foreach (var enemy in allEnemies)
+        else
         {
-            enemy.OnEnemyDead += CheckAllEnemiesDead;
+            Debug.LogError($"[{gameObject.name}] PlayerHealth未赋值！请检查新场景的GameManager配置");
         }
+
+        // 监听所有野怪死亡事件（增加日志）
+        if (allEnemies.Count > 0)
+        {
+            foreach (var enemy in allEnemies)
+            {
+                if (enemy != null)
+                {
+                    enemy.OnEnemyDead += CheckAllEnemiesDead;
+                    Debug.Log($"[{gameObject.name}] 已绑定敌人{enemy.name}的死亡事件");
+                }
+                else
+                {
+                    Debug.LogError($"[{gameObject.name}] AllEnemies列表中有空引用！");
+                }
+            }
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] AllEnemies列表为空！请拖入新场景的敌人");
+        }
+
+        // 初始化面板（确保面板默认隐藏）
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+        if (gameWinPanel != null) gameWinPanel.SetActive(false);
     }
 
-    // 玩家死亡：显示失败界面（新增解锁鼠标）
+    // 玩家死亡：显示失败界面
     void ShowGameOver()
     {
         if (isGameEnded) return;
         isGameEnded = true;
-        gameOverPanel.SetActive(true);
-        Time.timeScale = 0; // 暂停游戏
 
-        // 关键修改1：失败界面解锁鼠标，确保按钮可点击
+        // 防护：面板为空时提示
+        if (gameOverPanel == null)
+        {
+            Debug.LogError($"[{gameObject.name}] GameOverPanel未赋值！");
+            return;
+        }
+
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0;
         UnlockCursor();
+        Debug.Log($"[{gameObject.name}] 显示失败界面，鼠标已解锁");
     }
 
     // 检查是否所有野怪都死亡
     void CheckAllEnemiesDead()
     {
         if (isGameEnded) return;
+
         bool allDead = true;
         foreach (var enemy in allEnemies)
         {
-            if (!enemy.isDead)
+            if (enemy != null && !enemy.isDead)
             {
                 allDead = false;
                 break;
             }
         }
+
         if (allDead)
         {
             ShowGameWin();
         }
     }
 
-    // 通关：显示胜利界面（核心修复：解锁鼠标）
+    // 通关：显示胜利界面
     void ShowGameWin()
     {
+        if (isGameEnded) return;
         isGameEnded = true;
+
+        // 防护：面板为空时提示
+        if (gameWinPanel == null)
+        {
+            Debug.LogError($"[{gameObject.name}] GameWinPanel未赋值！");
+            return;
+        }
+
         gameWinPanel.SetActive(true);
-        Time.timeScale = 0; // 暂停游戏
-
-        // 关键修改2：通关界面必须解锁鼠标，否则按钮点不了
+        Time.timeScale = 0;
         UnlockCursor();
+        Debug.Log($"[{gameObject.name}] 显示通关界面，鼠标已解锁");
     }
 
-    // 封装解锁鼠标的方法（复用逻辑）
-    void UnlockCursor()
-    {
-        Cursor.lockState = CursorLockMode.None; // 解锁鼠标锁定
-        Cursor.visible = true; // 显示鼠标指针
-    }
-
-    // 按钮逻辑：重新开始（加载当前场景）
+    // 按钮逻辑：重新开始
     public void RestartGame()
     {
-        Time.timeScale = 1; // 恢复游戏时间
-        LockCursor(); // 重新锁定鼠标（可选，回到游戏状态）
-        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        Time.timeScale = 1;
+        LockCursor();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Debug.Log($"[{gameObject.name}] 重新开始当前场景");
     }
 
-    // 按钮逻辑：下一关（加载下一个场景）
+    // 按钮逻辑：下一关
     public void NextLevel()
     {
-        Time.timeScale = 1; // 恢复游戏时间
-        LockCursor(); // 重新锁定鼠标
-        int nextSceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1;
-        if (nextSceneIndex < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings)
+        Time.timeScale = 1;
+        LockCursor();
+
+        int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(nextSceneIndex);
+            SceneManager.LoadScene(nextSceneIndex);
+            Debug.Log($"[{gameObject.name}] 加载下一关：{nextSceneIndex}");
         }
         else
         {
@@ -107,17 +152,46 @@ public class GameManager : MonoBehaviour
     public void QuitGame()
     {
         Time.timeScale = 1;
+        Debug.Log($"[{gameObject.name}] 退出游戏");
         Application.Quit();
-        // 编辑器中退出Play模式
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
 
-    // 封装锁定鼠标的方法（游戏运行时用）
+    // 封装解锁鼠标
+    void UnlockCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+    }
+
+    // 封装锁定鼠标
     void LockCursor()
     {
-        Cursor.lockState = CursorLockMode.Locked; // 锁定鼠标到屏幕中心
-        Cursor.visible = false; // 隐藏鼠标指针
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    // 防护：取消所有事件监听（避免内存泄漏）
+    void UnsubscribeAllEvents()
+    {
+        if (playerHealth != null)
+        {
+            playerHealth.OnPlayerDead -= ShowGameOver;
+        }
+        foreach (var enemy in allEnemies)
+        {
+            if (enemy != null)
+            {
+                enemy.OnEnemyDead -= CheckAllEnemiesDead;
+            }
+        }
+    }
+
+    // 场景销毁时取消监听
+    void OnDestroy()
+    {
+        UnsubscribeAllEvents();
     }
 }
