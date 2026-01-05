@@ -1,12 +1,43 @@
 # Visual Studio 缓存
 .vs/
-# Unity 额外忽略（可选，根据Unity项目规范补充）
+*.csproj
+*.sln
+*.suo
+*.userprefs
+*.pidb
+*.sw?
+
+# Unity 项目忽略规则
+# 编辑器生成的目录
 Library/
 Temp/
 obj/
 Logs/
 UserSettings/
+Build/
+ExportedObj/
+TestResults/
+
+# 编辑器生成的文件
+*.unityproj
+*.unitypackage
+*.gpres
+*.pidb.meta
+*.suo.meta
+*.sln.meta
+*.userprefs.meta
+
+# 平台特定文件
+*.ipa
+*.apk
+*.aab
+
+# 其他临时文件
+UpgradeLog.htm
+
+# 包管理
 Packages/packages-lock.json
-obj/
-Library/
-Temp/
+
+# 忽略测试场景
+Assets/Scenes/test.unity
+Assets/Scenes/test.unity.meta
