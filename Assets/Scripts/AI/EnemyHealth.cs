@@ -29,6 +29,9 @@ public class EnemyHealth : MonoBehaviour
     [Header("调试")]
     public bool debugMode = true;
 
+    // 新增：敌人死亡事件（供GameManager监听）
+    public System.Action OnEnemyDead;
+
     void Start()
     {
         // 初始化生命值
@@ -170,6 +173,9 @@ public class EnemyHealth : MonoBehaviour
     {
         Log($"!!! {gameObject.name} {(isBoss ? "Boss被击败" : "死亡")} !!!");
         isDead = true;
+
+        // 新增：触发敌人死亡事件（通知GameManager检查是否所有敌人都死亡）
+        OnEnemyDead?.Invoke();
 
         // 隐藏对应血条
         HideHealthBar();
