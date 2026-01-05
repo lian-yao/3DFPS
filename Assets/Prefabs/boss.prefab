@@ -77,6 +77,7 @@ MonoBehaviour:
   checkInterval: 0.3
   attackDamage: 10
   attackCooldown: 1
+  maxAttackHeight: 4
   showGizmos: 1
   characterController: {fileID: 0}
   enemyModel: {fileID: 1601810932996780625}
@@ -122,7 +123,7 @@ PrefabInstance:
     - target: {fileID: 4893320280616637589, guid: 56496eeaf3c251f49aa4dc72829a89ae,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.4
       objectReference: {fileID: 0}
     - target: {fileID: 4893320280616637589, guid: 56496eeaf3c251f49aa4dc72829a89ae,
         type: 3}
