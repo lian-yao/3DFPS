@@ -1,48 +1,61 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AutoPlayerShoot : MonoBehaviour
 {
-    [Header("Éä»÷²ÎÊı")]
+    [Header("å°„å‡»å‚æ•°")]
     public float damage = 25f;
     public float range = 100f;
     public float fireRate = 0.5f;
 
-    [Header("×Ô¶¯Éú³ÉĞ§¹û")]
-    public bool autoGenerateEffects = true;  // ×Ô¶¯´´½¨ËùÓĞĞ§¹û
+    [Header("æ‘„åƒæœºè®¾ç½®")]
+    public Camera playerCamera;  // æ”¹ä¸ºå…¬å¼€ï¼Œè®©ä½ å¯ä»¥æ‰‹åŠ¨æ‹–æ‹½èµ‹å€¼
 
-    // ²»ĞèÒªÔÚInspectorÖĞÊÖ¶¯ÉèÖÃÕâĞ©
-    private Camera playerCamera;
+    [Header("è‡ªåŠ¨ç”Ÿæˆæ•ˆæœ")]
+    public bool autoGenerateEffects = true;  // è‡ªåŠ¨åˆ›å»ºæ‰€æœ‰æ•ˆæœ
+
+    // ä¸éœ€è¦åœ¨Inspectorä¸­æ‰‹åŠ¨è®¾ç½®è¿™äº›
     private float nextFireTime;
     private AudioSource audioSource;
     private GameObject simpleHitEffect;
 
     void Start()
     {
-        // 1. ×Ô¶¯»ñÈ¡ÉãÏñ»ú
-        playerCamera = GetComponentInChildren<Camera>();
+        // 1. å¦‚æœæ‘„åƒæœºæœªæ‰‹åŠ¨èµ‹å€¼ï¼Œå°è¯•è‡ªåŠ¨è·å–
         if (playerCamera == null)
         {
-            playerCamera = Camera.main;
-            Debug.Log("Ê¹ÓÃÖ÷ÉãÏñ»ú×÷ÎªÉä»÷ÉãÏñ»ú");
+            playerCamera = GetComponentInChildren<Camera>();
+            if (playerCamera == null)
+            {
+                playerCamera = Camera.main;
+                Debug.Log("ä½¿ç”¨ä¸»æ‘„åƒæœºä½œä¸ºå°„å‡»æ‘„åƒæœº");
+            }
+            else
+            {
+                Debug.Log("è‡ªåŠ¨æ‰¾åˆ°å­å¯¹è±¡ä¸­çš„æ‘„åƒæœº");
+            }
+        }
+        else
+        {
+            Debug.Log("ä½¿ç”¨æ‰‹åŠ¨æŒ‡å®šçš„æ‘„åƒæœº: " + playerCamera.name);
         }
 
-        // 2. ×Ô¶¯´´½¨AudioSource£¨Èç¹ûĞèÒª£©
+        // 2. è‡ªåŠ¨åˆ›å»ºAudioSourceï¼ˆå¦‚æœéœ€è¦ï¼‰
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
-            Debug.Log("×Ô¶¯Ìí¼ÓÁËAudioSource×é¼ş");
+            Debug.Log("è‡ªåŠ¨æ·»åŠ äº†AudioSourceç»„ä»¶");
         }
 
-        // 3. ×Ô¶¯´´½¨¼òµ¥µÄ»÷ÖĞĞ§¹û
+        // 3. è‡ªåŠ¨åˆ›å»ºç®€å•çš„å‡»ä¸­æ•ˆæœ
         if (autoGenerateEffects)
         {
             CreateSimpleHitEffect();
         }
 
-        Debug.Log("Éä»÷ÏµÍ³³õÊ¼»¯Íê³É£¡°´Êó±ê×ó¼üÉä»÷");
+        Debug.Log("å°„å‡»ç³»ç»Ÿåˆå§‹åŒ–å®Œæˆï¼æŒ‰é¼ æ ‡å·¦é”®å°„å‡»");
     }
 
     void Update()
@@ -56,10 +69,10 @@ public class AutoPlayerShoot : MonoBehaviour
 
     void SimpleShoot()
     {
-        // ²¥·Å¼òµ¥ÒôĞ§£¨ÎŞÎÄ¼şÒ²ÄÜ¹¤×÷£©
+        // æ’­æ”¾ç®€å•éŸ³æ•ˆï¼ˆæ— æ–‡ä»¶ä¹Ÿèƒ½å·¥ä½œï¼‰
         PlayShootSound();
 
-        // Éä»÷Âß¼­
+        // å°„å‡»é€»è¾‘
         if (playerCamera != null)
         {
             Ray ray = new Ray(playerCamera.transform.position,
@@ -67,11 +80,11 @@ public class AutoPlayerShoot : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hit, range))
             {
-                // ´¦Àí»÷ÖĞÂß¼­
+                // å¤„ç†å‡»ä¸­é€»è¾‘
                 HandleHit(hit);
             }
 
-            // ÏÔÊ¾Éä»÷ÉäÏß£¨µ÷ÊÔÓÃ£©
+            // æ˜¾ç¤ºå°„å‡»å°„çº¿ï¼ˆè°ƒè¯•ç”¨ï¼‰
             Debug.DrawRay(ray.origin, ray.direction * 2f, Color.red, 0.1f);
         }
     }
@@ -79,24 +92,24 @@ public class AutoPlayerShoot : MonoBehaviour
     void HandleHit(RaycastHit hit)
     {
         string hitName = hit.transform.name;
-        Debug.Log($"»÷ÖĞ: {hitName}");
+        Debug.Log($"å‡»ä¸­: {hitName}");
 
-        // ¶ÔµĞÈËÔì³ÉÉËº¦
+        // å¯¹æ•Œäººé€ æˆä¼¤å®³
         EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
         if (enemy != null)
         {
             enemy.TakeDamage(damage);
-            Debug.Log($"Ôì³É {damage} µãÉËº¦");
+            Debug.Log($"é€ æˆ {damage} ç‚¹ä¼¤å®³");
         }
 
-        // ÏÔÊ¾»÷ÖĞĞ§¹û
+        // æ˜¾ç¤ºå‡»ä¸­æ•ˆæœ
         ShowHitEffect(hit.point);
     }
 
     void PlayShootSound()
     {
-        // Èç¹ûÓÃ»§Ìá¹©ÁËÒôĞ§ÎÄ¼ş£¬²¥·ÅËü
-        // ·ñÔò²¥·ÅÄ¬ÈÏµÄÏµÍ³ÒôĞ§
+        // å¦‚æœç”¨æˆ·æä¾›äº†éŸ³æ•ˆæ–‡ä»¶ï¼Œæ’­æ”¾å®ƒ
+        // å¦åˆ™æ’­æ”¾é»˜è®¤çš„ç³»ç»ŸéŸ³æ•ˆ
         if (audioSource != null)
         {
             audioSource.Play();
@@ -105,12 +118,12 @@ public class AutoPlayerShoot : MonoBehaviour
 
     void CreateSimpleHitEffect()
     {
-        // ´´½¨Ò»¸ö¼òµ¥µÄºìÉ«·½¿é×÷Îª»÷ÖĞĞ§¹û
+        // åˆ›å»ºä¸€ä¸ªç®€å•çš„çº¢è‰²æ–¹å—ä½œä¸ºå‡»ä¸­æ•ˆæœ
         GameObject effect = GameObject.CreatePrimitive(PrimitiveType.Cube);
         effect.name = "SimpleHitEffect";
         effect.GetComponent<Renderer>().material.color = Color.red;
         effect.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        effect.SetActive(false);  // ÏÈÒş²Ø
+        effect.SetActive(false);  // å…ˆéšè—
         effect.hideFlags = HideFlags.HideInHierarchy;
 
         simpleHitEffect = effect;
@@ -123,7 +136,7 @@ public class AutoPlayerShoot : MonoBehaviour
             simpleHitEffect.transform.position = position;
             simpleHitEffect.SetActive(true);
 
-            // 0.1ÃëºóÒş²Ø
+            // 0.1ç§’åéšè—
             Invoke(nameof(HideHitEffect), 0.1f);
         }
     }

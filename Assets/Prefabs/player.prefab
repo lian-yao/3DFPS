@@ -2839,7 +2839,6 @@ GameObject:
   - component: {fileID: 3315728984530062846}
   - component: {fileID: 1250650855443783482}
   - component: {fileID: 1756187861624511238}
-  - component: {fileID: 8811865133396931290}
   - component: {fileID: 3252975001001770574}
   m_Layer: 0
   m_Name: player
@@ -2934,22 +2933,6 @@ MonoBehaviour:
   healthBar: {fileID: 0}
   deathUI: {fileID: 0}
   clampHealth: 1
---- !u!114 &8811865133396931290
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7759151255444879224}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c060c08db37ad241ae739e829e7eead, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 25
-  range: 100
-  fireRate: 0.5
-  autoGenerateEffects: 1
 --- !u!114 &3252975001001770574
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3337,7 +3320,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 884216c32500ba347aa641a57c18f956,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8142278700275422588}
   m_SourcePrefab: {fileID: 100100000, guid: 884216c32500ba347aa641a57c18f956, type: 3}
 --- !u!4 &556552443252048421 stripped
 Transform:
@@ -3351,6 +3338,23 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 14632313230419406}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8142278700275422588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 932972806496999583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 35
+  range: 100
+  fireRate: 0.2
+  playerCamera: {fileID: 5864857108828124829}
+  autoGenerateEffects: 1
 --- !u!1001 &1998073637275690803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3417,7 +3421,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fffaae3fba5ac124e9af517e52d963ae,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2827503980295346808}
   m_SourcePrefab: {fileID: 100100000, guid: fffaae3fba5ac124e9af517e52d963ae, type: 3}
 --- !u!1 &1692223930417207906 stripped
 GameObject:
@@ -3425,6 +3433,23 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 1998073637275690803}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2827503980295346808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692223930417207906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 100
+  range: 100
+  fireRate: 1
+  playerCamera: {fileID: 5864857108828124829}
+  autoGenerateEffects: 1
 --- !u!4 &2031171941290639576 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fffaae3fba5ac124e9af517e52d963ae,
@@ -3502,7 +3527,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ab910391752235e45bfbf0bfe2e5b38b,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3103691207695618124}
   m_SourcePrefab: {fileID: 100100000, guid: ab910391752235e45bfbf0bfe2e5b38b, type: 3}
 --- !u!4 &2438507873400858399 stripped
 Transform:
@@ -3516,6 +3545,23 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 2764621386062250228}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3103691207695618124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3070471231435013541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 25
+  range: 100
+  fireRate: 0.2
+  playerCamera: {fileID: 5864857108828124829}
+  autoGenerateEffects: 1
 --- !u!1001 &6148959032042804495
 PrefabInstance:
   m_ObjectHideFlags: 0
