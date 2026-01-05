@@ -17,6 +17,8 @@ UserSettings/
 Build/
 ExportedObj/
 TestResults/
+bin/
+.idea/
 
 # 编辑器生成的文件
 *.unityproj
@@ -41,3 +43,11 @@ Packages/packages-lock.json
 # 忽略测试场景
 Assets/Scenes/test.unity
 Assets/Scenes/test.unity.meta
+
+# 忽略 Unity 自动生成的 csproj 文件
+Assembly-CSharp.csproj
+Assembly-CSharp.csproj.meta
+Assembly-CSharp-Editor.csproj
+Assembly-CSharp-Editor.csproj.meta
+Assembly-CSharp-firstpass.csproj
+Assembly-CSharp-firstpass.csproj.meta
