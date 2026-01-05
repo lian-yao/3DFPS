@@ -33,7 +33,7 @@ TagManager:
   - Post Processing Scope
   - Invisible Wall
   - Projectile
-  - 
+  - WeaponLayer
   - 
   - 
   - 
@@ -52,4 +52,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 358329827
     locked: 0

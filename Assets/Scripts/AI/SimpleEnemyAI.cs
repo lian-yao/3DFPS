@@ -20,6 +20,7 @@ public class SimpleEnemyAI : MonoBehaviour
     [Header("¹¥»÷ÉèÖÃ")]
     public float attackDamage = 10f;
     public float attackCooldown = 1f;
+    public float maxAttackHeight = 4f;
 
     [Header("µ÷ÊÔ")]
     public bool showGizmos = true;
@@ -349,7 +350,7 @@ public class SimpleEnemyAI : MonoBehaviour
         {
             // ÔÚ¹¥»÷·¶Î§ÄÚ
             float verticalDistance = Mathf.Abs(targetPosition.y - transform.position.y);
-            float maxAttackHeight = 1.5f;
+            //float maxAttackHeight = 4f;
 
             if (verticalDistance <= maxAttackHeight)
             {
