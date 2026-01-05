@@ -17,6 +17,8 @@ UserSettings/
 Build/
 ExportedObj/
 TestResults/
+bin/
+.idea/
 
 # 编辑器生成的文件
 *.unityproj
