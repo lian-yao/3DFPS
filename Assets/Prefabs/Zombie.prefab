@@ -3238,7 +3238,7 @@ MonoBehaviour:
   checkInterval: 0.1
   attackDamage: 10
   attackCooldown: 1
-  maxAttackHeight: 4
+  maxAttackHeight: 2
   showGizmos: 1
   debugLog: 0
   enemyAnimator: {fileID: 1456067023646580375}
