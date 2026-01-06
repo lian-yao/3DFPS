@@ -6,16 +6,16 @@ public class SimpleEnemyAI : MonoBehaviour
 {
     [Header("移动设置")]
     public float moveSpeed = 3f;
-    public float rotationSpeed = 5f;
+    public float rotationSpeed = 10f; // 【修改】提高旋转速度，确保快速朝向玩家
     public float stoppingDistance = 2f;
 
     [Header("重力设置")]
     public float gravity = 9.81f;
-    public float groundedGravity = -2f; // 小的向下力确保站在地面上
+    public float groundedGravity = -2f;
 
     [Header("检测设置")]
     public float detectionRange = 10f;
-    public float checkInterval = 0.3f;
+    public float checkInterval = 0.1f; // 【修改】缩短检测间隔，状态切换更灵敏
 
     [Header("攻击设置")]
     public float attackDamage = 10f;
@@ -24,11 +24,17 @@ public class SimpleEnemyAI : MonoBehaviour
 
     [Header("调试")]
     public bool showGizmos = true;
+    public bool debugLog = true; // 新增调试日志开关
 
-    // 引用组件 - 在Unity编辑器中手动拖拽
+    [Header("动画配置")]
+    [SerializeField] private Animator enemyAnimator;
+    public string paramIsRunning = "IsRunning";
+    public string paramAttackTrigger = "AttackTrigger";
+    public string paramIsAttacking = "IsAttacking";
+
     [Header("组件引用")]
     [SerializeField] private CharacterController characterController;
-    [SerializeField] private Transform enemyModel; // 可选：模型子物体引用
+    [SerializeField] private Transform enemyModel;
 
     // 私有变量
     private Transform player;
@@ -36,56 +42,89 @@ public class SimpleEnemyAI : MonoBehaviour
     private float attackTimer;
     private Vector3 targetPosition;
     private bool isChasing = false;
-    private Vector3 velocity; // 用于重力计算
+    private Vector3 velocity;
     private bool isGrounded;
+    private bool isAttacking = false;
+    private bool hasAttackTriggered = false; // 【新增】标记攻击触发状态
 
     void Start()
     {
-        // 1. 查找玩家
         FindPlayer();
-
-        // 2. 获取组件引用（如果未手动设置）
         GetComponentReferences();
-
-        // 3. 初始化velocity
+        GetAnimatorReference();
         velocity = Vector3.zero;
-
-        // 4. 验证必要组件
         ValidateComponents();
 
-        UnityEngine.Debug.Log($"{name} AI初始化完成");
+        if (debugLog) Debug.Log($"{name} AI初始化完成");
+    }
+
+    void GetAnimatorReference()
+    {
+        if (enemyAnimator == null)
+        {
+            if (enemyModel != null)
+            {
+                enemyAnimator = enemyModel.GetComponent<Animator>();
+            }
+            if (enemyAnimator == null)
+            {
+                enemyAnimator = GetComponent<Animator>();
+            }
+        }
+
+        if (enemyAnimator == null)
+        {
+            Debug.LogWarning($"{name}: 未找到Animator组件！");
+        }
+        else
+        {
+            // 【新增】校验Animator参数是否存在
+            ValidateAnimatorParams();
+        }
+    }
+
+    // 【新增】校验Animator参数，避免参数名错误
+    void ValidateAnimatorParams()
+    {
+        foreach (AnimatorControllerParameter param in enemyAnimator.parameters)
+        {
+            if (param.name == paramIsRunning && param.type != AnimatorControllerParameterType.Bool)
+            {
+                Debug.LogError($"{name}: {paramIsRunning} 参数类型不是布尔型！");
+            }
+            if (param.name == paramAttackTrigger && param.type != AnimatorControllerParameterType.Trigger)
+            {
+                Debug.LogError($"{name}: {paramAttackTrigger} 参数类型不是触发型！");
+            }
+        }
     }
 
     void GetComponentReferences()
     {
-        // 如果未手动设置CharacterController，尝试自动获取
         if (characterController == null)
         {
             characterController = GetComponent<CharacterController>();
         }
 
-        // 如果未手动设置模型，尝试查找子物体模型
         if (enemyModel == null)
         {
             FindEnemyModel();
         }
 
-        // 如果还是没有CharacterController，记录错误但继续运行
         if (characterController == null)
         {
-            UnityEngine.Debug.LogError($"{name}: 未找到CharacterController组件！请在Inspector中手动拖拽赋值。");
+            Debug.LogError($"{name}: 未找到CharacterController组件！");
         }
     }
 
     void FindEnemyModel()
     {
-        // 查找第一个有渲染器的子物体作为模型
         foreach (Transform child in transform)
         {
             if (child.GetComponent<Renderer>() != null)
             {
                 enemyModel = child;
-                UnityEngine.Debug.Log($"找到模型子物体: {enemyModel.name}");
+                if (debugLog) Debug.Log($"找到模型子物体: {enemyModel.name}");
                 break;
             }
         }
@@ -93,109 +132,79 @@ public class SimpleEnemyAI : MonoBehaviour
 
     void ValidateComponents()
     {
-        // 检查必要组件
         if (characterController == null)
         {
-            UnityEngine.Debug.LogWarning($"{name}: 缺少CharacterController，AI移动功能将不可用！");
-            UnityEngine.Debug.LogWarning("请在Inspector面板中手动拖拽CharacterController组件到characterController字段。");
+            Debug.LogWarning($"{name}: 缺少CharacterController，移动功能不可用！");
         }
 
-        // 检查玩家引用
+        if (enemyAnimator == null)
+        {
+            Debug.LogWarning($"{name}: 缺少Animator，动画功能不可用！");
+        }
+
         if (player == null)
         {
-            UnityEngine.Debug.LogError($"{name}: 未找到玩家！");
+            Debug.LogError($"{name}: 未找到玩家！");
             enabled = false;
         }
     }
 
     void FindPlayer()
     {
-        // 方法1：通过标签（最常用）
         GameObject playerObj = GameObject.FindWithTag("Player");
-
-       
+        if (playerObj == null) playerObj = GameObject.Find("Player");
+        if (playerObj == null) playerObj = FindPlayerByComponents();
+        if (playerObj == null) playerObj = FindPlayerByName();
 
         if (playerObj != null)
         {
             player = playerObj.transform;
-            UnityEngine.Debug.Log($"找到玩家: {player.name}");
+            if (debugLog) Debug.Log($"找到玩家: {player.name}");
         }
         else
         {
-            UnityEngine.Debug.LogError("找不到玩家！请确保玩家物体存在并具有'Player'标签");
-            UnityEngine.Debug.LogError("或者创建一个名为'Player'的GameObject，或为其添加'Player'标签");
+            Debug.LogError("找不到玩家！请确保玩家有'Player'标签");
         }
     }
 
-    // 通用的玩家查找方法 - 不依赖特定组件
     GameObject FindPlayerByComponents()
     {
-        // 尝试查找常见的玩家组件
         GameObject[] allGameObjects = GameObject.FindObjectsOfType<GameObject>();
-
         foreach (GameObject obj in allGameObjects)
         {
-            // 检查是否包含常见的玩家组件
-            if (obj.GetComponent<CharacterController>() != null &&
-                obj.GetComponent<Camera>() == null) // 排除主摄像机
+            if (obj.GetComponent<CharacterController>() != null && obj.GetComponent<Camera>() == null)
             {
-                UnityEngine.Debug.Log($"通过CharacterController找到玩家: {obj.name}");
                 return obj;
             }
-
-            // 检查是否包含Rigidbody（可能是玩家）
-            if (obj.GetComponent<Rigidbody>() != null &&
-                obj.GetComponent<Rigidbody>().isKinematic == false &&
-                obj.name.ToLower().Contains("player"))
+            if (obj.GetComponent<Rigidbody>() != null && !obj.GetComponent<Rigidbody>().isKinematic && obj.name.ToLower().Contains("player"))
             {
-                UnityEngine.Debug.Log($"通过Rigidbody找到玩家: {obj.name}");
                 return obj;
             }
         }
-
         return null;
     }
 
     GameObject FindPlayerByName()
     {
-        // 查找所有GameObject
         GameObject[] allGameObjects = GameObject.FindObjectsOfType<GameObject>();
-
         foreach (GameObject obj in allGameObjects)
         {
             string objName = obj.name.ToLower();
-
-            // 检查名称是否包含玩家相关关键词
-            if (objName.Contains("player") ||
-                objName.Contains("主角") ||
-                objName.Contains("角色") ||
-                objName.Contains("character"))
+            if ((objName.Contains("player") || objName.Contains("主角") || objName.Contains("角色")) && obj.GetComponent<Canvas>() == null && obj.GetComponent<Camera>() == null)
             {
-                // 进一步验证：不是UI元素等
-                if (obj.GetComponent<Canvas>() == null &&
-                    obj.GetComponent<Camera>() == null)
-                {
-                    UnityEngine.Debug.Log($"通过名称找到玩家: {obj.name}");
-                    return obj;
-                }
+                return obj;
             }
         }
-
         return null;
     }
 
     void Update()
     {
-        if (player == null) return;
-        if (characterController == null) return;
+        if (player == null || characterController == null) return;
 
-        // 检查是否接地
         CheckGrounded();
-
-        // 应用重力
         ApplyGravity();
 
-        // 攻击冷却
         if (attackTimer > 0)
         {
             attackTimer -= Time.deltaTime;
@@ -208,21 +217,31 @@ public class SimpleEnemyAI : MonoBehaviour
             nextCheckTime = Time.time + checkInterval;
         }
 
-        // AI行为
+        // 【修改】攻击中仅阻塞移动/检测，不阻塞动画更新
+        if (isAttacking)
+        {
+            // 攻击中强制停止移动，确保动画能触发
+            characterController.Move(Vector3.zero);
+            SetAnimatorBool(paramIsRunning, false);
+            return;
+        }
+
+        // AI行为逻辑
         if (isChasing)
         {
             ChasePlayer();
+            SetAnimatorBool(paramIsRunning, true);
         }
         else
         {
-            // 可以在这里添加巡逻逻辑
-            // Patrol();
+            // 【修复】玩家超出范围时，强制切换为闲置
+            SetAnimatorBool(paramIsRunning, false);
+            hasAttackTriggered = false; // 重置攻击标记
         }
     }
 
     void CheckGrounded()
     {
-        // 使用CharacterController的isGrounded属性
         isGrounded = characterController != null && characterController.isGrounded;
     }
 
@@ -232,12 +251,10 @@ public class SimpleEnemyAI : MonoBehaviour
 
         if (isGrounded && velocity.y < 0)
         {
-            // 在地面上时，应用小的向下力以确保保持在地面上
             velocity.y = groundedGravity;
         }
         else
         {
-            // 应用重力
             velocity.y -= gravity * Time.deltaTime;
         }
     }
@@ -246,30 +263,24 @@ public class SimpleEnemyAI : MonoBehaviour
     {
         if (player == null) return;
 
-        // 计算到玩家的距离（只考虑水平距离）
-        Vector3 playerPos = player.position;
-        Vector3 enemyPos = transform.position;
+        // 重新计算玩家水平距离
+        Vector3 playerPos = new Vector3(player.position.x, transform.position.y, player.position.z);
+        float horizontalDistance = Vector3.Distance(transform.position, playerPos);
 
-        // 忽略Y轴计算水平距离
-        playerPos.y = enemyPos.y;
-        float horizontalDistance = Vector3.Distance(enemyPos, playerPos);
-
-        // 简单距离检测
         if (horizontalDistance <= detectionRange)
         {
-            if (!isChasing)
+            if (!isChasing && debugLog)
             {
-                // 开始追踪
-                targetPosition = player.position;
-                UnityEngine.Debug.Log($"{name} 开始追踪玩家");
+                Debug.Log($"{name} 开始追踪玩家，距离: {horizontalDistance}");
             }
             isChasing = true;
+            targetPosition = player.position;
         }
         else
         {
-            if (isChasing)
+            if (isChasing && debugLog)
             {
-                UnityEngine.Debug.Log($"{name} 失去玩家视野");
+                Debug.Log($"{name} 失去玩家视野，距离: {horizontalDistance}");
             }
             isChasing = false;
         }
@@ -278,103 +289,143 @@ public class SimpleEnemyAI : MonoBehaviour
     void ChasePlayer()
     {
         if (player == null) return;
-        if (characterController == null) return;
 
-        // 更新目标位置
-        targetPosition = player.position;
+        // 【修复】每帧更新目标位置，确保追踪最新位置
+        targetPosition = new Vector3(player.position.x, transform.position.y, player.position.z);
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        float horizontalDistance = Vector3.Distance(transform.position, targetPosition);
 
-        // 计算水平距离（忽略Y轴）
-        Vector3 horizontalDirection = targetPosition - transform.position;
-        horizontalDirection.y = 0;
-        float horizontalDistance = horizontalDirection.magnitude;
-
-        // 如果水平距离大于停止距离，继续移动
+        // 距离大于停止距离 → 移动+旋转
         if (horizontalDistance > stoppingDistance)
         {
-            if (horizontalDirection.magnitude > 0.1f)
-            {
-                // 计算移动方向
-                Vector3 direction = horizontalDirection.normalized;
+            // 强制朝向玩家（修复追踪失效）
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-                // 准备移动向量
-                Vector3 moveVector = direction * moveSpeed * Time.deltaTime;
+            // 移动逻辑
+            Vector3 moveVector = direction * moveSpeed * Time.deltaTime;
+            moveVector.y = velocity.y * Time.deltaTime;
+            characterController.Move(moveVector);
 
-                // 添加Y轴移动（重力）
-                moveVector.y = velocity.y * Time.deltaTime;
-
-                // 使用CharacterController移动
-                if (characterController.enabled)
-                {
-                    characterController.Move(moveVector);
-                }
-
-                // 旋转面向移动方向
-                if (direction.magnitude > 0.01f)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-                    // 如果模型需要旋转修正，在这里处理
-                    if (enemyModel != null)
-                    {
-                        // 旋转父物体（AI控制器）
-                        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
-                                                             rotationSpeed * Time.deltaTime);
-                        // 模型子物体保持自己的localRotation（在编辑器中设置）
-                    }
-                    else
-                    {
-                        // 没有单独模型子物体，直接旋转自己
-                        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
-                                                             rotationSpeed * Time.deltaTime);
-                    }
-                }
-            }
+            hasAttackTriggered = false; // 离开攻击范围，重置攻击标记
         }
         else
         {
-            // 在攻击范围内
-            float verticalDistance = Mathf.Abs(targetPosition.y - transform.position.y);
-            //float maxAttackHeight = 4f;
+            // 进入攻击范围
+            float verticalDistance = Mathf.Abs(player.position.y - transform.position.y);
+            if (verticalDistance <= maxAttackHeight && !hasAttackTriggered)
+            {
+                TryAttack();
+            }
+            else
+            {
+                // 高度不符，继续移动
+                SetAnimatorBool(paramIsRunning, true);
+                hasAttackTriggered = false;
+            }
+        }
+    }
 
-            if (verticalDistance <= maxAttackHeight)
+    // 【重构】攻击逻辑：先触发动画，再标记攻击状态
+    void TryAttack()
+    {
+        if (attackTimer > 0 || isAttacking) return;
+
+        if (debugLog) Debug.Log($"{name} 触发攻击动画");
+
+        // 1. 先触发攻击动画（关键：先设置参数，再标记攻击状态）
+        SetAnimatorTrigger(paramAttackTrigger);
+        SetAnimatorBool(paramIsRunning, false);
+
+        // 2. 标记攻击状态，防止重复触发
+        isAttacking = true;
+        hasAttackTriggered = true;
+
+        // 3. 重置冷却
+        attackTimer = attackCooldown;
+    }
+
+    // 动画事件回调：攻击动画结束时调用
+    public void OnAttackAnimationEnd()
+    {
+        if (player == null) return;
+        // 【新增】二次校验：玩家是否仍在攻击范围内
+        bool isPlayerInRange = CheckIfPlayerInAttackRange();
+        if (!isPlayerInRange)
+        {
+            if (debugLog) Debug.Log($"{name} 攻击动画结束，但玩家已离开攻击范围，不扣血");
+            isAttacking = false; // 重置攻击状态
+            enemyAnimator.ResetTrigger(paramAttackTrigger);
+            return; // 不在范围，直接退出，不扣血
+        }
+
+        // 结算伤害
+        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(attackDamage);
+            if (debugLog) Debug.Log($"{name} 攻击动画结束，造成 {attackDamage} 点伤害");
+        }
+
+        // 【修复】正确重置攻击状态，恢复移动能力
+        isAttacking = false;
+        enemyAnimator.ResetTrigger(paramAttackTrigger);
+
+        // 攻击后重新检测玩家位置，确保继续追踪
+        CheckForPlayer();
+    }
+    // 【新增】封装“玩家是否在攻击范围”的校验方法
+    private bool CheckIfPlayerInAttackRange()
+    {
+        if (player == null) return false;
+
+        // 1. 计算水平距离（忽略Y轴）
+        Vector3 playerHorizontalPos = new Vector3(player.position.x, transform.position.y, player.position.z);
+        float horizontalDistance = Vector3.Distance(transform.position, playerHorizontalPos);
+
+        // 2. 计算垂直高度差
+        float verticalDistance = Mathf.Abs(player.position.y - transform.position.y);
+
+        // 3. 同时满足水平范围（stoppingDistance）和高度范围（maxAttackHeight）
+        return horizontalDistance <= stoppingDistance && verticalDistance <= maxAttackHeight;
+    }
+
+    // 安全设置Animator参数
+    void SetAnimatorBool(string paramName, bool value)
+    {
+        if (enemyAnimator != null && enemyAnimator.isActiveAndEnabled)
+        {
+            enemyAnimator.SetBool(paramName, value);
+            if (debugLog && paramName == paramIsRunning)
+            {
+                Debug.Log($"{name} 设置{paramName} = {value}");
+            }
+        }
+    }
+
+    void SetAnimatorTrigger(string paramName)
+    {
+        if (enemyAnimator != null && enemyAnimator.isActiveAndEnabled)
+        {
+            enemyAnimator.SetTrigger(paramName);
+            if (debugLog) Debug.Log($"{name} 触发{paramName}");
+        }
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (isAttacking) return;
+
+        if (hit.gameObject.CompareTag("Player"))
+        {
+            PlayerHealth playerHealth = hit.gameObject.GetComponent<PlayerHealth>();
+            if (playerHealth != null && attackTimer <= 0)
             {
                 TryAttack();
             }
         }
     }
 
-    void TryAttack()
-    {
-        // 检查攻击冷却
-        if (attackTimer > 0) return;
-
-        // 攻击玩家
-        PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
-        {
-            playerHealth.TakeDamage(attackDamage);
-            UnityEngine.Debug.Log($"{name} 攻击玩家，造成 {attackDamage} 点伤害");
-        }
-
-        // 重置攻击冷却
-        attackTimer = attackCooldown;
-    }
-
-    // 碰撞攻击
-    void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.gameObject.CompareTag("Player"))
-        {
-            PlayerHealth playerHealth = hit.gameObject.GetComponent<PlayerHealth>();
-            if (playerHealth != null && attackTimer <= 0)
-            {
-                playerHealth.TakeDamage(attackDamage);
-                attackTimer = attackCooldown;
-            }
-        }
-    }
-
-    // 在编辑器中绘制调试信息
     void OnDrawGizmos()
     {
         if (!showGizmos) return;
@@ -395,7 +446,7 @@ public class SimpleEnemyAI : MonoBehaviour
         }
 
         // 移动方向
-        if (isChasing)
+        if (isChasing && !isAttacking)
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(transform.position, transform.forward * 2f);
@@ -404,15 +455,18 @@ public class SimpleEnemyAI : MonoBehaviour
         // 接地状态
         Gizmos.color = isGrounded ? Color.green : Color.red;
         Gizmos.DrawSphere(transform.position + Vector3.up * 0.5f, 0.1f);
+
+        // 攻击状态
+        Gizmos.color = isAttacking ? Color.magenta : Color.clear;
+        Gizmos.DrawSphere(transform.position + Vector3.up * 1f, 0.2f);
     }
 
-    // 玩家手动赋值方法（可以在其他脚本中调用）
     public void SetPlayer(GameObject playerObject)
     {
         if (playerObject != null)
         {
             player = playerObject.transform;
-            UnityEngine.Debug.Log($"手动设置玩家: {player.name}");
+            if (debugLog) Debug.Log($"手动设置玩家: {player.name}");
         }
     }
 
@@ -421,26 +475,28 @@ public class SimpleEnemyAI : MonoBehaviour
         if (playerTransform != null)
         {
             player = playerTransform;
-            UnityEngine.Debug.Log($"手动设置玩家: {player.name}");
+            if (debugLog) Debug.Log($"手动设置玩家: {player.name}");
         }
     }
 
-    // 编辑器辅助方法
 #if UNITY_EDITOR
     void Reset()
     {
-        // 当组件第一次添加到GameObject时调用
-        UnityEngine.Debug.Log($"正在为 {name} 设置SimpleEnemyAI组件...");
-
-        // 尝试自动获取CharacterController
+        Debug.Log($"正在为 {name} 设置SimpleEnemyAI组件...");
         characterController = GetComponent<CharacterController>();
         if (characterController == null)
         {
-            UnityEngine.Debug.LogWarning($"请手动为 {name} 添加CharacterController组件");
+            Debug.LogWarning($"请手动为 {name} 添加CharacterController组件");
         }
-
-        // 查找模型子物体
         FindEnemyModel();
+        if (enemyModel != null)
+        {
+            enemyAnimator = enemyModel.GetComponent<Animator>();
+        }
+        if (enemyAnimator == null)
+        {
+            enemyAnimator = GetComponent<Animator>();
+        }
     }
 #endif
 }

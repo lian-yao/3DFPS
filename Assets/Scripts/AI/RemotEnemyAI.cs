@@ -1,101 +1,101 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class RemotEnemyAI : MonoBehaviour
 {
-    [Header("ÒÆ¶¯ÉèÖÃ")]
+    [Header("ç§»åŠ¨è®¾ç½®")]
     public float moveSpeed = 3f;
     public float rotationSpeed = 5f;
-    public float stoppingDistance = 8f; // Ô¶³Ì£ºÍ£ÔÚ8Ã×Íâ¹¥»÷£¨Ô­½üÕ½2Ã×£©
+    public float stoppingDistance = 8f; // è¿œç¨‹ï¼šåœåœ¨8ç±³å¤–æ”»å‡»ï¼ˆåŸè¿‘æˆ˜2ç±³ï¼‰
 
-    [Header("ÖØÁ¦ÉèÖÃ")]
+    [Header("é‡åŠ›è®¾ç½®")]
     public float gravity = 9.81f;
-    public float groundedGravity = -2f; // Ğ¡µÄÏòÏÂÁ¦È·±£Õ¾ÔÚµØÃæÉÏ
+    public float groundedGravity = -2f; // å°çš„å‘ä¸‹åŠ›ç¡®ä¿ç«™åœ¨åœ°é¢ä¸Š
 
-    [Header("¼ì²âÉèÖÃ")]
-    public float detectionRange = 15f; // Ô¶³Ì£º¼ì²â·¶Î§¸üÔ¶£¨Ô­10Ã×£©
+    [Header("æ£€æµ‹è®¾ç½®")]
+    public float detectionRange = 15f; // è¿œç¨‹ï¼šæ£€æµ‹èŒƒå›´æ›´è¿œï¼ˆåŸ10ç±³ï¼‰
     public float checkInterval = 0.3f;
-    public bool checkLineOfSight = true; // Ô¶³Ì£ºÊÇ·ñ¼ì²âÊÓÒ°£¨´©Ç½²»¹¥»÷£©
+    public bool checkLineOfSight = true; // è¿œç¨‹ï¼šæ˜¯å¦æ£€æµ‹è§†é‡ï¼ˆç©¿å¢™ä¸æ”»å‡»ï¼‰
 
-    [Header("Ô¶³Ì¹¥»÷ÉèÖÃ")]
+    [Header("è¿œç¨‹æ”»å‡»è®¾ç½®")]
     public float attackDamage = 10f;
-    public float attackCooldown = 2f; // Ô¶³Ì£º¹¥»÷ÀäÈ´¸ü³¤£¨Ô­1Ãë£©
+    public float attackCooldown = 2f; // è¿œç¨‹ï¼šæ”»å‡»å†·å´æ›´é•¿ï¼ˆåŸ1ç§’ï¼‰
     public float maxAttackHeight = 4f;
-    public GameObject projectilePrefab; // ×Óµ¯/¼¼ÄÜÔ¤ÖÆÌå£¨ĞèÊÖ¶¯ÍÏÈë£©
-    public Transform firePoint; // ¹¥»÷·¢Éäµã£¨¹ÖÎïÇ¹¿Ú/¼¼ÄÜÊÍ·Åµã£©
-    public float projectileSpeed = 15f; // ×Óµ¯ËÙ¶È
-    public float attackWindup = 0.5f; // ¹¥»÷Ç°Ò¡£¨Ì§ÊÖÊ±¼ä£©
-    public float projectileLifetime = 3f; // ×Óµ¯ÉúÃüÖÜÆÚ£¨±ÜÃâÄÚ´æĞ¹Â©£©
+    public GameObject projectilePrefab; // å­å¼¹/æŠ€èƒ½é¢„åˆ¶ä½“ï¼ˆéœ€æ‰‹åŠ¨æ‹–å…¥ï¼‰
+    public Transform firePoint; // æ”»å‡»å‘å°„ç‚¹ï¼ˆæ€ªç‰©æªå£/æŠ€èƒ½é‡Šæ”¾ç‚¹ï¼‰
+    public float projectileSpeed = 15f; // å­å¼¹é€Ÿåº¦
+    public float attackWindup = 0.5f; // æ”»å‡»å‰æ‘‡ï¼ˆæŠ¬æ‰‹æ—¶é—´ï¼‰
+    public float projectileLifetime = 3f; // å­å¼¹ç”Ÿå‘½å‘¨æœŸï¼ˆé¿å…å†…å­˜æ³„æ¼ï¼‰
 
-    [Header("µ÷ÊÔ")]
+    [Header("è°ƒè¯•")]
     public bool showGizmos = true;
 
-    // ÒıÓÃ×é¼ş - ÔÚUnity±à¼­Æ÷ÖĞÊÖ¶¯ÍÏ×§
-    [Header("×é¼şÒıÓÃ")]
+    // å¼•ç”¨ç»„ä»¶ - åœ¨Unityç¼–è¾‘å™¨ä¸­æ‰‹åŠ¨æ‹–æ‹½
+    [Header("ç»„ä»¶å¼•ç”¨")]
     [SerializeField] private CharacterController characterController;
-    [SerializeField] private Transform enemyModel; // ¿ÉÑ¡£ºÄ£ĞÍ×ÓÎïÌåÒıÓÃ
+    [SerializeField] private Transform enemyModel; // å¯é€‰ï¼šæ¨¡å‹å­ç‰©ä½“å¼•ç”¨
 
-    // Ë½ÓĞ±äÁ¿
+    // ç§æœ‰å˜é‡
     private Transform player;
     private float nextCheckTime;
     private float attackTimer;
     private Vector3 targetPosition;
     private bool isChasing = false;
-    private Vector3 velocity; // ÓÃÓÚÖØÁ¦¼ÆËã
+    private Vector3 velocity; // ç”¨äºé‡åŠ›è®¡ç®—
     private bool isGrounded;
-    private bool isAttacking = false; // ±ê¼ÇÊÇ·ñÔÚ¹¥»÷Ç°Ò¡ÖĞ
+    private bool isAttacking = false; // æ ‡è®°æ˜¯å¦åœ¨æ”»å‡»å‰æ‘‡ä¸­
 
     void Start()
     {
-        // 1. ²éÕÒÍæ¼Ò
+        // 1. æŸ¥æ‰¾ç©å®¶
         FindPlayer();
 
-        // 2. »ñÈ¡×é¼şÒıÓÃ£¨Èç¹ûÎ´ÊÖ¶¯ÉèÖÃ£©
+        // 2. è·å–ç»„ä»¶å¼•ç”¨ï¼ˆå¦‚æœæœªæ‰‹åŠ¨è®¾ç½®ï¼‰
         GetComponentReferences();
 
-        // 3. ³õÊ¼»¯velocity
+        // 3. åˆå§‹åŒ–velocity
         velocity = Vector3.zero;
 
-        // 4. ÑéÖ¤±ØÒª×é¼ş
+        // 4. éªŒè¯å¿…è¦ç»„ä»¶
         ValidateComponents();
 
-        // 5. Ô¶³Ì¹¥»÷²ÎÊıÑéÖ¤
+        // 5. è¿œç¨‹æ”»å‡»å‚æ•°éªŒè¯
         ValidateRangedAttackSettings();
 
-        UnityEngine.Debug.Log($"{name} Ô¶³ÌAI³õÊ¼»¯Íê³É");
+        UnityEngine.Debug.Log($"{name} è¿œç¨‹AIåˆå§‹åŒ–å®Œæˆ");
     }
 
     void GetComponentReferences()
     {
-        // Èç¹ûÎ´ÊÖ¶¯ÉèÖÃCharacterController£¬³¢ÊÔ×Ô¶¯»ñÈ¡
+        // å¦‚æœæœªæ‰‹åŠ¨è®¾ç½®CharacterControllerï¼Œå°è¯•è‡ªåŠ¨è·å–
         if (characterController == null)
         {
             characterController = GetComponent<CharacterController>();
         }
 
-        // Èç¹ûÎ´ÊÖ¶¯ÉèÖÃÄ£ĞÍ£¬³¢ÊÔ²éÕÒ×ÓÎïÌåÄ£ĞÍ
+        // å¦‚æœæœªæ‰‹åŠ¨è®¾ç½®æ¨¡å‹ï¼Œå°è¯•æŸ¥æ‰¾å­ç‰©ä½“æ¨¡å‹
         if (enemyModel == null)
         {
             FindEnemyModel();
         }
 
-        // Èç¹û»¹ÊÇÃ»ÓĞCharacterController£¬¼ÇÂ¼´íÎóµ«¼ÌĞøÔËĞĞ
+        // å¦‚æœè¿˜æ˜¯æ²¡æœ‰CharacterControllerï¼Œè®°å½•é”™è¯¯ä½†ç»§ç»­è¿è¡Œ
         if (characterController == null)
         {
-            UnityEngine.Debug.LogError($"{name}: Î´ÕÒµ½CharacterController×é¼ş£¡ÇëÔÚInspectorÖĞÊÖ¶¯ÍÏ×§¸³Öµ¡£");
+            UnityEngine.Debug.LogError($"{name}: æœªæ‰¾åˆ°CharacterControllerç»„ä»¶ï¼è¯·åœ¨Inspectorä¸­æ‰‹åŠ¨æ‹–æ‹½èµ‹å€¼ã€‚");
         }
     }
 
     void FindEnemyModel()
     {
-        // ²éÕÒµÚÒ»¸öÓĞäÖÈ¾Æ÷µÄ×ÓÎïÌå×÷ÎªÄ£ĞÍ
+        // æŸ¥æ‰¾ç¬¬ä¸€ä¸ªæœ‰æ¸²æŸ“å™¨çš„å­ç‰©ä½“ä½œä¸ºæ¨¡å‹
         foreach (Transform child in transform)
         {
             if (child.GetComponent<Renderer>() != null)
             {
                 enemyModel = child;
-                UnityEngine.Debug.Log($"ÕÒµ½Ä£ĞÍ×ÓÎïÌå: {enemyModel.name}");
+                UnityEngine.Debug.Log($"æ‰¾åˆ°æ¨¡å‹å­ç‰©ä½“: {enemyModel.name}");
                 break;
             }
         }
@@ -103,59 +103,59 @@ public class RemotEnemyAI : MonoBehaviour
 
     void ValidateComponents()
     {
-        // ¼ì²é±ØÒª×é¼ş
+        // æ£€æŸ¥å¿…è¦ç»„ä»¶
         if (characterController == null)
         {
-            UnityEngine.Debug.LogWarning($"{name}: È±ÉÙCharacterController£¬AIÒÆ¶¯¹¦ÄÜ½«²»¿ÉÓÃ£¡");
-            UnityEngine.Debug.LogWarning("ÇëÔÚInspectorÃæ°åÖĞÊÖ¶¯ÍÏ×§CharacterController×é¼şµ½characterController×Ö¶Î¡£");
+            UnityEngine.Debug.LogWarning($"{name}: ç¼ºå°‘CharacterControllerï¼ŒAIç§»åŠ¨åŠŸèƒ½å°†ä¸å¯ç”¨ï¼");
+            UnityEngine.Debug.LogWarning("è¯·åœ¨Inspectoré¢æ¿ä¸­æ‰‹åŠ¨æ‹–æ‹½CharacterControllerç»„ä»¶åˆ°characterControllerå­—æ®µã€‚");
         }
 
-        // ¼ì²éÍæ¼ÒÒıÓÃ
+        // æ£€æŸ¥ç©å®¶å¼•ç”¨
         if (player == null)
         {
-            UnityEngine.Debug.LogError($"{name}: Î´ÕÒµ½Íæ¼Ò£¡");
+            UnityEngine.Debug.LogError($"{name}: æœªæ‰¾åˆ°ç©å®¶ï¼");
             enabled = false;
         }
     }
 
-    // ÑéÖ¤Ô¶³Ì¹¥»÷²ÎÊı
+    // éªŒè¯è¿œç¨‹æ”»å‡»å‚æ•°
     void ValidateRangedAttackSettings()
     {
         if (projectilePrefab == null)
         {
-            UnityEngine.Debug.LogWarning($"{name}: Î´¸³Öµ×Óµ¯Ô¤ÖÆÌå£¡ÇëÍÏÈëprojectilePrefab×Ö¶Î");
+            UnityEngine.Debug.LogWarning($"{name}: æœªèµ‹å€¼å­å¼¹é¢„åˆ¶ä½“ï¼è¯·æ‹–å…¥projectilePrefabå­—æ®µ");
         }
 
         if (firePoint == null)
         {
-            UnityEngine.Debug.LogWarning($"{name}: Î´ÉèÖÃ¹¥»÷·¢Éäµã£¡Çë´´½¨¿ÕÎïÌå×÷ÎªfirePoint²¢ÍÏÈë");
-            // ×Ô¶¯´´½¨Ä¬ÈÏ·¢Éäµã£¨±¸ÓÃ£©
+            UnityEngine.Debug.LogWarning($"{name}: æœªè®¾ç½®æ”»å‡»å‘å°„ç‚¹ï¼è¯·åˆ›å»ºç©ºç‰©ä½“ä½œä¸ºfirePointå¹¶æ‹–å…¥");
+            // è‡ªåŠ¨åˆ›å»ºé»˜è®¤å‘å°„ç‚¹ï¼ˆå¤‡ç”¨ï¼‰
             GameObject defaultFirePoint = new GameObject("DefaultFirePoint");
             defaultFirePoint.transform.parent = transform;
-            defaultFirePoint.transform.localPosition = new Vector3(0, 1.5f, 0.5f); // ¹ÖÎïÍ·²¿/Ç¹¿ÚÎ»ÖÃ
+            defaultFirePoint.transform.localPosition = new Vector3(0, 1.5f, 0.5f); // æ€ªç‰©å¤´éƒ¨/æªå£ä½ç½®
             firePoint = defaultFirePoint.transform;
-            UnityEngine.Debug.Log($"×Ô¶¯´´½¨Ä¬ÈÏ·¢Éäµã: {firePoint.name}£¬Çëµ÷ÕûÎ»ÖÃµ½¹ÖÎï¹¥»÷µã");
+            UnityEngine.Debug.Log($"è‡ªåŠ¨åˆ›å»ºé»˜è®¤å‘å°„ç‚¹: {firePoint.name}ï¼Œè¯·è°ƒæ•´ä½ç½®åˆ°æ€ªç‰©æ”»å‡»ç‚¹");
         }
     }
 
     void FindPlayer()
     {
-        // ·½·¨1£ºÍ¨¹ı±êÇ©£¨×î³£ÓÃ£©
+        // æ–¹æ³•1ï¼šé€šè¿‡æ ‡ç­¾ï¼ˆæœ€å¸¸ç”¨ï¼‰
         GameObject playerObj = GameObject.FindWithTag("Player");
 
-        // ·½·¨2£ºÍ¨¹ıÃû×Ö
+        // æ–¹æ³•2ï¼šé€šè¿‡åå­—
         if (playerObj == null)
         {
             playerObj = GameObject.Find("Player");
         }
 
-        // ·½·¨3£ºÊ¹ÓÃ¸üÍ¨ÓÃµÄ²éÕÒ·½·¨
+        // æ–¹æ³•3ï¼šä½¿ç”¨æ›´é€šç”¨çš„æŸ¥æ‰¾æ–¹æ³•
         if (playerObj == null)
         {
             playerObj = FindPlayerByComponents();
         }
 
-        // ·½·¨4£ºÊÖ¶¯²éÕÒ°üº¬"player"Ãû³ÆµÄ¶ÔÏó
+        // æ–¹æ³•4ï¼šæ‰‹åŠ¨æŸ¥æ‰¾åŒ…å«"player"åç§°çš„å¯¹è±¡
         if (playerObj == null)
         {
             playerObj = FindPlayerByName();
@@ -164,37 +164,37 @@ public class RemotEnemyAI : MonoBehaviour
         if (playerObj != null)
         {
             player = playerObj.transform;
-            UnityEngine.Debug.Log($"ÕÒµ½Íæ¼Ò: {player.name}");
+            UnityEngine.Debug.Log($"æ‰¾åˆ°ç©å®¶: {player.name}");
         }
         else
         {
-            UnityEngine.Debug.LogError("ÕÒ²»µ½Íæ¼Ò£¡ÇëÈ·±£Íæ¼ÒÎïÌå´æÔÚ²¢¾ßÓĞ'Player'±êÇ©");
-            UnityEngine.Debug.LogError("»òÕß´´½¨Ò»¸öÃûÎª'Player'µÄGameObject£¬»òÎªÆäÌí¼Ó'Player'±êÇ©");
+            UnityEngine.Debug.LogError("æ‰¾ä¸åˆ°ç©å®¶ï¼è¯·ç¡®ä¿ç©å®¶ç‰©ä½“å­˜åœ¨å¹¶å…·æœ‰'Player'æ ‡ç­¾");
+            UnityEngine.Debug.LogError("æˆ–è€…åˆ›å»ºä¸€ä¸ªåä¸º'Player'çš„GameObjectï¼Œæˆ–ä¸ºå…¶æ·»åŠ 'Player'æ ‡ç­¾");
         }
     }
 
-    // Í¨ÓÃµÄÍæ¼Ò²éÕÒ·½·¨ - ²»ÒÀÀµÌØ¶¨×é¼ş
+    // é€šç”¨çš„ç©å®¶æŸ¥æ‰¾æ–¹æ³• - ä¸ä¾èµ–ç‰¹å®šç»„ä»¶
     GameObject FindPlayerByComponents()
     {
-        // ³¢ÊÔ²éÕÒ³£¼ûµÄÍæ¼Ò×é¼ş
+        // å°è¯•æŸ¥æ‰¾å¸¸è§çš„ç©å®¶ç»„ä»¶
         GameObject[] allGameObjects = GameObject.FindObjectsOfType<GameObject>();
 
         foreach (GameObject obj in allGameObjects)
         {
-            // ¼ì²éÊÇ·ñ°üº¬³£¼ûµÄÍæ¼Ò×é¼ş
+            // æ£€æŸ¥æ˜¯å¦åŒ…å«å¸¸è§çš„ç©å®¶ç»„ä»¶
             if (obj.GetComponent<CharacterController>() != null &&
-                obj.GetComponent<Camera>() == null) // ÅÅ³ıÖ÷ÉãÏñ»ú
+                obj.GetComponent<Camera>() == null) // æ’é™¤ä¸»æ‘„åƒæœº
             {
-                UnityEngine.Debug.Log($"Í¨¹ıCharacterControllerÕÒµ½Íæ¼Ò: {obj.name}");
+                UnityEngine.Debug.Log($"é€šè¿‡CharacterControlleræ‰¾åˆ°ç©å®¶: {obj.name}");
                 return obj;
             }
 
-            // ¼ì²éÊÇ·ñ°üº¬Rigidbody£¨¿ÉÄÜÊÇÍæ¼Ò£©
+            // æ£€æŸ¥æ˜¯å¦åŒ…å«Rigidbodyï¼ˆå¯èƒ½æ˜¯ç©å®¶ï¼‰
             if (obj.GetComponent<Rigidbody>() != null &&
                 obj.GetComponent<Rigidbody>().isKinematic == false &&
                 obj.name.ToLower().Contains("player"))
             {
-                UnityEngine.Debug.Log($"Í¨¹ıRigidbodyÕÒµ½Íæ¼Ò: {obj.name}");
+                UnityEngine.Debug.Log($"é€šè¿‡Rigidbodyæ‰¾åˆ°ç©å®¶: {obj.name}");
                 return obj;
             }
         }
@@ -204,24 +204,24 @@ public class RemotEnemyAI : MonoBehaviour
 
     GameObject FindPlayerByName()
     {
-        // ²éÕÒËùÓĞGameObject
+        // æŸ¥æ‰¾æ‰€æœ‰GameObject
         GameObject[] allGameObjects = GameObject.FindObjectsOfType<GameObject>();
 
         foreach (GameObject obj in allGameObjects)
         {
             string objName = obj.name.ToLower();
 
-            // ¼ì²éÃû³ÆÊÇ·ñ°üº¬Íæ¼ÒÏà¹Ø¹Ø¼ü´Ê
+            // æ£€æŸ¥åç§°æ˜¯å¦åŒ…å«ç©å®¶ç›¸å…³å…³é”®è¯
             if (objName.Contains("player") ||
-                objName.Contains("Ö÷½Ç") ||
-                objName.Contains("½ÇÉ«") ||
+                objName.Contains("ä¸»è§’") ||
+                objName.Contains("è§’è‰²") ||
                 objName.Contains("character"))
             {
-                // ½øÒ»²½ÑéÖ¤£º²»ÊÇUIÔªËØµÈ
+                // è¿›ä¸€æ­¥éªŒè¯ï¼šä¸æ˜¯UIå…ƒç´ ç­‰
                 if (obj.GetComponent<Canvas>() == null &&
                     obj.GetComponent<Camera>() == null)
                 {
-                    UnityEngine.Debug.Log($"Í¨¹ıÃû³ÆÕÒµ½Íæ¼Ò: {obj.name}");
+                    UnityEngine.Debug.Log($"é€šè¿‡åç§°æ‰¾åˆ°ç©å®¶: {obj.name}");
                     return obj;
                 }
             }
@@ -235,40 +235,40 @@ public class RemotEnemyAI : MonoBehaviour
         if (player == null) return;
         if (characterController == null) return;
 
-        // ¼ì²éÊÇ·ñ½ÓµØ
+        // æ£€æŸ¥æ˜¯å¦æ¥åœ°
         CheckGrounded();
 
-        // Ó¦ÓÃÖØÁ¦
+        // åº”ç”¨é‡åŠ›
         ApplyGravity();
 
-        // ¹¥»÷ÀäÈ´
+        // æ”»å‡»å†·å´
         if (attackTimer > 0)
         {
             attackTimer -= Time.deltaTime;
         }
 
-        // ¶¨ÆÚ¼ì²âÍæ¼Ò
+        // å®šæœŸæ£€æµ‹ç©å®¶
         if (Time.time >= nextCheckTime)
         {
             CheckForPlayer();
             nextCheckTime = Time.time + checkInterval;
         }
 
-        // AIĞĞÎª
+        // AIè¡Œä¸º
         if (isChasing)
         {
             ChasePlayer();
         }
         else
         {
-            // ¿ÉÒÔÔÚÕâÀïÌí¼ÓÑ²ÂßÂß¼­
+            // å¯ä»¥åœ¨è¿™é‡Œæ·»åŠ å·¡é€»é€»è¾‘
             // Patrol();
         }
     }
 
     void CheckGrounded()
     {
-        // Ê¹ÓÃCharacterControllerµÄisGroundedÊôĞÔ
+        // ä½¿ç”¨CharacterControllerçš„isGroundedå±æ€§
         isGrounded = characterController != null && characterController.isGrounded;
     }
 
@@ -278,12 +278,12 @@ public class RemotEnemyAI : MonoBehaviour
 
         if (isGrounded && velocity.y < 0)
         {
-            // ÔÚµØÃæÉÏÊ±£¬Ó¦ÓÃĞ¡µÄÏòÏÂÁ¦ÒÔÈ·±£±£³ÖÔÚµØÃæÉÏ
+            // åœ¨åœ°é¢ä¸Šæ—¶ï¼Œåº”ç”¨å°çš„å‘ä¸‹åŠ›ä»¥ç¡®ä¿ä¿æŒåœ¨åœ°é¢ä¸Š
             velocity.y = groundedGravity;
         }
         else
         {
-            // Ó¦ÓÃÖØÁ¦
+            // åº”ç”¨é‡åŠ›
             velocity.y -= gravity * Time.deltaTime;
         }
     }
@@ -292,29 +292,29 @@ public class RemotEnemyAI : MonoBehaviour
     {
         if (player == null) return;
 
-        // ¼ÆËãµ½Íæ¼ÒµÄ¾àÀë£¨Ö»¿¼ÂÇË®Æ½¾àÀë£©
+        // è®¡ç®—åˆ°ç©å®¶çš„è·ç¦»ï¼ˆåªè€ƒè™‘æ°´å¹³è·ç¦»ï¼‰
         Vector3 playerPos = player.position;
         Vector3 enemyPos = transform.position;
 
-        // ºöÂÔYÖá¼ÆËãË®Æ½¾àÀë
+        // å¿½ç•¥Yè½´è®¡ç®—æ°´å¹³è·ç¦»
         playerPos.y = enemyPos.y;
         float horizontalDistance = Vector3.Distance(enemyPos, playerPos);
 
-        // ¼òµ¥¾àÀë¼ì²â + ÊÓÒ°¼ì²â£¨Ô¶³Ì×¨Êô£©
+        // ç®€å•è·ç¦»æ£€æµ‹ + è§†é‡æ£€æµ‹ï¼ˆè¿œç¨‹ä¸“å±ï¼‰
         bool hasLineOfSight = true;
         if (checkLineOfSight)
         {
             hasLineOfSight = CheckLineOfSightToPlayer();
         }
 
-        // Ö»ÓĞÔÚ¼ì²â·¶Î§ÄÚÇÒÓĞÊÓÒ°Ê±£¬²Å¿ªÊ¼×·Öğ
+        // åªæœ‰åœ¨æ£€æµ‹èŒƒå›´å†…ä¸”æœ‰è§†é‡æ—¶ï¼Œæ‰å¼€å§‹è¿½é€
         if (horizontalDistance <= detectionRange && hasLineOfSight)
         {
             if (!isChasing)
             {
-                // ¿ªÊ¼×·×Ù
+                // å¼€å§‹è¿½è¸ª
                 targetPosition = player.position;
-                UnityEngine.Debug.Log($"{name} ·¢ÏÖÍæ¼Ò£¬¿ªÊ¼Ô¶³Ì×·×Ù");
+                UnityEngine.Debug.Log($"{name} å‘ç°ç©å®¶ï¼Œå¼€å§‹è¿œç¨‹è¿½è¸ª");
             }
             isChasing = true;
         }
@@ -322,39 +322,39 @@ public class RemotEnemyAI : MonoBehaviour
         {
             if (isChasing)
             {
-                UnityEngine.Debug.Log($"{name} Ê§È¥Íæ¼ÒÊÓÒ°/³¬³ö·¶Î§");
+                UnityEngine.Debug.Log($"{name} å¤±å»ç©å®¶è§†é‡/è¶…å‡ºèŒƒå›´");
             }
             isChasing = false;
         }
     }
 
-    // ÉäÏß¼ì²â£ºÊÇ·ñÓĞÊÓÒ°£¨´©Ç½²»¹¥»÷£©
+    // å°„çº¿æ£€æµ‹ï¼šæ˜¯å¦æœ‰è§†é‡ï¼ˆç©¿å¢™ä¸æ”»å‡»ï¼‰
     bool CheckLineOfSightToPlayer()
     {
         if (player == null || firePoint == null) return false;
 
-        // ÉäÏßÆğµã£º·¢Éäµã£¬ÖÕµã£ºÍæ¼ÒÖĞĞÄ£¨¼ÓYÆ«ÒÆ±ÜÃâµØÃæÕÚµ²£©
+        // å°„çº¿èµ·ç‚¹ï¼šå‘å°„ç‚¹ï¼Œç»ˆç‚¹ï¼šç©å®¶ä¸­å¿ƒï¼ˆåŠ Yåç§»é¿å…åœ°é¢é®æŒ¡ï¼‰
         Vector3 targetPos = player.position + new Vector3(0, 1f, 0);
         Vector3 direction = targetPos - firePoint.position;
 
-        // ÉäÏß¼ì²â£¨ºöÂÔ×ÔÉí¡¢ºöÂÔ´¥·¢Æ÷£©
+        // å°„çº¿æ£€æµ‹ï¼ˆå¿½ç•¥è‡ªèº«ã€å¿½ç•¥è§¦å‘å™¨ï¼‰
         RaycastHit hit;
         if (Physics.Raycast(firePoint.position, direction.normalized, out hit, detectionRange))
         {
-            // ¼ì²âÊÇ·ñÃüÖĞÍæ¼Ò
+            // æ£€æµ‹æ˜¯å¦å‘½ä¸­ç©å®¶
             if (hit.collider.CompareTag("Player"))
             {
                 return true;
             }
             else
             {
-                // ÃüÖĞÕÏ°­Îï£¨Ç½/µØĞÎ£©
+                // å‘½ä¸­éšœç¢ç‰©ï¼ˆå¢™/åœ°å½¢ï¼‰
                 UnityEngine.Debug.DrawLine(firePoint.position, hit.point, Color.yellow);
                 return false;
             }
         }
 
-        // ÎŞÃüÖĞ£¨³¬³ö·¶Î§£©
+        // æ— å‘½ä¸­ï¼ˆè¶…å‡ºèŒƒå›´ï¼‰
         return false;
     }
 
@@ -362,37 +362,37 @@ public class RemotEnemyAI : MonoBehaviour
     {
         if (player == null) return;
         if (characterController == null) return;
-        if (isAttacking) return; // ¹¥»÷Ç°Ò¡ÖĞ²»ÒÆ¶¯
+        if (isAttacking) return; // æ”»å‡»å‰æ‘‡ä¸­ä¸ç§»åŠ¨
 
-        // ¸üĞÂÄ¿±êÎ»ÖÃ
+        // æ›´æ–°ç›®æ ‡ä½ç½®
         targetPosition = player.position;
 
-        // ¼ÆËãË®Æ½¾àÀë£¨ºöÂÔYÖá£©
+        // è®¡ç®—æ°´å¹³è·ç¦»ï¼ˆå¿½ç•¥Yè½´ï¼‰
         Vector3 horizontalDirection = targetPosition - transform.position;
         horizontalDirection.y = 0;
         float horizontalDistance = horizontalDirection.magnitude;
 
-        // Ô¶³ÌÂß¼­£º¾àÀë´óÓÚÍ£Ö¹¾àÀë£¨8Ã×£©ÔòÒÆ¶¯£¬·ñÔòÍ£Ö¹²¢¹¥»÷
+        // è¿œç¨‹é€»è¾‘ï¼šè·ç¦»å¤§äºåœæ­¢è·ç¦»ï¼ˆ8ç±³ï¼‰åˆ™ç§»åŠ¨ï¼Œå¦åˆ™åœæ­¢å¹¶æ”»å‡»
         if (horizontalDistance > stoppingDistance)
         {
             if (horizontalDirection.magnitude > 0.1f)
             {
-                // ¼ÆËãÒÆ¶¯·½Ïò
+                // è®¡ç®—ç§»åŠ¨æ–¹å‘
                 Vector3 direction = horizontalDirection.normalized;
 
-                // ×¼±¸ÒÆ¶¯ÏòÁ¿
+                // å‡†å¤‡ç§»åŠ¨å‘é‡
                 Vector3 moveVector = direction * moveSpeed * Time.deltaTime;
 
-                // Ìí¼ÓYÖáÒÆ¶¯£¨ÖØÁ¦£©
+                // æ·»åŠ Yè½´ç§»åŠ¨ï¼ˆé‡åŠ›ï¼‰
                 moveVector.y = velocity.y * Time.deltaTime;
 
-                // Ê¹ÓÃCharacterControllerÒÆ¶¯
+                // ä½¿ç”¨CharacterControllerç§»åŠ¨
                 if (characterController.enabled)
                 {
                     characterController.Move(moveVector);
                 }
 
-                // Ğı×ªÃæÏòÍæ¼Ò£¨Ô¶³ÌĞèÒªÊ¼ÖÕ³¯ÏòÍæ¼Ò£©
+                // æ—‹è½¬é¢å‘ç©å®¶ï¼ˆè¿œç¨‹éœ€è¦å§‹ç»ˆæœå‘ç©å®¶ï¼‰
                 if (direction.magnitude > 0.01f)
                 {
                     Quaternion targetRotation = Quaternion.LookRotation(direction);
@@ -412,57 +412,57 @@ public class RemotEnemyAI : MonoBehaviour
         }
         else
         {
-            // Ô¶³Ì¹¥»÷·¶Î§£º¼ì²é¸ß¶È²î + ÊÓÒ°
+            // è¿œç¨‹æ”»å‡»èŒƒå›´ï¼šæ£€æŸ¥é«˜åº¦å·® + è§†é‡
             float verticalDistance = Mathf.Abs(targetPosition.y - transform.position.y);
             bool hasLineOfSight = checkLineOfSight ? CheckLineOfSightToPlayer() : true;
 
             if (verticalDistance <= maxAttackHeight && hasLineOfSight)
             {
-                TryRangedAttack(); // Ô¶³Ì¹¥»÷£¨Ìæ´úÔ­½üÕ½TryAttack£©
+                TryRangedAttack(); // è¿œç¨‹æ”»å‡»ï¼ˆæ›¿ä»£åŸè¿‘æˆ˜TryAttackï¼‰
             }
         }
     }
 
-    // Ô¶³Ì¹¥»÷ºËĞÄÂß¼­
+    // è¿œç¨‹æ”»å‡»æ ¸å¿ƒé€»è¾‘
     void TryRangedAttack()
     {
-        // ¼ì²é¹¥»÷ÀäÈ´ + ²»ÔÚ¹¥»÷Ç°Ò¡ÖĞ
+        // æ£€æŸ¥æ”»å‡»å†·å´ + ä¸åœ¨æ”»å‡»å‰æ‘‡ä¸­
         if (attackTimer > 0 || isAttacking) return;
 
-        UnityEngine.Debug.Log($"{name} ×¼±¸Ô¶³Ì¹¥»÷Íæ¼Ò");
-        StartCoroutine(RangedAttackCoroutine()); // Ğ­³Ì´¦Àí¹¥»÷Ç°Ò¡
+        UnityEngine.Debug.Log($"{name} å‡†å¤‡è¿œç¨‹æ”»å‡»ç©å®¶");
+        StartCoroutine(RangedAttackCoroutine()); // åç¨‹å¤„ç†æ”»å‡»å‰æ‘‡
     }
 
-    // ¹¥»÷Ç°Ò¡ + ·¢Éä×Óµ¯
+    // æ”»å‡»å‰æ‘‡ + å‘å°„å­å¼¹
     IEnumerator RangedAttackCoroutine()
     {
         isAttacking = true;
 
-        // ¹¥»÷Ç°Ò¡£¨Ì§ÊÖ¶¯»­Ê±¼ä£©
+        // æ”»å‡»å‰æ‘‡ï¼ˆæŠ¬æ‰‹åŠ¨ç”»æ—¶é—´ï¼‰
         yield return new WaitForSeconds(attackWindup);
 
-        // ·¢Éä×Óµ¯
+        // å‘å°„å­å¼¹
         FireProjectile();
 
-        // ÖØÖÃ×´Ì¬
+        // é‡ç½®çŠ¶æ€
         attackTimer = attackCooldown;
         isAttacking = false;
     }
 
-    // ·¢Éä×Óµ¯/¼¼ÄÜ
+    // å‘å°„å­å¼¹/æŠ€èƒ½
     void FireProjectile()
     {
         if (projectilePrefab == null || firePoint == null)
         {
-            UnityEngine.Debug.LogError($"{name} ×Óµ¯Ô¤ÖÆÌå/·¢ÉäµãÎ´ÉèÖÃ£¬ÎŞ·¨·¢Éä");
+            UnityEngine.Debug.LogError($"{name} å­å¼¹é¢„åˆ¶ä½“/å‘å°„ç‚¹æœªè®¾ç½®ï¼Œæ— æ³•å‘å°„");
             return;
         }
 
-        // 1. ¼ÆËã×Óµ¯³¯Ïò£¨Ãé×¼Íæ¼Ò£¬¼ÓÎ¢Ğ¡Ëæ»úÆ«ÒÆÔö¼ÓÄÑ¶È£©
-        Vector3 targetPos = player.position + new Vector3(0, 1f, 0); // Ãé×¼Íæ¼ÒĞØ²¿
+        // 1. è®¡ç®—å­å¼¹æœå‘ï¼ˆç„å‡†ç©å®¶ï¼ŒåŠ å¾®å°éšæœºåç§»å¢åŠ éš¾åº¦ï¼‰
+        Vector3 targetPos = player.position + new Vector3(0, 1f, 0); // ç„å‡†ç©å®¶èƒ¸éƒ¨
         Vector3 fireDirection = (targetPos - firePoint.position).normalized;
 
-        // ¿ÉÑ¡£ºÌí¼Óµ¯µÀËæ»úÆ«ÒÆ£¨Ä£ÄâÃé×¼Îó²î£©
+        // å¯é€‰ï¼šæ·»åŠ å¼¹é“éšæœºåç§»ï¼ˆæ¨¡æ‹Ÿç„å‡†è¯¯å·®ï¼‰
         fireDirection += new Vector3(
             Random.Range(-0.05f, 0.05f),
             Random.Range(-0.03f, 0.03f),
@@ -470,14 +470,14 @@ public class RemotEnemyAI : MonoBehaviour
         );
         fireDirection.Normalize();
 
-        // 2. Éú³É×Óµ¯Ô¤ÖÆÌå
+        // 2. ç”Ÿæˆå­å¼¹é¢„åˆ¶ä½“
         GameObject projectile = Instantiate(
             projectilePrefab,
             firePoint.position,
             Quaternion.LookRotation(fireDirection)
         );
 
-        // 3. ¸ø×Óµ¯Ìí¼ÓËÙ¶È
+        // 3. ç»™å­å¼¹æ·»åŠ é€Ÿåº¦
         Rigidbody rb = projectile.GetComponent<Rigidbody>();
         if (rb != null)
         {
@@ -485,13 +485,13 @@ public class RemotEnemyAI : MonoBehaviour
         }
         else
         {
-            // Ã»ÓĞRigidbodyÔòÌí¼Ó£¨±¸ÓÃ·½°¸£©
+            // æ²¡æœ‰Rigidbodyåˆ™æ·»åŠ ï¼ˆå¤‡ç”¨æ–¹æ¡ˆï¼‰
             rb = projectile.AddComponent<Rigidbody>();
             rb.velocity = fireDirection * projectileSpeed;
-            rb.useGravity = false; // Ô¶³Ì×Óµ¯Ä¬ÈÏÎŞÖØÁ¦£¨¿É¸ù¾İĞèÇóµ÷Õû£©
+            rb.useGravity = false; // è¿œç¨‹å­å¼¹é»˜è®¤æ— é‡åŠ›ï¼ˆå¯æ ¹æ®éœ€æ±‚è°ƒæ•´ï¼‰
         }
 
-        // 4. ÉèÖÃ×Óµ¯ÉËº¦ + ×Ô¶¯Ïú»Ù
+        // 4. è®¾ç½®å­å¼¹ä¼¤å®³ + è‡ªåŠ¨é”€æ¯
         ProjectileDamage projectileDamage = projectile.GetComponent<ProjectileDamage>();
         if (projectileDamage != null)
         {
@@ -499,37 +499,37 @@ public class RemotEnemyAI : MonoBehaviour
         }
         else
         {
-            // ×Ô¶¯Ìí¼Ó×Óµ¯ÉËº¦×é¼ş£¨Èç¹ûÃ»ÓĞ£©
+            // è‡ªåŠ¨æ·»åŠ å­å¼¹ä¼¤å®³ç»„ä»¶ï¼ˆå¦‚æœæ²¡æœ‰ï¼‰
             projectileDamage = projectile.AddComponent<ProjectileDamage>();
             projectileDamage.damage = attackDamage;
         }
 
-        // 5. ×Óµ¯³¬Ê±Ïú»Ù£¨±ÜÃâÄÚ´æĞ¹Â©£©
+        // 5. å­å¼¹è¶…æ—¶é”€æ¯ï¼ˆé¿å…å†…å­˜æ³„æ¼ï¼‰
         Destroy(projectile, projectileLifetime);
 
-        UnityEngine.Debug.Log($"{name} ·¢Éä×Óµ¯£¬ËÙ¶È: {projectileSpeed}£¬ÉËº¦: {attackDamage}");
+        UnityEngine.Debug.Log($"{name} å‘å°„å­å¼¹ï¼Œé€Ÿåº¦: {projectileSpeed}ï¼Œä¼¤å®³: {attackDamage}");
     }
 
-    // ÒÆ³ıÔ¶³Ì²»ĞèÒªµÄÅö×²¹¥»÷£¨×¢ÊÍ/É¾³ı¾ù¿É£©
+    // ç§»é™¤è¿œç¨‹ä¸éœ€è¦çš„ç¢°æ’æ”»å‡»ï¼ˆæ³¨é‡Š/åˆ é™¤å‡å¯ï¼‰
     // void OnControllerColliderHit(ControllerColliderHit hit)
     // {
-    //     Ô­½üÕ½Åö×²¹¥»÷Âß¼­...
+    //     åŸè¿‘æˆ˜ç¢°æ’æ”»å‡»é€»è¾‘...
     // }
 
-    // ÔÚ±à¼­Æ÷ÖĞ»æÖÆµ÷ÊÔĞÅÏ¢£¨ĞÂÔöÔ¶³Ì¹¥»÷Ïà¹ØGizmos£©
+    // åœ¨ç¼–è¾‘å™¨ä¸­ç»˜åˆ¶è°ƒè¯•ä¿¡æ¯ï¼ˆæ–°å¢è¿œç¨‹æ”»å‡»ç›¸å…³Gizmosï¼‰
     void OnDrawGizmos()
     {
         if (!showGizmos) return;
 
-        // ¼ì²â·¶Î§
+        // æ£€æµ‹èŒƒå›´
         Gizmos.color = isChasing ? Color.red : Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-        // Ô¶³Ì¹¥»÷Í£Ö¹¾àÀë£¨ÂÌÉ«£©
+        // è¿œç¨‹æ”»å‡»åœæ­¢è·ç¦»ï¼ˆç»¿è‰²ï¼‰
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, stoppingDistance);
 
-        // µ½Íæ¼ÒµÄÏß£¨ºìÉ«=ÓĞÊÓÒ°£¬»ÆÉ«=ÎŞÊÓÒ°£©
+        // åˆ°ç©å®¶çš„çº¿ï¼ˆçº¢è‰²=æœ‰è§†é‡ï¼Œé»„è‰²=æ— è§†é‡ï¼‰
         if (player != null)
         {
             if (checkLineOfSight && Application.isPlaying)
@@ -543,18 +543,18 @@ public class RemotEnemyAI : MonoBehaviour
             Gizmos.DrawLine(transform.position, player.position);
         }
 
-        // ÒÆ¶¯·½Ïò
+        // ç§»åŠ¨æ–¹å‘
         if (isChasing)
         {
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(transform.position, transform.forward * 2f);
         }
 
-        // ½ÓµØ×´Ì¬
+        // æ¥åœ°çŠ¶æ€
         Gizmos.color = isGrounded ? Color.green : Color.red;
         Gizmos.DrawSphere(transform.position + Vector3.up * 0.5f, 0.1f);
 
-        // Ô¶³Ì·¢Éäµã£¨×ÏÉ«£©
+        // è¿œç¨‹å‘å°„ç‚¹ï¼ˆç´«è‰²ï¼‰
         if (firePoint != null)
         {
             Gizmos.color = Color.magenta;
@@ -563,13 +563,13 @@ public class RemotEnemyAI : MonoBehaviour
         }
     }
 
-    // Íæ¼ÒÊÖ¶¯¸³Öµ·½·¨£¨¿ÉÒÔÔÚÆäËû½Å±¾ÖĞµ÷ÓÃ£©
+    // ç©å®¶æ‰‹åŠ¨èµ‹å€¼æ–¹æ³•ï¼ˆå¯ä»¥åœ¨å…¶ä»–è„šæœ¬ä¸­è°ƒç”¨ï¼‰
     public void SetPlayer(GameObject playerObject)
     {
         if (playerObject != null)
         {
             player = playerObject.transform;
-            UnityEngine.Debug.Log($"ÊÖ¶¯ÉèÖÃÍæ¼Ò: {player.name}");
+            UnityEngine.Debug.Log($"æ‰‹åŠ¨è®¾ç½®ç©å®¶: {player.name}");
         }
     }
 
@@ -578,28 +578,28 @@ public class RemotEnemyAI : MonoBehaviour
         if (playerTransform != null)
         {
             player = playerTransform;
-            UnityEngine.Debug.Log($"ÊÖ¶¯ÉèÖÃÍæ¼Ò: {player.name}");
+            UnityEngine.Debug.Log($"æ‰‹åŠ¨è®¾ç½®ç©å®¶: {player.name}");
         }
     }
 
-    // ±à¼­Æ÷¸¨Öú·½·¨
+    // ç¼–è¾‘å™¨è¾…åŠ©æ–¹æ³•
 #if UNITY_EDITOR
     void Reset()
     {
-        // µ±×é¼şµÚÒ»´ÎÌí¼Óµ½GameObjectÊ±µ÷ÓÃ
-        UnityEngine.Debug.Log($"ÕıÔÚÎª {name} ÉèÖÃÔ¶³ÌAI×é¼ş...");
+        // å½“ç»„ä»¶ç¬¬ä¸€æ¬¡æ·»åŠ åˆ°GameObjectæ—¶è°ƒç”¨
+        UnityEngine.Debug.Log($"æ­£åœ¨ä¸º {name} è®¾ç½®è¿œç¨‹AIç»„ä»¶...");
 
-        // ³¢ÊÔ×Ô¶¯»ñÈ¡CharacterController
+        // å°è¯•è‡ªåŠ¨è·å–CharacterController
         characterController = GetComponent<CharacterController>();
         if (characterController == null)
         {
-            UnityEngine.Debug.LogWarning($"ÇëÊÖ¶¯Îª {name} Ìí¼ÓCharacterController×é¼ş");
+            UnityEngine.Debug.LogWarning($"è¯·æ‰‹åŠ¨ä¸º {name} æ·»åŠ CharacterControllerç»„ä»¶");
         }
 
-        // ²éÕÒÄ£ĞÍ×ÓÎïÌå
+        // æŸ¥æ‰¾æ¨¡å‹å­ç‰©ä½“
         FindEnemyModel();
 
-        // Ô¶³ÌÄ¬ÈÏ²ÎÊı³õÊ¼»¯
+        // è¿œç¨‹é»˜è®¤å‚æ•°åˆå§‹åŒ–
         stoppingDistance = 8f;
         detectionRange = 15f;
         attackCooldown = 2f;
@@ -608,7 +608,7 @@ public class RemotEnemyAI : MonoBehaviour
 #endif
 }
 
-// ×Óµ¯ÉËº¦×é¼ş£¨Ğè¹ÒÔØµ½×Óµ¯Ô¤ÖÆÌå£¬»òÓÉAI×Ô¶¯Ìí¼Ó£©
+// å­å¼¹ä¼¤å®³ç»„ä»¶ï¼ˆéœ€æŒ‚è½½åˆ°å­å¼¹é¢„åˆ¶ä½“ï¼Œæˆ–ç”±AIè‡ªåŠ¨æ·»åŠ ï¼‰
 [RequireComponent(typeof(Collider))]
 public class ProjectileDamage : MonoBehaviour
 {
@@ -616,18 +616,18 @@ public class ProjectileDamage : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        // ¼ì²âÊÇ·ñÃüÖĞÍæ¼Ò
+        // æ£€æµ‹æ˜¯å¦å‘½ä¸­ç©å®¶
         if (collision.gameObject.CompareTag("Player"))
         {
             PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
                 playerHealth.TakeDamage(damage);
-                Debug.Log($"×Óµ¯ÃüÖĞÍæ¼Ò£¬Ôì³É {damage} µãÉËº¦");
+                Debug.Log($"å­å¼¹å‘½ä¸­ç©å®¶ï¼Œé€ æˆ {damage} ç‚¹ä¼¤å®³");
             }
         }
 
-        // ÃüÖĞºóÏú»Ù×Óµ¯£¨ÎŞÂÛÊÇ·ñÃüÖĞÍæ¼Ò£©
+        // å‘½ä¸­åé”€æ¯å­å¼¹ï¼ˆæ— è®ºæ˜¯å¦å‘½ä¸­ç©å®¶ï¼‰
         Destroy(gameObject);
     }
 }
