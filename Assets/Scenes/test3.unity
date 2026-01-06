@@ -387,6 +387,16 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7309045269284326285, guid: ff265891a5901004f842d6a493e89a48,
+        type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7309045269284326285, guid: ff265891a5901004f842d6a493e89a48,
+        type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1250
+      objectReference: {fileID: 0}
     - target: {fileID: 7573225350765881244, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
       propertyPath: m_Pivot.x
