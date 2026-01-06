@@ -102,10 +102,8 @@
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\ImageWeapon.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Character\Inventory.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Character\InventoryBehaviour.cs" />
-    <Compile Include="Assets\Scripts\AI\attack.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\ScopeBehaviour.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Demo\DisplayMaterialName.cs" />
-    <Compile Include="Assets\NewPunch\Zombie\Scripts\FreeZombie_EyesGlow.cs" />
     <Compile Include="Assets\Scripts\AutoPlayerShoot.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\ExplosiveBarrelScript.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\TextTutorial.cs" />
@@ -131,6 +129,7 @@
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Utilities\TimeHandler.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\PlayParticles.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\ProjectileScript.cs" />
+    <Compile Include="Assets\Resources\Models\Zombie\Zombie\Scripts\FreeZombie_EyesGlow.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Art\TextMesh Pro\Resources\Shaders\TMPro.cginc" />

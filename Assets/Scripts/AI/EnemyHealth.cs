@@ -213,7 +213,7 @@ public class EnemyHealth : MonoBehaviour
         Log($"=== {gameObject.name} 死亡 ===");
         isDead = true;
 
-        // 新增：禁用AI脚本（替换成你的AI脚本类名，比如SimpleEnemyAI）
+        // 新增：禁用AI脚本
         SimpleEnemyAI enemyAI = GetComponent<SimpleEnemyAI>();
         if (enemyAI != null)
         {
