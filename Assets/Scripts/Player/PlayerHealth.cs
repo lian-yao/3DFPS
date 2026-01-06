@@ -9,9 +9,12 @@ public class PlayerHealth : MonoBehaviour
     public float maxHealth = 100f;          // 玩家最大生命值
     public float currentHealth;             // 玩家当前生命值
     public Image healthBar;                 // UI血条（Image类型，需设置为填充模式）
-    public GameObject deathUI;              // 死亡提示UI
+    public GameObject deathUI;              // 死亡提示UI（可选，保留原有死亡UI）
     [Tooltip("可选：是否限制生命值不低于0")]
     public bool clampHealth = true;         // 防止生命值为负数
+
+    // 新增：玩家死亡事件（供GameManager监听）
+    public System.Action OnPlayerDead;
 
     void Start()
     {
@@ -95,20 +98,24 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("玩家死亡！");
 
-        // 暂停游戏（可选，若需要继续操作可注释）
-        Time.timeScale = 0f;
+        // 新增：触发死亡事件（通知GameManager显示失败界面）
+        OnPlayerDead?.Invoke();
 
-        // 显示死亡UI
-        if (deathUI != null)
-        {
-            deathUI.SetActive(true);
-        }
-        else
-        {
-            Debug.LogWarning("死亡UI未赋值！请在Inspector面板中拖拽死亡UI对象到PlayerHealth脚本的deathUI字段");
-        }
+        // 保留原有死亡逻辑（可选，若只用GameManager的失败界面，可注释）
+        // 暂停游戏（GameManager会处理暂停，这里可注释）
+        // Time.timeScale = 0f;
 
-        // 解锁鼠标（可选，方便点击死亡UI的按钮）
+        // 显示原有死亡UI（可选，建议只用GameManager的统一失败界面）
+        // if (deathUI != null)
+        // {
+        //     deathUI.SetActive(true);
+        // }
+        // else
+        // {
+        //     Debug.LogWarning("死亡UI未赋值！请在Inspector面板中拖拽死亡UI对象到PlayerHealth脚本的deathUI字段");
+        // }
+
+        // 解锁鼠标（GameManager的失败界面需要点击按钮，保留）
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 

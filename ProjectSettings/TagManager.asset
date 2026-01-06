@@ -14,8 +14,7 @@ TagManager:
   - GasTank
   - Metal (Static)
   - Wood (Static)
-  - Dirt (Static)
-  - Wood
+  - Enemy
   layers:
   - Default
   - TransparentFX
