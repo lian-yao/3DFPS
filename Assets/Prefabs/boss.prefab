@@ -77,7 +77,7 @@ MonoBehaviour:
   checkInterval: 0.3
   attackDamage: 10
   attackCooldown: 1
-  maxAttackHeight: 4
+  maxAttackHeight: 2
   showGizmos: 1
   characterController: {fileID: 0}
   enemyModel: {fileID: 1601810932996780625}
