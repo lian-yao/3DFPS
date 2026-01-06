@@ -363,13 +363,6 @@ public class AutoPlayerShoot : MonoBehaviour
 
             GUI.Label(new Rect(Screen.width - 200, 10, 190, 25), ammoText, style);
 
-            // 显示装填提示
-            if (ammoInfo.current <= 5 && !isReloading)
-            {
-                GUI.color = Color.yellow;
-                GUI.Label(new Rect(Screen.width - 200, 35, 190, 25), "弹药不足，按R装填", style);
-            }
-
             // 显示射击状态
             if (isReloading)
             {
