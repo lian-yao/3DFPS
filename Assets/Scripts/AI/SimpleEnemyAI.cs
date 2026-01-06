@@ -113,23 +113,7 @@ public class SimpleEnemyAI : MonoBehaviour
         // 方法1：通过标签（最常用）
         GameObject playerObj = GameObject.FindWithTag("Player");
 
-        // 方法2：通过名字
-        if (playerObj == null)
-        {
-            playerObj = GameObject.Find("Player");
-        }
-
-        // 方法3：使用更通用的查找方法
-        if (playerObj == null)
-        {
-            playerObj = FindPlayerByComponents();
-        }
-
-        // 方法4：手动查找包含"player"名称的对象
-        if (playerObj == null)
-        {
-            playerObj = FindPlayerByName();
-        }
+       
 
         if (playerObj != null)
         {
