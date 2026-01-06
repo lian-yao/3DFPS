@@ -14,10 +14,23 @@ public class GameManager : MonoBehaviour
     public PlayerHealth playerHealth;  // 拖入玩家的生命值脚本
     public List<EnemyHealth> allEnemies = new List<EnemyHealth>(); // 拖入所有野怪的EnemyHealth脚本
 
+    [Header("音效资源")]
+    public AudioClip gameOverSound; // 拖入游戏失败音效文件
+    public AudioClip gameWinSound;  // 拖入游戏通关音效文件
+    private AudioSource audioSource; // 音频播放组件
+
     private bool isGameEnded = false;
 
     void Start()
     {
+        // 初始化音频组件（自动添加，避免手动遗漏）
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+        audioSource.playOnAwake = false; // 禁止场景启动时自动播放音效
+
         // 初始化鼠标（新场景启动时锁定鼠标）
         LockCursor();
 
@@ -61,7 +74,7 @@ public class GameManager : MonoBehaviour
         if (gameWinPanel != null) gameWinPanel.SetActive(false);
     }
 
-    // 玩家死亡：显示失败界面
+    // 玩家死亡：显示失败界面 + 播放失败音效
     void ShowGameOver()
     {
         if (isGameEnded) return;
@@ -78,6 +91,17 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         UnlockCursor();
         Debug.Log($"[{gameObject.name}] 显示失败界面，鼠标已解锁");
+
+        // 播放游戏失败音效（带空引用防护）
+        if (audioSource != null && gameOverSound != null)
+        {
+            audioSource.PlayOneShot(gameOverSound); // 单次播放，不打断其他音频
+            Debug.Log($"[{gameObject.name}] 播放游戏失败音效");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] 未设置游戏失败音效！");
+        }
     }
 
     // 检查是否所有野怪都死亡
@@ -101,7 +125,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 通关：显示胜利界面
+    // 通关：显示胜利界面 + 播放通关音效
     void ShowGameWin()
     {
         if (isGameEnded) return;
@@ -118,6 +142,17 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0;
         UnlockCursor();
         Debug.Log($"[{gameObject.name}] 显示通关界面，鼠标已解锁");
+
+        // 播放游戏通关音效（带空引用防护）
+        if (audioSource != null && gameWinSound != null)
+        {
+            audioSource.PlayOneShot(gameWinSound);
+            Debug.Log($"[{gameObject.name}] 播放游戏通关音效");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] 未设置游戏通关音效！");
+        }
     }
 
     // 按钮逻辑：重新开始
