@@ -561,6 +561,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 427669857714961588, guid: cf2f0263c3b9f674ba0451d19d9cc421,
+        type: 3}
+      propertyPath: screenHealthSlider
+      value: 
+      objectReference: {fileID: 118453803}
     - target: {fileID: 2756806532984873631, guid: cf2f0263c3b9f674ba0451d19d9cc421,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -682,6 +687,18 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 325873999}
   m_SourcePrefab: {fileID: 100100000, guid: 13d9c5811fd0fcf4986655f5dcf8d46f, type: 3}
+--- !u!114 &118453803 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7129587231357567473, guid: ff265891a5901004f842d6a493e89a48,
+    type: 3}
+  m_PrefabInstance: {fileID: 1846600065}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &135359069
 PrefabInstance:
   m_ObjectHideFlags: 0
