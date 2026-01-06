@@ -61,7 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\CasingScript.cs" />
-    <Compile Include="Assets\NewPunch\ShirtlessZombieFree\Scripts\FreeZombie_EyesGlow.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\WeaponAttachmentManager.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\Magazine.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\CanvasSpawner.cs" />
@@ -106,6 +105,7 @@
     <Compile Include="Assets\Scripts\AI\attack.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Weapons\ScopeBehaviour.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Demo\DisplayMaterialName.cs" />
+    <Compile Include="Assets\NewPunch\Zombie\Scripts\FreeZombie_EyesGlow.cs" />
     <Compile Include="Assets\Scripts\AutoPlayerShoot.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Legacy\ExplosiveBarrelScript.cs" />
     <Compile Include="Assets\Test\Infima Games\Low Poly Shooter Pack - Free Sample\Code\Interface\TextTutorial.cs" />
