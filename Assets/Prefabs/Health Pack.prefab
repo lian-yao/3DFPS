@@ -122,8 +122,8 @@ MonoBehaviour:
   rotationSpeed: 60
   floatHeight: 0.5
   floatSpeed: 2
-  pickupSound: {fileID: 0}
-  soundVolume: 1
+  pickupSound: {fileID: 8300000, guid: 2d8af33759b38f744a505e013430ae91, type: 3}
+  soundVolume: 0.1
   use3DSound: 1
   pickupEffect: {fileID: 0}
   glowColor: {r: 1, g: 0, b: 0, a: 1}

@@ -220,7 +220,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bgmClip: {fileID: 8300000, guid: b85e36c0e138b9443862008b3a2a4011, type: 3}
-  bgmVolume: 0.5
+  bgmVolume: 0.06
 --- !u!4 &347488731
 Transform:
   m_ObjectHideFlags: 0

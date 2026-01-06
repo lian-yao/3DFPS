@@ -1,6 +1,11 @@
 fileFormatVersion: 2
-guid: 073d96089aeb3e54c9e1d60ec7908f3b
+<<<<<<<< HEAD:Assets/Scenes/Scenes/test2.unity.meta
+guid: 42e00babb8b6eb645a0db3c95d4e4b05
+DefaultImporter:
+========
+guid: 68dcab6f90748de418bf47de8f2f1451
 TextScriptImporter:
+>>>>>>>> 3f9852b2012314b13408f3fdef6437a60d3860fd:Assets/Scenes/Packages/manifest.json.meta
   externalObjects: {}
   userData: 
   assetBundleName: 

@@ -1,8 +1,18 @@
+<<<<<<<< HEAD:Assets/Scenes/Scenes/SampleScene.unity.meta
 fileFormatVersion: 2
-guid: 0f89a5d043db8834dac940f7f8552886
+guid: 3785bd1ba099afa4bb1de3d4b3165707
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+========
+fileFormatVersion: 2
+guid: e0bc09bb7bfd2a64b9159cf3a3d49930
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+>>>>>>>> 3f9852b2012314b13408f3fdef6437a60d3860fd:Assets/Scenes/Packages.meta
