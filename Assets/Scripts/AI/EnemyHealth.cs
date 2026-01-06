@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 
 public class EnemyHealth : MonoBehaviour
@@ -34,6 +35,9 @@ public class EnemyHealth : MonoBehaviour
 
     [Header("调试")]
     public bool debugMode = true;
+
+
+    public event Action OnEnemyDead;
 
     void Start()
     {
@@ -231,7 +235,7 @@ public class EnemyHealth : MonoBehaviour
             collider.enabled = false;
             Log("禁用怪物碰撞体，防止后续交互");
         }
-
+        OnEnemyDead?.Invoke();
         // 死亡特效
         if (deathEffect != null)
         {
@@ -321,6 +325,7 @@ public class EnemyHealth : MonoBehaviour
 #endif
         }
     }
+
 
     Color GetHealthColor()
     {
