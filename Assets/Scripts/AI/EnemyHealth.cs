@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class EnemyHealth : MonoBehaviour
 {
     [Header("基础设置")]
@@ -26,14 +27,19 @@ public class EnemyHealth : MonoBehaviour
     private Material originalMaterial;
     private Renderer enemyRenderer;
 
+    [Header("死亡动画设置")]
+    public Animator enemyAnimator; // 拖入敌人的Animator组件
+    public string deathAnimTrigger = "IsDead"; // 动画触发参数名（和Animator参数一致）
+    public float deathAnimDelay = 4f; // 死亡动画播放时长（根据实际动画调整）
+
     [Header("调试")]
     public bool debugMode = true;
 
     void Start()
     {
-        // 初始化生命值
+        // 初始化生命值（强制重置isDead，避免误判）
         currentHealth = maxHealth;
-        isDead = false;
+        isDead = false; // 显式重置，防止编辑器误设为true
 
         // 初始化对应类型的血条
         InitHealthBar();
@@ -43,9 +49,28 @@ public class EnemyHealth : MonoBehaviour
         if (enemyRenderer != null)
         {
             originalMaterial = enemyRenderer.material;
+            Log($"找到怪物渲染器，原始材质：{originalMaterial.name}");
+        }
+        else
+        {
+            LogWarning("未找到怪物的Renderer组件，受伤变色效果失效！");
         }
 
-        Log($"{(isBoss ? "Boss" : "敌人")}初始化: {gameObject.name}, HP: {currentHealth}/{maxHealth}");
+        // 检查Animator组件是否赋值
+        if (enemyAnimator == null)
+        {
+            enemyAnimator = GetComponent<Animator>();
+            if (enemyAnimator == null)
+            {
+                LogWarning("未找到Animator组件！请给敌人添加Animator并赋值enemyAnimator变量");
+            }
+            else
+            {
+                Log($"自动找到Animator组件：{enemyAnimator.name}");
+            }
+        }
+
+        Log($"{(isBoss ? "Boss" : "敌人")}初始化完成 | 名称：{gameObject.name} | 初始HP：{currentHealth}/{maxHealth} | isDead：{isDead}");
     }
 
     void Update()
@@ -68,7 +93,8 @@ public class EnemyHealth : MonoBehaviour
             {
                 screenHealthSlider.maxValue = maxHealth;
                 screenHealthSlider.value = currentHealth;
-                screenHealthSlider.gameObject.SetActive(true); // 显示Boss血条
+                screenHealthSlider.gameObject.SetActive(true);
+                Log($"Boss血条初始化完成，最大值：{screenHealthSlider.maxValue}，当前值：{screenHealthSlider.value}");
             }
             else
             {
@@ -87,16 +113,16 @@ public class EnemyHealth : MonoBehaviour
                 if (worldHealthCanvas != null)
                 {
                     worldHealthCanvas.enabled = true;
-                    // 强制设置层级避免遮挡
                     Canvas canvasComp = worldHealthCanvas.GetComponent<Canvas>();
                     canvasComp.sortingLayerName = "UI";
                     canvasComp.sortingOrder = 100;
+                    Log($"怪物跟随血条初始化完成，Canvas层级：{canvasComp.sortingLayerName}/{canvasComp.sortingOrder}");
                 }
-                // 确保填充部分激活
                 if (worldHealthSlider.fillRect != null)
                 {
                     worldHealthSlider.fillRect.gameObject.SetActive(true);
                 }
+                Log($"怪物血条初始化完成，最大值：{worldHealthSlider.maxValue}，当前值：{worldHealthSlider.value}");
             }
             else
             {
@@ -105,26 +131,39 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    // 核心扣血方法（增强调试+修复逻辑）
     public void TakeDamage(float damage)
     {
+        // 打印调用日志，确认是否被调用
+        Log($"收到扣血调用 | 传入伤害值：{damage} | 当前isDead：{isDead} | 当前血量：{currentHealth}");
+
+        // 死亡后忽略伤害
         if (isDead)
         {
-            Log($"{(isBoss ? "Boss" : "敌人")}已死亡，忽略伤害");
+            Log($"{gameObject.name} 已死亡，忽略本次伤害（传入伤害：{damage}）");
             return;
         }
 
-        // 确保伤害值为正
+        // 确保伤害值为正，且大于0
         damage = Mathf.Abs(damage);
+        if (damage <= 0)
+        {
+            LogWarning($"传入的伤害值无效（{damage}），必须大于0！");
+            return;
+        }
+
+        // 扣血并限制范围
+        float oldHealth = currentHealth;
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        // 同步对应类型的血条
+        // 同步血条
         UpdateHealthBar();
 
         // 受伤视觉效果
         StartCoroutine(ShowDamageEffect());
 
-        Log($"{gameObject.name} 受到 {damage} 点伤害，剩余HP: {currentHealth}/{maxHealth}");
+        Log($"{gameObject.name} 扣血完成 | 原始血量：{oldHealth} | 扣除：{damage} | 剩余血量：{currentHealth}");
 
         // 死亡检查
         if (currentHealth <= 0)
@@ -138,20 +177,18 @@ public class EnemyHealth : MonoBehaviour
     {
         if (isBoss)
         {
-            // Boss：同步屏幕血条（Canvas_1）
             if (screenHealthSlider != null)
             {
                 screenHealthSlider.value = currentHealth;
-                Log($"Boss血条同步: {currentHealth}/{maxHealth} | 血条值: {screenHealthSlider.value}");
+                Log($"Boss血条同步 | 当前血量：{currentHealth} | 血条显示值：{screenHealthSlider.value}");
             }
         }
         else
         {
-            // 怪物：同步跟随血条
             if (worldHealthSlider != null)
             {
                 worldHealthSlider.value = currentHealth;
-                Log($"怪物血条同步: {currentHealth}/{maxHealth} | 血条值: {worldHealthSlider.value}");
+                Log($"怪物血条同步 | 当前血量：{currentHealth} | 血条显示值：{worldHealthSlider.value}");
             }
         }
     }
@@ -163,62 +200,94 @@ public class EnemyHealth : MonoBehaviour
             enemyRenderer.material = damageMaterial;
             yield return new WaitForSeconds(0.1f);
             enemyRenderer.material = originalMaterial;
+            Log("受伤视觉效果播放完成");
+        }
+        else
+        {
+            LogWarning("渲染器或受伤材质未赋值，无法播放受伤效果");
         }
     }
 
     void Die()
     {
-        Log($"!!! {gameObject.name} {(isBoss ? "Boss被击败" : "死亡")} !!!");
+        Log($"=== {gameObject.name} 死亡 ===");
         isDead = true;
 
-        // 隐藏对应血条
+        // 新增：禁用AI脚本（替换成你的AI脚本类名，比如SimpleEnemyAI）
+        SimpleEnemyAI enemyAI = GetComponent<SimpleEnemyAI>();
+        if (enemyAI != null)
+        {
+            enemyAI.enabled = false;
+            Log("禁用怪物AI脚本，停止移动逻辑");
+        }
+
+        // 隐藏血条
         HideHealthBar();
 
         // 禁用碰撞体
         Collider collider = GetComponent<Collider>();
-        if (collider != null) collider.enabled = false;
+        if (collider != null)
+        {
+            collider.enabled = false;
+            Log("禁用怪物碰撞体，防止后续交互");
+        }
 
         // 死亡特效
         if (deathEffect != null)
         {
             Instantiate(deathEffect, transform.position, Quaternion.identity);
+            Log("生成死亡特效");
         }
 
-        // 死亡变色
-        if (enemyRenderer != null)
-        {
-            enemyRenderer.material.color = Color.gray;
-        }
+        // 播放死亡动画
+        PlayDeathAnimation();
 
         // 停止移动
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.velocity = Vector3.zero;
-            rb.isKinematic = true;
+            Log("重置怪物刚体速度为0");
         }
 
-        // 延迟销毁
-        Destroy(gameObject, isBoss ? 1f : 0.5f); // Boss延迟久一点
+        // 修复后的延迟销毁逻辑
+        float destroyDelay = isBoss ? (deathAnimDelay + 1f) : deathAnimDelay;
+        destroyDelay = Mathf.Max(destroyDelay, 0.1f); // 防止延迟时间为0/负数
+        Destroy(gameObject, destroyDelay);
+        Log($"将在 {destroyDelay} 秒后销毁怪物");
     }
 
-    // 隐藏血条（区分Boss/怪物）
+    void PlayDeathAnimation()
+    {
+        if (enemyAnimator != null && !string.IsNullOrEmpty(deathAnimTrigger))
+        {
+            // 给Animator的Bool参数赋值为true（触发死亡动画）
+            enemyAnimator.SetBool(deathAnimTrigger, true);
+            Log($"触发死亡动画（Bool参数）：{deathAnimTrigger} = true");
+        }
+        else
+        {
+            LogWarning("Animator组件未赋值或动画参数名为空，无法播放死亡动画！");
+            if (enemyRenderer != null)
+            {
+                enemyRenderer.material.color = Color.gray;
+                Log("死亡备用效果：怪物变灰色");
+            }
+        }
+    }
+
     void HideHealthBar()
     {
         if (isBoss)
         {
-            // 隐藏Boss屏幕血条（Canvas_1下的Slider）
-            if (screenHealthSlider != null)
-            {
-                screenHealthSlider.gameObject.SetActive(false);
-            }
+            if (screenHealthSlider != null) screenHealthSlider.gameObject.SetActive(false);
         }
         else
         {
-            // 隐藏怪物跟随血条
             if (worldHealthCanvas != null) worldHealthCanvas.enabled = false;
             if (worldHealthSlider != null) worldHealthSlider.gameObject.SetActive(false);
         }
+        Log("隐藏怪物血条");
     }
 
     void Log(string message)
@@ -231,7 +300,6 @@ public class EnemyHealth : MonoBehaviour
         Debug.LogWarning($"[EnemyHealth] {message}");
     }
 
-    // Scene视图调试生命条
     void OnDrawGizmos()
     {
         if (Application.isPlaying)
@@ -261,7 +329,6 @@ public class EnemyHealth : MonoBehaviour
         return healthPercent > 0.6f ? Color.green : (healthPercent > 0.3f ? Color.yellow : Color.red);
     }
 
-    // 编辑器修改数值后立即同步
     private void OnValidate()
     {
         if (Application.isPlaying)
