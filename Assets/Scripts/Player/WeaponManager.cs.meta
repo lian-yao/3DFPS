@@ -3,7 +3,17 @@ guid: c73f4917e65c1b741a1ef4c3d6f3d92d
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - handPoint: {instanceID: 0}
+  - weaponNameText: {instanceID: 0}
+  - ammoText: {instanceID: 0}
+  - weaponIcon: {instanceID: 0}
+  - weaponAnimator: {instanceID: 0}
+  - switchSound: {instanceID: 0}
+  - switchRifleSound: {instanceID: 0}
+  - switchFireKirinSound: {instanceID: 0}
+  - switchAWMSound: {instanceID: 0}
+  - weaponAmmo: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -22,11 +22,16 @@ public class AutoPlayerShoot : MonoBehaviour
     [Header("自动生成效果")]
     public bool autoGenerateEffects = true;
 
+    [Header("弹药系统")]
+    [SerializeField] private WeaponManager weaponManager; // 引用武器管理器
+    [SerializeField] private bool useAmmoSystem = true;   // 是否使用弹药系统
+
     // 私有变量
     private float nextFireTime;
     private AudioSource audioSource;
     private GameObject simpleHitEffect;
     private List<int> ignoredInstanceIDs = new List<int>(); // 缓存忽略物体的ID
+    private bool isReloading = false;
 
     void Start()
     {
@@ -56,7 +61,21 @@ public class AutoPlayerShoot : MonoBehaviour
             CreateSimpleHitEffect();
         }
 
+        // 5. 获取武器管理器（新增）
+        if (weaponManager == null)
+        {
+            weaponManager = GetComponent<WeaponManager>();
+            if (weaponManager == null)
+            {
+                weaponManager = GetComponentInParent<WeaponManager>();
+            }
+        }
+
         Debug.Log($"射击系统初始化完成！忽略 {ignoredObjects.Count} 个物体");
+        if (useAmmoSystem)
+        {
+            Debug.Log($"弹药系统: {(weaponManager != null ? "已连接" : "未找到武器管理器")}");
+        }
     }
 
     void InitializeIgnoreList()
@@ -83,11 +102,41 @@ public class AutoPlayerShoot : MonoBehaviour
 
     void Update()
     {
+        // 检查是否正在装填
+        if (weaponManager != null)
+        {
+            isReloading = weaponManager.IsReloading();
+        }
+
+        // 如果正在装填，不能射击
+        if (isReloading) return;
+
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
         {
-            Shoot();
-            nextFireTime = Time.time + fireRate;
+            // 检查弹药
+            if (CanShoot())
+            {
+                Shoot();
+                nextFireTime = Time.time + fireRate;
+            }
+            else
+            {
+                // 弹药不足，播放空枪声
+                PlayEmptySound();
+                nextFireTime = Time.time + 0.5f;
+            }
         }
+    }
+
+    // 修改CanShoot方法
+    bool CanShoot()
+    {
+        if (!useAmmoSystem || weaponManager == null) return true;
+
+        // 尝试射击，如果不能射击（弹药为0），会自动触发装填
+        bool canShoot = weaponManager.TryShootCurrentWeapon();
+
+        return canShoot;
     }
 
     void Shoot()
@@ -203,6 +252,34 @@ public class AutoPlayerShoot : MonoBehaviour
         }
     }
 
+    // 新增：播放空枪声
+    void PlayEmptySound()
+    {
+        if (audioSource != null && Time.time >= nextFireTime)
+        {
+            // 可以使用不同的音效或修改现有音效
+            audioSource.PlayOneShot(audioSource.clip, 0.3f);
+            nextFireTime = Time.time + 0.5f; // 空枪延迟
+        }
+    }
+
+    // 新增：检查是否有弹药
+    public bool HasAmmo()
+    {
+        if (!useAmmoSystem || weaponManager == null) return true;
+
+        var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
+        return ammoInfo.current > 0;
+    }
+
+    // 新增：获取弹药信息
+    public (int current, int reserve) GetAmmoInfo()
+    {
+        if (!useAmmoSystem || weaponManager == null) return (0, 0);
+
+        return weaponManager.GetCurrentWeaponAmmo();
+    }
+
     void CreateSimpleHitEffect()
     {
         GameObject effect = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -267,15 +344,65 @@ public class AutoPlayerShoot : MonoBehaviour
         }
     }
 
-    // 在Inspector中显示当前忽略的物体数量
+    // 在Inspector中显示当前信息
     void OnGUI()
     {
+        if (useAmmoSystem && weaponManager != null)
+        {
+            // 显示弹药信息
+            var ammoInfo = GetAmmoInfo();
+            GUI.color = ammoInfo.current > 0 ? Color.white : Color.red;
+
+            string reloadStatus = isReloading ? " [装填中...]" : "";
+            string ammoText = $"弹药: {ammoInfo.current} | 后备: {ammoInfo.reserve}{reloadStatus}";
+
+            // 在屏幕右上角显示
+            GUIStyle style = new GUIStyle(GUI.skin.label);
+            style.fontSize = 14;
+            style.fontStyle = FontStyle.Bold;
+
+            GUI.Label(new Rect(Screen.width - 200, 10, 190, 25), ammoText, style);
+
+            // 显示装填提示
+            if (ammoInfo.current <= 5 && !isReloading)
+            {
+                GUI.color = Color.yellow;
+                GUI.Label(new Rect(Screen.width - 200, 35, 190, 25), "弹药不足，按R装填", style);
+            }
+
+            // 显示射击状态
+            if (isReloading)
+            {
+                GUI.color = Color.yellow;
+                GUI.Label(new Rect(Screen.width - 200, 60, 190, 25), "正在装填...", style);
+            }
+        }
+
 #if UNITY_EDITOR
         if (UnityEditor.Selection.activeGameObject == gameObject)
         {
             GUI.color = Color.yellow;
-            GUI.Label(new Rect(10, 10, 300, 20), 
+            GUI.Label(new Rect(10, 10, 300, 20),
                      $"忽略物体数量: {ignoredObjects.Count}");
+
+            // 显示射击状态
+            GUI.Label(new Rect(10, 30, 300, 20),
+                     $"射速: {fireRate:F2}s/发 ({(60f/fireRate):F0} RPM)");
+
+            // 显示弹药状态（新增）
+            if (useAmmoSystem)
+            {
+                var ammoInfo = GetAmmoInfo();
+                GUI.color = ammoInfo.current > 0 ? Color.green : Color.red;
+                GUI.Label(new Rect(10, 50, 300, 20),
+                         $"弹药: {ammoInfo.current}/{ammoInfo.reserve}");
+
+                if (isReloading)
+                {
+                    GUI.color = Color.yellow;
+                    GUI.Label(new Rect(10, 70, 300, 20), "状态: 装填中");
+                }
+            }
         }
 #endif
     }

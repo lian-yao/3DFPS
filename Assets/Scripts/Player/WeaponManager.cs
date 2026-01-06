@@ -1,6 +1,7 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // 添加UI命名空间
 
 public class WeaponManager : MonoBehaviour
 {
@@ -8,6 +9,11 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private Transform handPoint;  // 手部挂载点
     [SerializeField] private List<GameObject> weapons = new List<GameObject>(); // 所有武器
     [SerializeField] private int defaultWeaponIndex = 0; // 默认武器索引
+
+    [Header("UI设置")]
+    [SerializeField] private Text weaponNameText; // 武器名称显示
+    [SerializeField] private Text ammoText;      // 弹药显示
+    [SerializeField] private Image weaponIcon;   // 武器图标（可选）
 
     [Header("动画设置")]
     [SerializeField] private Animator weaponAnimator;  // 手部/武器模型的Animator
@@ -17,7 +23,13 @@ public class WeaponManager : MonoBehaviour
     [Header("切换设置")]
     [SerializeField] private float switchSpeed = 0.3f; // 切换速度
     [SerializeField] private AudioClip switchSound;   // 切换音效
-    [SerializeField] private bool enableAutoReload = true; // 切换时自动装填
+    [SerializeField] private AudioClip switchRifleSound;   // 步枪切换音效
+    [SerializeField] private AudioClip switchFireKirinSound; // 火麒麟切换音效
+    [SerializeField] private AudioClip switchAWMSound; // AWM切换音效
+
+    [Header("弹药系统")]
+    [SerializeField] private WeaponAmmo weaponAmmo; // 引用弹药管理器
+    [SerializeField] private KeyCode reloadKey = KeyCode.R; // 装填键
 
     private int currentWeaponIndex = -1; // 当前武器索引
     private bool isSwitching = false;    // 是否正在切换
@@ -27,6 +39,14 @@ public class WeaponManager : MonoBehaviour
     // 保存武器的原始位置和旋转（防止位置丢失）
     private Dictionary<GameObject, Vector3> weaponOriginalPositions = new Dictionary<GameObject, Vector3>();
     private Dictionary<GameObject, Quaternion> weaponOriginalRotations = new Dictionary<GameObject, Quaternion>();
+
+    // 武器名称映射
+    private Dictionary<string, string> weaponDisplayNames = new Dictionary<string, string>()
+    {
+        { "Rifle", "步枪" },
+        { "FireKirin", "火麒麟" },
+        { "AWM", "AWM" }
+    };
 
     // 属性
     public GameObject CurrentWeapon => currentWeaponIndex >= 0 ? weapons[currentWeaponIndex] : null;
@@ -40,6 +60,13 @@ public class WeaponManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+
+        // 限制武器数量为3把
+        if (weapons.Count > 3)
+        {
+            Debug.LogWarning($"武器数量超过3把，只保留前3把");
+            weapons = weapons.GetRange(0, 3);
+        }
 
         // 如果武器动画器未指定，尝试从子对象获取
         if (weaponAnimator == null)
@@ -57,10 +84,43 @@ public class WeaponManager : MonoBehaviour
         // 初始化武器
         InitializeWeapons();
 
+        // 初始化弹药系统
+        InitializeAmmoSystem();
+
         // 切换到默认武器
         if (defaultWeaponIndex >= 0 && defaultWeaponIndex < weapons.Count)
         {
             SwitchWeapon(defaultWeaponIndex);
+        }
+    }
+
+    // 初始化弹药系统
+    void InitializeAmmoSystem()
+    {
+        if (weaponAmmo == null)
+        {
+            weaponAmmo = GetComponent<WeaponAmmo>();
+            if (weaponAmmo == null)
+            {
+                weaponAmmo = gameObject.AddComponent<WeaponAmmo>();
+            }
+        }
+
+        // 为三把武器注册弹药信息
+        if (weapons.Count >= 1)
+        {
+            // 步枪：35/120
+            weaponAmmo.RegisterWeapon(weapons[0].name, 35, 120);
+        }
+        if (weapons.Count >= 2)
+        {
+            // 火麒麟：30/100
+            weaponAmmo.RegisterWeapon(weapons[1].name, 30, 100);
+        }
+        if (weapons.Count >= 3)
+        {
+            // AWM：5/30
+            weaponAmmo.RegisterWeapon(weapons[2].name, 5, 30);
         }
     }
 
@@ -70,6 +130,12 @@ public class WeaponManager : MonoBehaviour
 
         // 检测武器切换输入
         HandleWeaponSwitchInput();
+
+        // 检测装填输入
+        HandleReloadInput();
+
+        // 更新UI
+        UpdateWeaponUI();
     }
 
     // 保存武器的原始Transform
@@ -153,22 +219,14 @@ public class WeaponManager : MonoBehaviour
         {
             SwitchWeapon(2);
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha4) && weapons.Count > 3)
-        {
-            SwitchWeapon(3);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha5) && weapons.Count > 4)
-        {
-            SwitchWeapon(4);
-        }
 
-        // 使用滚轮切换
+        // 使用滚轮切换（重点修改）
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll > 0.1f) // 向上滚动
+        if (scroll > 0f) // 向上滚动，切换到下一把武器
         {
             SwitchToNextWeapon();
         }
-        else if (scroll < -0.1f) // 向下滚动
+        else if (scroll < 0f) // 向下滚动，切换到上一把武器
         {
             SwitchToPreviousWeapon();
         }
@@ -177,6 +235,15 @@ public class WeaponManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             SwitchToPreviousWeapon();
+        }
+    }
+
+    // 处理装填输入
+    void HandleReloadInput()
+    {
+        if (Input.GetKeyDown(reloadKey) && !isSwitching)
+        {
+            ReloadCurrentWeapon();
         }
     }
 
@@ -193,7 +260,6 @@ public class WeaponManager : MonoBehaviour
         // 检查是否已经是当前武器
         if (newIndex == currentWeaponIndex)
         {
-            // Debug.Log($"已经是武器 {newIndex}");
             return;
         }
 
@@ -211,12 +277,18 @@ public class WeaponManager : MonoBehaviour
     {
         isSwitching = true;
 
-        // 播放切换音效
-        PlaySwitchSound();
+        // 播放对应的切换音效
+        PlaySwitchSound(newIndex);
 
         // 如果有当前武器，收起它
         if (currentWeaponIndex >= 0 && weapons[currentWeaponIndex] != null)
         {
+            // 取消当前武器的装填
+            if (weaponAmmo != null)
+            {
+                weaponAmmo.CancelReload();
+            }
+
             yield return StartCoroutine(HideWeaponCoroutine(currentWeaponIndex));
         }
 
@@ -227,43 +299,65 @@ public class WeaponManager : MonoBehaviour
         int previousWeaponIndex = currentWeaponIndex;
         currentWeaponIndex = newIndex;
 
-        // 更新射击动画速度（新增的关键功能）
+        // 设置当前武器到弹药系统
+        if (weaponAmmo != null && weapons[newIndex] != null)
+        {
+            weaponAmmo.SetCurrentWeapon(weapons[newIndex].name);
+        }
+
+        // 更新射击动画速度
         UpdateFireAnimationSpeed();
 
         // 触发武器切换事件
         OnWeaponSwitched(previousWeaponIndex, newIndex);
 
+        // 检查是否需要自动装填（新增）
+        CheckAutoReload();
+
         isSwitching = false;
     }
 
-    // 新增：更新射击动画速度
+    // 检查是否需要自动装填
+    void CheckAutoReload()
+    {
+        if (CurrentWeapon != null && weaponAmmo != null)
+        {
+            string weaponName = CurrentWeapon.name;
+            if (weaponAmmo.NeedReload(weaponName) && !weaponAmmo.IsReloading())
+            {
+                StartCoroutine(AutoReloadAfterSwitch());
+            }
+        }
+    }
+
+    IEnumerator AutoReloadAfterSwitch()
+    {
+        yield return new WaitForSeconds(0.5f); // 等待一小段时间
+        ReloadCurrentWeapon();
+    }
+
+    // 更新射击动画速度
     void UpdateFireAnimationSpeed()
     {
         if (weaponAnimator == null || currentWeaponIndex < 0)
         {
-            Debug.LogWarning("无法更新动画速度：Animator未设置或当前武器索引无效");
             return;
         }
 
         GameObject currentWeapon = weapons[currentWeaponIndex];
         if (currentWeapon == null) return;
 
-        // 尝试获取当前武器的AutoPlayerShoot组件
         AutoPlayerShoot shootScript = currentWeapon.GetComponent<AutoPlayerShoot>();
         if (shootScript == null)
         {
-            Debug.LogWarning($"武器 {currentWeapon.name} 上没有找到AutoPlayerShoot组件");
             return;
         }
 
-        // 获取射速（fireRate是射击间隔，单位：秒）
+        // 获取射速
         float fireRate = shootScript.fireRate;
-
-        // 防止除零错误
         if (fireRate <= 0.01f) fireRate = 0.01f;
 
-        // 计算动画速度：射速越快（fireRate越小），动画速度应该越快
-        // 基础公式：动画速度 = 基础速度 / 射击间隔
+        // 计算动画速度
         float baseSpeed = 1.0f;
         float calculatedSpeed = (baseSpeed / fireRate) * animationSpeedMultiplier;
 
@@ -272,18 +366,96 @@ public class WeaponManager : MonoBehaviour
 
         // 设置到Animator
         weaponAnimator.SetFloat(fireSpeedParam, calculatedSpeed);
-
-        // 调试信息
-        float rpm = 60f / fireRate; // 转换为每分钟射速
-        Debug.Log($"武器切换: {currentWeapon.name} | " +
-                 $"射速: {fireRate:F2}s/发 ({rpm:F0} RPM) | " +
-                 $"动画速度: {calculatedSpeed:F2}x");
     }
 
-    // 新增：手动更新动画速度（可以在外部调用）
-    public void RefreshAnimationSpeed()
+    // 播放切换音效
+    void PlaySwitchSound(int weaponIndex)
     {
-        UpdateFireAnimationSpeed();
+        AudioClip soundToPlay = switchSound;
+
+        // 根据武器索引选择不同的音效
+        if (weaponIndex == 0 && switchRifleSound != null)
+        {
+            soundToPlay = switchRifleSound; // 步枪
+        }
+        else if (weaponIndex == 1 && switchFireKirinSound != null)
+        {
+            soundToPlay = switchFireKirinSound; // 火麒麟
+        }
+        else if (weaponIndex == 2 && switchAWMSound != null)
+        {
+            soundToPlay = switchAWMSound; // AWM
+        }
+
+        if (soundToPlay != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(soundToPlay);
+        }
+    }
+
+    // 装填当前武器
+    public void ReloadCurrentWeapon()
+    {
+        if (currentWeaponIndex < 0 || weapons[currentWeaponIndex] == null) return;
+
+        string weaponName = weapons[currentWeaponIndex].name;
+
+        if (weaponAmmo != null && !weaponAmmo.IsReloading())
+        {
+            weaponAmmo.StartReload(weaponName);
+
+            // 播放装填动画
+            if (animator != null)
+            {
+                animator.SetTrigger("Reload");
+            }
+
+            Debug.Log($"开始装填: {weaponName}");
+        }
+    }
+
+    // 射击检测，集成弹药消耗
+    public bool TryShootCurrentWeapon()
+    {
+        if (currentWeaponIndex < 0 || weapons[currentWeaponIndex] == null)
+            return false;
+
+        string weaponName = weapons[currentWeaponIndex].name;
+
+        if (weaponAmmo != null)
+        {
+            // 消耗弹药
+            bool canShoot = weaponAmmo.ConsumeAmmo(weaponName, 1);
+
+            // 如果射击后子弹为0，自动装填
+            if (canShoot)
+            {
+                var ammoInfo = weaponAmmo.GetAmmoInfo(weaponName);
+                if (ammoInfo.current <= 0 && !weaponAmmo.IsReloading())
+                {
+                    StartCoroutine(AutoReloadAfterShooting());
+                }
+            }
+
+            return canShoot;
+        }
+
+        return true;
+    }
+
+    IEnumerator AutoReloadAfterShooting()
+    {
+        yield return new WaitForSeconds(0.5f);
+        ReloadCurrentWeapon();
+    }
+
+    // 获取当前武器弹药信息
+    public (int current, int reserve) GetCurrentWeaponAmmo()
+    {
+        if (currentWeaponIndex < 0 || weapons[currentWeaponIndex] == null || weaponAmmo == null)
+            return (0, 0);
+
+        return weaponAmmo.GetAmmoInfo(weapons[currentWeaponIndex].name);
     }
 
     IEnumerator HideWeaponCoroutine(int index)
@@ -296,10 +468,7 @@ public class WeaponManager : MonoBehaviour
             animator.SetTrigger("HideWeapon");
         }
 
-        // 简单延迟后隐藏（模拟收起动作）
         yield return new WaitForSeconds(switchSpeed * 0.5f);
-
-        // 重要：只隐藏，不重置位置！
         weapon.SetActive(false);
     }
 
@@ -323,24 +492,7 @@ public class WeaponManager : MonoBehaviour
             animator.SetTrigger("DrawWeapon");
         }
 
-        // 动画时间
         yield return new WaitForSeconds(switchSpeed * 0.5f);
-
-        // 如果启用自动装填
-        if (enableAutoReload)
-        {
-            // 可以在这里触发装填逻辑
-            // WeaponBase weaponComponent = weapon.GetComponent<WeaponBase>();
-            // if (weaponComponent != null) weaponComponent.CheckAmmoAndReload();
-        }
-    }
-
-    void PlaySwitchSound()
-    {
-        if (switchSound != null && audioSource != null)
-        {
-            audioSource.PlayOneShot(switchSound);
-        }
     }
 
     void OnWeaponSwitched(int oldIndex, int newIndex)
@@ -349,7 +501,7 @@ public class WeaponManager : MonoBehaviour
         string newName = GetWeaponName(newIndex);
         Debug.Log($"武器切换: {oldName} → {newName}");
 
-        // 可以在这里触发UI更新
+        // 更新UI
         UpdateWeaponUI();
     }
 
@@ -372,6 +524,20 @@ public class WeaponManager : MonoBehaviour
         SwitchWeapon(newIndex);
     }
 
+    // 获取武器显示名称
+    public string GetWeaponDisplayName(int index)
+    {
+        if (index < 0 || index >= weapons.Count || weapons[index] == null)
+            return "无";
+
+        string weaponName = weapons[index].name;
+        if (weaponDisplayNames.ContainsKey(weaponName))
+        {
+            return weaponDisplayNames[weaponName];
+        }
+        return weaponName;
+    }
+
     // 获取武器名称
     public string GetWeaponName(int index)
     {
@@ -381,7 +547,60 @@ public class WeaponManager : MonoBehaviour
         return weapons[index].name;
     }
 
-    // 获取当前武器的射速（供外部使用）
+    // 更新武器UI
+    void UpdateWeaponUI()
+    {
+        if (currentWeaponIndex < 0) return;
+
+        // 更新武器名称
+        if (weaponNameText != null)
+        {
+            weaponNameText.text = GetWeaponDisplayName(currentWeaponIndex);
+        }
+
+        // 更新弹药显示
+        if (ammoText != null && weaponAmmo != null)
+        {
+            var ammoInfo = GetCurrentWeaponAmmo();
+            string reloadStatus = weaponAmmo.IsReloading() ? " [装填中...]" : "";
+            ammoText.text = $"{ammoInfo.current} / {ammoInfo.reserve}{reloadStatus}";
+
+            // 根据弹药数量改变颜色
+            if (ammoInfo.current <= 0)
+            {
+                ammoText.color = Color.red;
+            }
+            else if (ammoInfo.current <= 5)
+            {
+                ammoText.color = Color.yellow;
+            }
+            else
+            {
+                ammoText.color = Color.white;
+            }
+        }
+
+        // 更新武器图标（如果有）
+        if (weaponIcon != null)
+        {
+            // 这里可以根据武器类型设置不同的图标
+            // weaponIcon.sprite = GetWeaponIcon(currentWeaponIndex);
+        }
+    }
+
+    // 强制更新UI（供外部调用）
+    public void RefreshUI()
+    {
+        UpdateWeaponUI();
+    }
+
+    // 获取是否正在装填
+    public bool IsReloading()
+    {
+        return weaponAmmo != null && weaponAmmo.IsReloading();
+    }
+
+    // 获取当前武器的射速
     public float GetCurrentWeaponFireRate()
     {
         if (currentWeaponIndex < 0 || currentWeaponIndex >= weapons.Count) return 0.5f;
@@ -393,164 +612,28 @@ public class WeaponManager : MonoBehaviour
         return shootScript != null ? shootScript.fireRate : 0.5f;
     }
 
-    // 获取当前武器的动画速度（供外部使用）
-    public float GetCurrentAnimationSpeed()
-    {
-        if (weaponAnimator != null)
-        {
-            return weaponAnimator.GetFloat(fireSpeedParam);
-        }
-        return 1.0f;
-    }
-
-    // 更新武器UI（供外部调用）
-    void UpdateWeaponUI()
-    {
-        // 这里可以添加UI更新逻辑
-        // 例如：UIManager.Instance.UpdateWeaponIcon(CurrentWeapon);
-    }
-
-    // 添加新武器
-    public void AddWeapon(GameObject newWeapon)
-    {
-        if (newWeapon == null) return;
-
-        // 保存原始位置
-        weaponOriginalPositions[newWeapon] = newWeapon.transform.localPosition;
-        weaponOriginalRotations[newWeapon] = newWeapon.transform.localRotation;
-
-        // 设置武器父对象
-        newWeapon.transform.SetParent(handPoint, false);
-
-        // 隐藏武器
-        newWeapon.SetActive(false);
-
-        // 添加到列表
-        weapons.Add(newWeapon);
-
-        Debug.Log($"添加武器: {newWeapon.name}");
-    }
-
-    // 移除武器
-    public void RemoveWeapon(int index)
-    {
-        if (index < 0 || index >= weapons.Count) return;
-
-        GameObject weaponToRemove = weapons[index];
-
-        // 从字典中移除
-        if (weaponOriginalPositions.ContainsKey(weaponToRemove))
-        {
-            weaponOriginalPositions.Remove(weaponToRemove);
-            weaponOriginalRotations.Remove(weaponToRemove);
-        }
-
-        weapons.RemoveAt(index);
-
-        if (weaponToRemove != null)
-        {
-            Destroy(weaponToRemove);
-        }
-
-        // 如果移除的是当前武器，切换到其他武器
-        if (index == currentWeaponIndex)
-        {
-            if (weapons.Count > 0)
-            {
-                SwitchWeapon(0);
-            }
-            else
-            {
-                currentWeaponIndex = -1;
-            }
-        }
-    }
-
-    // 获取当前武器的Transform（供其他脚本使用）
-    public Transform GetCurrentWeaponTransform()
-    {
-        if (CurrentWeapon != null)
-            return CurrentWeapon.transform;
-        return null;
-    }
-
-    // 获取当前武器的射击点（如果有）
-    public Transform GetCurrentWeaponFirePoint()
-    {
-        if (CurrentWeapon == null) return null;
-
-        // 假设射击点名为 "FirePoint" 或 "Muzzle"
-        Transform firePoint = CurrentWeapon.transform.Find("FirePoint");
-        if (firePoint == null) firePoint = CurrentWeapon.transform.Find("Muzzle");
-
-        return firePoint;
-    }
-
-    // 调试信息
     void OnGUI()
     {
+        // 保留原有的调试信息显示
         if (weapons.Count == 0) return;
 
-        // 显示当前武器信息
-        GUI.Label(new Rect(10, 150, 300, 20), $"当前武器: {GetWeaponName(currentWeaponIndex)}");
+        GUI.Label(new Rect(10, 150, 300, 20), $"当前武器: {GetWeaponDisplayName(currentWeaponIndex)}");
 
-        // 显示射速和动画速度信息
         if (currentWeaponIndex >= 0 && currentWeaponIndex < weapons.Count)
         {
             float fireRate = GetCurrentWeaponFireRate();
-            float animationSpeed = GetCurrentAnimationSpeed();
             float rpm = 60f / fireRate;
 
             GUI.Label(new Rect(10, 170, 300, 20), $"射速: {fireRate:F2}s/发 ({rpm:F0} RPM)");
-            GUI.Label(new Rect(10, 190, 300, 20), $"动画速度: {animationSpeed:F2}x");
-        }
 
-        GUI.Label(new Rect(10, 210, 300, 20), $"武器列表:");
-
-        // 显示所有武器状态
-        for (int i = 0; i < weapons.Count; i++)
-        {
-            string weaponName = GetWeaponName(i);
-            bool isActive = weapons[i] != null && weapons[i].activeSelf;
-            string prefix = (i == currentWeaponIndex) ? "► " : "  ";
-            string status = isActive ? " [激活]" : " [隐藏]";
-
-            GUI.Label(new Rect(10, 230 + i * 20, 300, 20), $"{prefix}[{i + 1}] {weaponName}{status}");
-        }
-
-        // 显示控制提示
-        GUI.Label(new Rect(10, 230 + weapons.Count * 20 + 10, 300, 80),
-            "控制方式:\n" +
-            "1/2/3: 直接切换武器\n" +
-            "鼠标滚轮: 上下切换武器\n" +
-            "Q键: 切换到上一把武器\n" +
-            "鼠标左键: 射击 (AutoPlayerShoot)\n" +
-            "动画速度自动根据武器射速调整");
-
-        // 显示武器位置信息（调试用）
-        if (CurrentWeapon != null)
-        {
-            Vector3 pos = CurrentWeapon.transform.localPosition;
-            GUI.Label(new Rect(10, 230 + weapons.Count * 20 + 90, 300, 20),
-                $"武器位置: ({pos.x:F2}, {pos.y:F2}, {pos.z:F2})");
-        }
-    }
-
-    // 编辑器辅助：在编辑器中预览武器位置
-    void OnDrawGizmosSelected()
-    {
-        if (handPoint == null) return;
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(handPoint.position, 0.05f);
-
-        // 绘制武器位置预览
-        foreach (GameObject weapon in weapons)
-        {
-            if (weapon != null)
+            if (weaponAmmo != null)
             {
-                Gizmos.color = weapon.activeSelf ? Color.red : Color.gray;
-                Gizmos.DrawWireCube(weapon.transform.position, Vector3.one * 0.03f);
+                var ammoInfo = GetCurrentWeaponAmmo();
+                GUI.color = weaponAmmo.IsReloading() ? Color.yellow : Color.white;
+                string reloadStatus = weaponAmmo.IsReloading() ? " [装填中]" : "";
+
+                GUI.Label(new Rect(10, 190, 300, 20),
+                         $"弹药: {ammoInfo.current} | 后备: {ammoInfo.reserve}{reloadStatus}");
             }
         }
     }
