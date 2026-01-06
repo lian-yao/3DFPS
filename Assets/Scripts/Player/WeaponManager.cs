@@ -9,6 +9,11 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private List<GameObject> weapons = new List<GameObject>(); // 所有武器
     [SerializeField] private int defaultWeaponIndex = 0; // 默认武器索引
 
+    [Header("动画设置")]
+    [SerializeField] private Animator weaponAnimator;  // 手部/武器模型的Animator
+    [SerializeField] private string fireSpeedParam = "FireSpeed"; // Animator中控制动画速度的参数名
+    [SerializeField] private float animationSpeedMultiplier = 1.0f; // 动画速度乘数，用于微调
+
     [Header("切换设置")]
     [SerializeField] private float switchSpeed = 0.3f; // 切换速度
     [SerializeField] private AudioClip switchSound;   // 切换音效
@@ -35,6 +40,16 @@ public class WeaponManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
+
+        // 如果武器动画器未指定，尝试从子对象获取
+        if (weaponAnimator == null)
+        {
+            weaponAnimator = GetComponentInChildren<Animator>();
+            if (weaponAnimator == null && handPoint != null)
+            {
+                weaponAnimator = handPoint.GetComponent<Animator>();
+            }
+        }
 
         // 保存武器的原始位置和旋转
         SaveWeaponOriginalTransforms();
@@ -212,10 +227,63 @@ public class WeaponManager : MonoBehaviour
         int previousWeaponIndex = currentWeaponIndex;
         currentWeaponIndex = newIndex;
 
+        // 更新射击动画速度（新增的关键功能）
+        UpdateFireAnimationSpeed();
+
         // 触发武器切换事件
         OnWeaponSwitched(previousWeaponIndex, newIndex);
 
         isSwitching = false;
+    }
+
+    // 新增：更新射击动画速度
+    void UpdateFireAnimationSpeed()
+    {
+        if (weaponAnimator == null || currentWeaponIndex < 0)
+        {
+            Debug.LogWarning("无法更新动画速度：Animator未设置或当前武器索引无效");
+            return;
+        }
+
+        GameObject currentWeapon = weapons[currentWeaponIndex];
+        if (currentWeapon == null) return;
+
+        // 尝试获取当前武器的AutoPlayerShoot组件
+        AutoPlayerShoot shootScript = currentWeapon.GetComponent<AutoPlayerShoot>();
+        if (shootScript == null)
+        {
+            Debug.LogWarning($"武器 {currentWeapon.name} 上没有找到AutoPlayerShoot组件");
+            return;
+        }
+
+        // 获取射速（fireRate是射击间隔，单位：秒）
+        float fireRate = shootScript.fireRate;
+
+        // 防止除零错误
+        if (fireRate <= 0.01f) fireRate = 0.01f;
+
+        // 计算动画速度：射速越快（fireRate越小），动画速度应该越快
+        // 基础公式：动画速度 = 基础速度 / 射击间隔
+        float baseSpeed = 1.0f;
+        float calculatedSpeed = (baseSpeed / fireRate) * animationSpeedMultiplier;
+
+        // 限制动画速度在合理范围内
+        calculatedSpeed = Mathf.Clamp(calculatedSpeed, 0.3f, 3f);
+
+        // 设置到Animator
+        weaponAnimator.SetFloat(fireSpeedParam, calculatedSpeed);
+
+        // 调试信息
+        float rpm = 60f / fireRate; // 转换为每分钟射速
+        Debug.Log($"武器切换: {currentWeapon.name} | " +
+                 $"射速: {fireRate:F2}s/发 ({rpm:F0} RPM) | " +
+                 $"动画速度: {calculatedSpeed:F2}x");
+    }
+
+    // 新增：手动更新动画速度（可以在外部调用）
+    public void RefreshAnimationSpeed()
+    {
+        UpdateFireAnimationSpeed();
     }
 
     IEnumerator HideWeaponCoroutine(int index)
@@ -277,7 +345,9 @@ public class WeaponManager : MonoBehaviour
 
     void OnWeaponSwitched(int oldIndex, int newIndex)
     {
-        Debug.Log($"武器切换: {GetWeaponName(oldIndex)} → {GetWeaponName(newIndex)}");
+        string oldName = GetWeaponName(oldIndex);
+        string newName = GetWeaponName(newIndex);
+        Debug.Log($"武器切换: {oldName} → {newName}");
 
         // 可以在这里触发UI更新
         UpdateWeaponUI();
@@ -309,6 +379,28 @@ public class WeaponManager : MonoBehaviour
             return "无";
 
         return weapons[index].name;
+    }
+
+    // 获取当前武器的射速（供外部使用）
+    public float GetCurrentWeaponFireRate()
+    {
+        if (currentWeaponIndex < 0 || currentWeaponIndex >= weapons.Count) return 0.5f;
+
+        GameObject weapon = weapons[currentWeaponIndex];
+        if (weapon == null) return 0.5f;
+
+        AutoPlayerShoot shootScript = weapon.GetComponent<AutoPlayerShoot>();
+        return shootScript != null ? shootScript.fireRate : 0.5f;
+    }
+
+    // 获取当前武器的动画速度（供外部使用）
+    public float GetCurrentAnimationSpeed()
+    {
+        if (weaponAnimator != null)
+        {
+            return weaponAnimator.GetFloat(fireSpeedParam);
+        }
+        return 1.0f;
     }
 
     // 更新武器UI（供外部调用）
@@ -401,7 +493,19 @@ public class WeaponManager : MonoBehaviour
 
         // 显示当前武器信息
         GUI.Label(new Rect(10, 150, 300, 20), $"当前武器: {GetWeaponName(currentWeaponIndex)}");
-        GUI.Label(new Rect(10, 170, 300, 20), $"武器列表:");
+
+        // 显示射速和动画速度信息
+        if (currentWeaponIndex >= 0 && currentWeaponIndex < weapons.Count)
+        {
+            float fireRate = GetCurrentWeaponFireRate();
+            float animationSpeed = GetCurrentAnimationSpeed();
+            float rpm = 60f / fireRate;
+
+            GUI.Label(new Rect(10, 170, 300, 20), $"射速: {fireRate:F2}s/发 ({rpm:F0} RPM)");
+            GUI.Label(new Rect(10, 190, 300, 20), $"动画速度: {animationSpeed:F2}x");
+        }
+
+        GUI.Label(new Rect(10, 210, 300, 20), $"武器列表:");
 
         // 显示所有武器状态
         for (int i = 0; i < weapons.Count; i++)
@@ -411,21 +515,23 @@ public class WeaponManager : MonoBehaviour
             string prefix = (i == currentWeaponIndex) ? "► " : "  ";
             string status = isActive ? " [激活]" : " [隐藏]";
 
-            GUI.Label(new Rect(10, 190 + i * 20, 300, 20), $"{prefix}[{i + 1}] {weaponName}{status}");
+            GUI.Label(new Rect(10, 230 + i * 20, 300, 20), $"{prefix}[{i + 1}] {weaponName}{status}");
         }
 
         // 显示控制提示
-        GUI.Label(new Rect(10, 190 + weapons.Count * 20 + 10, 300, 60),
+        GUI.Label(new Rect(10, 230 + weapons.Count * 20 + 10, 300, 80),
             "控制方式:\n" +
             "1/2/3: 直接切换武器\n" +
             "鼠标滚轮: 上下切换武器\n" +
-            "Q键: 切换到上一把武器");
+            "Q键: 切换到上一把武器\n" +
+            "鼠标左键: 射击 (AutoPlayerShoot)\n" +
+            "动画速度自动根据武器射速调整");
 
         // 显示武器位置信息（调试用）
         if (CurrentWeapon != null)
         {
             Vector3 pos = CurrentWeapon.transform.localPosition;
-            GUI.Label(new Rect(10, 190 + weapons.Count * 20 + 80, 300, 20),
+            GUI.Label(new Rect(10, 230 + weapons.Count * 20 + 90, 300, 20),
                 $"武器位置: ({pos.x:F2}, {pos.y:F2}, {pos.z:F2})");
         }
     }
@@ -448,26 +554,4 @@ public class WeaponManager : MonoBehaviour
             }
         }
     }
-}
-
-// 如果需要武器数据，使用这个类
-[System.Serializable]
-public class WeaponInfo
-{
-    public string weaponName;
-    public WeaponType weaponType;
-    public int maxAmmo;
-    public int damage;
-    public float fireRate;
-    public Sprite icon;
-}
-
-public enum WeaponType
-{
-    Pistol,
-    Rifle,
-    Shotgun,
-    Sniper,
-    Melee,
-    Grenade
 }

@@ -1563,6 +1563,9 @@ MonoBehaviour:
   - {fileID: 932972806496999583}
   - {fileID: 1692223930417207906}
   defaultWeaponIndex: 0
+  weaponAnimator: {fileID: 1948426674294225967}
+  fireSpeedParam: FireSpeed
+  animationSpeedMultiplier: 1
   switchSpeed: 0.3
   switchSound: {fileID: 0}
   enableAutoReload: 1
@@ -2912,7 +2915,7 @@ MonoBehaviour:
   standingHeight: 2
   crouchTransitionSpeed: 10
   crouchKey: 306
-  toggleCrouch: 0
+  toggleCrouch: 1
   mouseSensitivity: 100
   playerCamera: {fileID: 387022710557316986}
   xRotation: 0
@@ -3469,7 +3472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 35
   range: 100
-  fireRate: 0.2
+  fireRate: 0.5
   rayStartOffset: 0.5
   playerCamera: {fileID: 5864857108828124829}
   ignoredObjects:
