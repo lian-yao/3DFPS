@@ -11,19 +11,23 @@ public class GameManager : MonoBehaviour
     public GameObject gameWinPanel;    // 拖入通关面板
 
     [Header("游戏对象")]
-    public PlayerHealth playerHealth;  // 拖入玩家的生命值脚本（可选，空则自动找）
-    public List<EnemyHealth> allEnemies = new List<EnemyHealth>(); // 拖入所有野怪的EnemyHealth脚本（可选，空则自动找）
+    public PlayerHealth playerHealth;  // 拖入玩家的生命值脚本
+    public List<EnemyHealth> allEnemies = new List<EnemyHealth>(); // 拖入所有野怪的EnemyHealth脚本
 
-    [Header("音效资源")]
+    [Header("音效设置")]
     public AudioClip gameOverSound; // 拖入游戏失败音效文件
     public AudioClip gameWinSound;  // 拖入游戏通关音效文件
+    [Range(0f, 1f)] // 限制音量范围在0-1之间，方便在Inspector面板调节
+    public float gameOverVolume = 0.8f; // 失败音效音量（默认0.8）
+    [Range(0f, 1f)]
+    public float gameWinVolume = 0.8f;   // 通关音效音量（默认0.8）
     private AudioSource audioSource; // 音频播放组件
 
     private bool isGameEnded = false;
 
     void Start()
     {
-        // ========== 1. 初始化音频组件（自动添加，避免手动遗漏） ==========
+        // 初始化音频组件（自动添加，避免手动遗漏）
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
@@ -31,16 +35,13 @@ public class GameManager : MonoBehaviour
         }
         audioSource.playOnAwake = false; // 禁止场景启动时自动播放音效
 
-        // ========== 2. 动态查找依赖（适配预制体，无需手动拖入） ==========
-        FindAllDependencies();
-
-        // ========== 3. 初始化鼠标（新场景启动时锁定鼠标） ==========
+        // 初始化鼠标（新场景启动时锁定鼠标）
         LockCursor();
 
-        // ========== 4. 防护：清空旧监听，避免重复绑定 ==========
+        // 防护：清空旧监听，避免重复绑定
         UnsubscribeAllEvents();
 
-        // ========== 5. 监听玩家死亡事件（增加日志，方便排查） ==========
+        // 监听玩家死亡事件（增加日志，方便排查）
         if (playerHealth != null)
         {
             playerHealth.OnPlayerDead += ShowGameOver;
@@ -48,10 +49,10 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[{gameObject.name}] PlayerHealth未找到！请检查玩家标签是否为Player");
+            Debug.LogError($"[{gameObject.name}] PlayerHealth未赋值！请检查新场景的GameManager配置");
         }
 
-        // ========== 6. 监听所有野怪死亡事件（增加日志） ==========
+        // 监听所有野怪死亡事件（增加日志）
         if (allEnemies.Count > 0)
         {
             foreach (var enemy in allEnemies)
@@ -69,51 +70,15 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[{gameObject.name}] AllEnemies列表为空！已自动查找场景内Enemy标签的敌人");
+            Debug.LogError($"[{gameObject.name}] AllEnemies列表为空！请拖入新场景的敌人");
         }
 
-        // ========== 7. 初始化面板（确保面板默认隐藏） ==========
+        // 初始化面板（确保面板默认隐藏）
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
         if (gameWinPanel != null) gameWinPanel.SetActive(false);
     }
 
-    // 核心：动态查找所有依赖对象（适配预制体，无需手动拖入）
-    void FindAllDependencies()
-    {
-        // 查找玩家（按Player标签）
-        if (playerHealth == null)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                playerHealth = player.GetComponent<PlayerHealth>();
-            }
-        }
-
-        // 查找所有敌人（按Enemy标签）
-        if (allEnemies.Count == 0)
-        {
-            GameObject[] enemyObjs = GameObject.FindGameObjectsWithTag("Enemy");
-            foreach (var obj in enemyObjs)
-            {
-                EnemyHealth eh = obj.GetComponent<EnemyHealth>();
-                if (eh != null) allEnemies.Add(eh);
-            }
-        }
-
-        // 查找UI面板（按名称，确保场景内面板名称为GameOverPanel/GameWinPanel）
-        if (gameOverPanel == null)
-        {
-            gameOverPanel = GameObject.Find("GameOverPanel");
-        }
-        if (gameWinPanel == null)
-        {
-            gameWinPanel = GameObject.Find("GameWinPanel");
-        }
-    }
-
-    // ========== 关键修改：改为public，让PortalTeleport能调用 ==========
-    // 玩家死亡：显示失败界面 + 播放失败音效
+    // 玩家死亡：显示失败界面 + 播放失败音效（新增音量控制）
     public void ShowGameOver()
     {
         if (isGameEnded) return;
@@ -122,7 +87,7 @@ public class GameManager : MonoBehaviour
         // 防护：面板为空时提示
         if (gameOverPanel == null)
         {
-            Debug.LogError($"[{gameObject.name}] GameOverPanel未找到！请检查面板名称");
+            Debug.LogError($"[{gameObject.name}] GameOverPanel未赋值！");
             return;
         }
 
@@ -131,11 +96,11 @@ public class GameManager : MonoBehaviour
         UnlockCursor();
         Debug.Log($"[{gameObject.name}] 显示失败界面，鼠标已解锁");
 
-        // 播放游戏失败音效（带空引用防护）
+        // 播放游戏失败音效（带音量控制 + 空引用防护）
         if (audioSource != null && gameOverSound != null)
         {
-            audioSource.PlayOneShot(gameOverSound); // 单次播放，不打断其他音频
-            Debug.Log($"[{gameObject.name}] 播放游戏失败音效");
+            audioSource.PlayOneShot(gameOverSound, gameOverVolume); // 第二个参数是音量
+            Debug.Log($"[{gameObject.name}] 播放游戏失败音效，音量：{gameOverVolume}");
         }
         else
         {
@@ -164,8 +129,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // ========== 关键修改：改为public，让PortalTeleport能调用 ==========
-    // 通关：显示胜利界面 + 播放通关音效
+    // 通关：显示胜利界面 + 播放通关音效（新增音量控制）
     public void ShowGameWin()
     {
         if (isGameEnded) return;
@@ -174,7 +138,7 @@ public class GameManager : MonoBehaviour
         // 防护：面板为空时提示
         if (gameWinPanel == null)
         {
-            Debug.LogError($"[{gameObject.name}] GameWinPanel未找到！请检查面板名称");
+            Debug.LogError($"[{gameObject.name}] GameWinPanel未赋值！");
             return;
         }
 
@@ -183,11 +147,11 @@ public class GameManager : MonoBehaviour
         UnlockCursor();
         Debug.Log($"[{gameObject.name}] 显示通关界面，鼠标已解锁");
 
-        // 播放游戏通关音效（带空引用防护）
+        // 播放游戏通关音效（带音量控制 + 空引用防护）
         if (audioSource != null && gameWinSound != null)
         {
-            audioSource.PlayOneShot(gameWinSound);
-            Debug.Log($"[{gameObject.name}] 播放游戏通关音效");
+            audioSource.PlayOneShot(gameWinSound, gameWinVolume); // 第二个参数是音量
+            Debug.Log($"[{gameObject.name}] 播放游戏通关音效，音量：{gameWinVolume}");
         }
         else
         {

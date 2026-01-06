@@ -47,6 +47,9 @@ MonoBehaviour:
   gameOverPanel: {fileID: 0}
   gameWinPanel: {fileID: 0}
   playerHealth: {fileID: 0}
-  allEnemies: []
+  allEnemies:
+  - {fileID: 0}
   gameOverSound: {fileID: 8300000, guid: 94449b2302da7db4fa5fec1da48fc23e, type: 3}
   gameWinSound: {fileID: 8300000, guid: c3af571820f0dac4ab87f9c4ce7324f8, type: 3}
+  gameOverVolume: 0.055
+  gameWinVolume: 0.055
