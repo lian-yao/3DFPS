@@ -30,7 +30,7 @@ public class SimpleEnemyAI : MonoBehaviour
     [SerializeField] private Animator enemyAnimator;
     public string paramIsRunning = "IsRunning";
     public string paramAttackTrigger = "AttackTrigger";
-    public string paramIsAttacking = "IsAttacking";
+    //public string paramIsAttacking = "IsAttacking";
 
     [Header("组件引用")]
     [SerializeField] private CharacterController characterController;
