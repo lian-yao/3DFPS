@@ -491,7 +491,7 @@ PrefabInstance:
         type: 3}
       propertyPath: allEnemies.Array.data[0]
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 622795108}
     - target: {fileID: 3699417889614729104, guid: 046844f8c3f396e4686940afeb96b0ec,
         type: 3}
       propertyPath: m_Name
@@ -655,6 +655,18 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d69206936084fd540ae94196c33f7e3f, type: 3}
+--- !u!114 &622795108 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7341413523926161794, guid: d69206936084fd540ae94196c33f7e3f,
+    type: 3}
+  m_PrefabInstance: {fileID: 622795107}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5abe2768cbc3da047ae78ed00e6e512e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &952283143
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -1443,7 +1443,7 @@ PrefabInstance:
         type: 3}
       propertyPath: allEnemies.Array.data[0]
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1668458188}
     - target: {fileID: 3699417889614729104, guid: 046844f8c3f396e4686940afeb96b0ec,
         type: 3}
       propertyPath: m_Name
@@ -7177,6 +7177,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!114 &1668458188 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 427669857714961588, guid: cf2f0263c3b9f674ba0451d19d9cc421,
+    type: 3}
+  m_PrefabInstance: {fileID: 96002081}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5abe2768cbc3da047ae78ed00e6e512e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1675951259 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: b28dd70a689b2b649832f43119d5b551,
