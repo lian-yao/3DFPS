@@ -133,14 +133,21 @@ public class AutoPlayerShoot : MonoBehaviour
     {
         if (!useAmmoSystem || weaponManager == null) return true;
 
-        // 尝试射击，如果不能射击（弹药为0），会自动触发装填
-        bool canShoot = weaponManager.TryShootCurrentWeapon();
-
-        return canShoot;
+        // 只检查是否有弹药，不消耗
+        var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
+        return ammoInfo.current > 0;
     }
 
     void Shoot()
     {
+        // 在射击时消耗弹药
+        if (useAmmoSystem && weaponManager != null)
+        {
+            if (!weaponManager.TryShootCurrentWeapon())
+            {
+                return; // 消耗弹药失败（没有弹药）
+            }
+        }
         // 播放射击音效
         PlayShootSound();
 

@@ -141,8 +141,15 @@ public class WeaponAmmo : MonoBehaviour
             if (ammo.currentAmmo <= 0)
                 return true;
 
-            // 或者当子弹少于30%时
-            return ammo.currentAmmo < ammo.maxAmmo * 0.3f;
+            // 只有当弹匣不满且有后备弹药时才返回true
+            if (ammo.currentAmmo < ammo.maxAmmo && ammo.reserveAmmo > 0)
+            {
+                // 可以添加额外条件，比如子弹少于30%时
+                // return ammo.currentAmmo < ammo.maxAmmo * 0.3f;
+                return true; // 或者直接返回true允许任何不满弹匣的装填
+            }
+
+            return false;
         }
         return false;
     }
@@ -154,6 +161,13 @@ public class WeaponAmmo : MonoBehaviour
 
         if (ammoDictionary.TryGetValue(weaponName, out AmmoInfo ammo))
         {
+            // 新增：检查弹匣是否已满
+            if (ammo.currentAmmo >= ammo.maxAmmo)
+            {
+                Debug.Log($"{weaponName} 弹匣已满，无需装填");
+                return;
+            }
+
             // 检查是否有后备弹药
             if (ammo.reserveAmmo <= 0)
             {
@@ -162,6 +176,14 @@ public class WeaponAmmo : MonoBehaviour
                 {
                     audioSource.PlayOneShot(emptySound);
                 }
+                return;
+            }
+
+            // 检查是否需要装填（新增逻辑）
+            // 只有当需要装填时才能开始装填
+            if (!NeedReload(weaponName))
+            {
+                Debug.Log($"{weaponName} 不需要装填（弹药充足）");
                 return;
             }
 

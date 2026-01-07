@@ -182,6 +182,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 370951333845637792, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: enableMuzzleFlash
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1756187861624511238, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: healthBar
@@ -192,10 +197,25 @@ PrefabInstance:
       propertyPath: currentHealth
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 2827503980295346808, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: ignoreSelf
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2827503980295346808, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: isSemiAuto
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3103691207695618124, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: damage
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 3103691207695618124, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: muzzleFlashPrefab
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7659401139059787802, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
@@ -260,11 +280,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4542972239061671150, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1182669460}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3fd4d86c9c36a3a438dfd6c7c165c617, type: 3}
 --- !u!1001 &45237725
 PrefabInstance:
@@ -1862,16 +1878,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb3f432b163a3da45a06224c835c53f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1
-  isDestroyed: 0
-  isBossDoor: 0
-  screenHealthSlider: {fileID: 0}
-  worldHealthSlider: {fileID: 0}
-  lookAtCamera: 1
-  destroyEffect: {fileID: 0}
-  damageMaterial: {fileID: 2100000, guid: d60df88b2b079394ca65c189b3e90594, type: 2}
-  destroyDelay: 1
-  debugMode: 1
 --- !u!1 &325873997 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100000, guid: 13d9c5811fd0fcf4986655f5dcf8d46f,
@@ -3896,6 +3902,7 @@ GameObject:
   - component: {fileID: 738545959}
   - component: {fileID: 738545958}
   - component: {fileID: 738545963}
+  - component: {fileID: 738545964}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -4023,8 +4030,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04eb6f3ee39d308488a6407dd11d8d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &738545964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738545957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34aa4e7447caff4587828226aa36cde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   activeDuration: 3
-  inactiveDuration: 1
+  inactiveDuration: 2
 --- !u!4 &772375675 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: ce1e1c6afeb8a4c4da4ab18e701d36cc,
@@ -6013,34 +6032,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 416134848}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!1 &1182669457 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4542972239061671150, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
-    type: 3}
-  m_PrefabInstance: {fileID: 36299698}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1182669460
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1182669457}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 25
-  range: 100
-  fireRate: 0.5
-  rayStartOffset: 0.5
-  playerCamera: {fileID: 0}
-  ignoredObjects: []
-  ignoreSelf: 1
-  autoGenerateEffects: 1
-  weaponManager: {fileID: 0}
-  useAmmoSystem: 1
 --- !u!4 &1189318974 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: b242581fc7fd82a45b00226894da6bfb,
@@ -8855,7 +8846,7 @@ PrefabInstance:
     - target: {fileID: 1446110110704342479, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15.000092
+      value: -14.999756
       objectReference: {fileID: 0}
     - target: {fileID: 2205640736377915016, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
@@ -9217,7 +9208,7 @@ PrefabInstance:
     - target: {fileID: 8217112661180672781, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15.000092
+      value: -14.999756
       objectReference: {fileID: 0}
     - target: {fileID: 8443597919374492519, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
