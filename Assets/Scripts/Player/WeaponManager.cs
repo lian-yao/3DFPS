@@ -632,8 +632,6 @@ public class WeaponManager : MonoBehaviour
                 GUI.color = weaponAmmo.IsReloading() ? Color.yellow : Color.white;
                 string reloadStatus = weaponAmmo.IsReloading() ? " [装填中]" : "";
 
-                GUI.Label(new Rect(10, 190, 300, 20),
-                         $"弹药: {ammoInfo.current} | 后备: {ammoInfo.reserve}{reloadStatus}");
             }
         }
     }
