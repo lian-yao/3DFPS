@@ -207,6 +207,11 @@ PrefabInstance:
       propertyPath: isSemiAuto
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2827503980295346808, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: weaponManager
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 3103691207695618124, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: damage
@@ -280,7 +285,15 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4542972239061671150, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 510729928}
+    - targetCorrespondingSourceObject: {fileID: 4542972239061671150, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 510729927}
   m_SourcePrefab: {fileID: 100100000, guid: 3fd4d86c9c36a3a438dfd6c7c165c617, type: 3}
 --- !u!1001 &45237725
 PrefabInstance:
@@ -2731,6 +2744,61 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1254379895}
   m_SourcePrefab: {fileID: 100100000, guid: cae5fd5b00916314594b00729f56646b, type: 3}
+--- !u!1 &510729923 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4542972239061671150, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+    type: 3}
+  m_PrefabInstance: {fileID: 36299698}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &510729927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510729923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8e17270ea9813b4a92129c1c7d86f4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponAmmoList: []
+  defaultMaxAmmo: 5
+  defaultMaxReserve: 10
+  defaultReloadTime: 2
+  OnAmmoChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReloadStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReloadCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  audioSource: {fileID: 0}
+  emptySound: {fileID: 0}
+  magazineInsertSound: {fileID: 0}
+--- !u!114 &510729928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 510729923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f9ff548f0679f438746bdd17fd222d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponNameText: {fileID: 0}
+  ammoCountText: {fileID: 0}
+  reserveAmmoText: {fileID: 0}
+  weaponIcon: {fileID: 0}
+  reloadProgressBar: {fileID: 0}
+  reloadIndicator: {fileID: 0}
+  rifleIcon: {fileID: 0}
+  fireKirinIcon: {fileID: 0}
+  awmIcon: {fileID: 0}
 --- !u!1 &516357416
 GameObject:
   m_ObjectHideFlags: 0
@@ -8846,7 +8914,7 @@ PrefabInstance:
     - target: {fileID: 1446110110704342479, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -14.999756
+      value: -14.999634
       objectReference: {fileID: 0}
     - target: {fileID: 2205640736377915016, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
@@ -9208,7 +9276,7 @@ PrefabInstance:
     - target: {fileID: 8217112661180672781, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -14.999756
+      value: -14.999634
       objectReference: {fileID: 0}
     - target: {fileID: 8443597919374492519, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
