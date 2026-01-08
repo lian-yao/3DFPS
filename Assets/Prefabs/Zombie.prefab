@@ -3206,15 +3206,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  isDead: 0
   isBoss: 0
   screenHealthSlider: {fileID: 0}
   worldHealthSlider: {fileID: 0}
   lookAtCamera: 1
-  deathEffect: {fileID: 0}
+  deathEffectPrefab: {fileID: 0}
   damageMaterial: {fileID: 0}
   enemyAnimator: {fileID: 1456067023646580375}
-  deathAnimTrigger: IsDead
+  deathAnimBool: IsDead
   deathAnimDelay: 4
   debugMode: 1
 --- !u!114 &2560166309036907959
@@ -3236,14 +3235,11 @@ MonoBehaviour:
   groundedGravity: -2
   detectionRange: 10
   checkInterval: 0.1
-  attackDamage: 10
-  attackCooldown: 1
-  maxAttackHeight: 2
+  defaultAttackType: 0
   showGizmos: 1
-  debugLog: 0
+  debugLog: 1
   enemyAnimator: {fileID: 1456067023646580375}
   paramIsRunning: IsRunning
-  paramAttackTrigger: AttackTrigger
   paramIsAttacking: IsAttacking
   characterController: {fileID: 7408259860652991883}
   enemyModel: {fileID: 0}

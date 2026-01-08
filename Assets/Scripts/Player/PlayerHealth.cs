@@ -3,26 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : MonoBehaviour, IHealth
 {
-    [Header("ÉúÃüÉèÖÃ")]
-    public float maxHealth = 100f;          // Íæ¼Ò×î´óÉúÃüÖµ
-    public float currentHealth;             // Íæ¼Òµ±Ç°ÉúÃüÖµ
-    public Image healthBar;                 // UIÑªÌõ£¨ImageÀàĞÍ£¬ĞèÉèÖÃÎªÌî³äÄ£Ê½£©
-    public GameObject deathUI;              // ËÀÍöÌáÊ¾UI£¨¿ÉÑ¡£¬±£ÁôÔ­ÓĞËÀÍöUI£©
-    [Tooltip("¿ÉÑ¡£ºÊÇ·ñÏŞÖÆÉúÃüÖµ²»µÍÓÚ0")]
-    public bool clampHealth = true;         // ·ÀÖ¹ÉúÃüÖµÎª¸ºÊı
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    public float maxHealth = 100f;          // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
+    public float currentHealth;             // ï¿½ï¿½Òµï¿½Ç°ï¿½ï¿½ï¿½ï¿½Öµ
+    
+    /// <summary>
+    /// ç©å®¶æ˜¯å¦æ­»äº¡ï¼ˆIHealthæ¥å£å®ç°ï¼‰
+    /// </summary>
+    public bool IsDead => currentHealth <= 0f;
+    public Image healthBar;                 // UIÑªï¿½ï¿½ï¿½ï¿½Imageï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½Ä£Ê½ï¿½ï¿½
+    public GameObject deathUI;              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾UIï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½
+    [Tooltip("ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0")]
+    public bool clampHealth = true;         // ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½ÖµÎªï¿½ï¿½ï¿½ï¿½
 
-    // ĞÂÔö£ºÍæ¼ÒËÀÍöÊÂ¼ş£¨¹©GameManager¼àÌı£©
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½GameManagerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     public System.Action OnPlayerDead;
 
     void Start()
     {
-        // ³õÊ¼»¯ÉúÃüÖµ
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
         currentHealth = maxHealth;
-        // ³õÊ¼»¯ÑªÌõUI
+        // ï¿½ï¿½Ê¼ï¿½ï¿½Ñªï¿½ï¿½UI
         UpdateHealthUI();
-        // ³õÊ¼Òş²ØËÀÍöUI
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI
         if (deathUI != null)
         {
             deathUI.SetActive(false);
@@ -30,26 +35,26 @@ public class PlayerHealth : MonoBehaviour
     }
 
     /// <summary>
-    /// ÊÜµ½ÉËº¦µÄ·½·¨£¨Íâ²¿¿Éµ÷ÓÃ£¬±ÈÈçµĞÈË¹¥»÷¡¢µôÑªÊ±£©
+    /// ï¿½Üµï¿½ï¿½Ëºï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â²¿ï¿½Éµï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÑªÊ±ï¿½ï¿½
     /// </summary>
-    /// <param name="damage">ÊÜµ½µÄÉËº¦Öµ</param>
+    /// <param name="damage">ï¿½Üµï¿½ï¿½ï¿½ï¿½Ëºï¿½Öµ</param>
     public void TakeDamage(float damage)
     {
-        // È·±£ÉËº¦ÖµÎªÕıÊı
+        // È·ï¿½ï¿½ï¿½Ëºï¿½ÖµÎªï¿½ï¿½ï¿½ï¿½
         damage = Mathf.Abs(damage);
-        // ¿Û³ıÉúÃüÖµ
+        // ï¿½Û³ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
         currentHealth -= damage;
 
-        // ÏŞÖÆÉúÃüÖµ²»µÍÓÚ0£¨¿ÉÑ¡£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½
         if (clampHealth)
         {
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         }
 
-        // ¸üĞÂÑªÌõUI
+        // ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½UI
         UpdateHealthUI();
 
-        // ÉúÃüÖµÎª0Ê±´¥·¢ËÀÍöÂß¼­
+        // ï¿½ï¿½ï¿½ï¿½ÖµÎª0Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
         if (currentHealth <= 0)
         {
             Die();
@@ -57,88 +62,88 @@ public class PlayerHealth : MonoBehaviour
     }
 
     /// <summary>
-    /// »Ö¸´ÉúÃüÖµµÄ·½·¨£¨¿ÉÑ¡£¬±ÈÈç¼ÓÑª°ü£©
+    /// ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½ï¿½ï¿½
     /// </summary>
-    /// <param name="healAmount">»Ö¸´µÄÉúÃüÖµ</param>
+    /// <param name="healAmount">ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ</param>
     public void Heal(float healAmount)
     {
-        // È·±£»Ö¸´ÖµÎªÕıÊı
+        // È·ï¿½ï¿½ï¿½Ö¸ï¿½ÖµÎªï¿½ï¿½ï¿½ï¿½
         healAmount = Mathf.Abs(healAmount);
-        // Ôö¼ÓÉúÃüÖµ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
         currentHealth += healAmount;
-        // ÏŞÖÆÉúÃüÖµ²»³¬¹ı×î´óÖµ
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        // ¸üĞÂÑªÌõUI
+        // ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½UI
         UpdateHealthUI();
     }
 
     /// <summary>
-    /// ¸üĞÂÑªÌõUIÏÔÊ¾
+    /// ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½UIï¿½ï¿½Ê¾
     /// </summary>
     void UpdateHealthUI()
     {
-        // ·ÀÖ¹ÑªÌõ×é¼şÎ´¸³Öµµ¼ÖÂ¿ÕÖ¸Õë´íÎó
+        // ï¿½ï¿½Ö¹Ñªï¿½ï¿½ï¿½ï¿½ï¿½Î´ï¿½ï¿½Öµï¿½ï¿½ï¿½Â¿ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
         if (healthBar != null)
         {
-            // ¼ÆËãÌî³ä±ÈÀı£¨0~1£©
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0~1ï¿½ï¿½
             float fillRatio = currentHealth / maxHealth;
-            // Í¬²½µ½ÑªÌõµÄÌî³äÁ¿
+            // Í¬ï¿½ï¿½ï¿½ï¿½Ñªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             healthBar.fillAmount = fillRatio;
         }
         else
         {
-            Debug.LogWarning("ÑªÌõImage×é¼şÎ´¸³Öµ£¡ÇëÔÚInspectorÃæ°åÖĞÍÏ×§ÑªÌõ¶ÔÏóµ½PlayerHealth½Å±¾µÄhealthBar×Ö¶Î");
+            Debug.LogWarning("Ñªï¿½ï¿½Imageï¿½ï¿½ï¿½Î´ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Inspectorï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×§Ñªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½PlayerHealthï¿½Å±ï¿½ï¿½ï¿½healthBarï¿½Ö¶ï¿½");
         }
     }
 
     /// <summary>
-    /// Íæ¼ÒËÀÍöÂß¼­
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½
     /// </summary>
     void Die()
     {
-        Debug.Log("Íæ¼ÒËÀÍö£¡");
+        Debug.Log("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 
-        // ĞÂÔö£º´¥·¢ËÀÍöÊÂ¼ş£¨Í¨ÖªGameManagerÏÔÊ¾Ê§°Ü½çÃæ£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Í¨ÖªGameManagerï¿½ï¿½Ê¾Ê§ï¿½Ü½ï¿½ï¿½æ£©
         OnPlayerDead?.Invoke();
 
-        // ±£ÁôÔ­ÓĞËÀÍöÂß¼­£¨¿ÉÑ¡£¬ÈôÖ»ÓÃGameManagerµÄÊ§°Ü½çÃæ£¬¿É×¢ÊÍ£©
-        // ÔİÍ£ÓÎÏ·£¨GameManager»á´¦ÀíÔİÍ££¬ÕâÀï¿É×¢ÊÍ£©
+        // ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½GameManagerï¿½ï¿½Ê§ï¿½Ü½ï¿½ï¿½æ£¬ï¿½ï¿½×¢ï¿½Í£ï¿½
+        // ï¿½ï¿½Í£ï¿½ï¿½Ï·ï¿½ï¿½GameManagerï¿½á´¦ï¿½ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½Í£ï¿½
         // Time.timeScale = 0f;
 
-        // ÏÔÊ¾Ô­ÓĞËÀÍöUI£¨¿ÉÑ¡£¬½¨ÒéÖ»ÓÃGameManagerµÄÍ³Ò»Ê§°Ü½çÃæ£©
+        // ï¿½ï¿½Ê¾Ô­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½GameManagerï¿½ï¿½Í³Ò»Ê§ï¿½Ü½ï¿½ï¿½æ£©
         // if (deathUI != null)
         // {
         //     deathUI.SetActive(true);
         // }
         // else
         // {
-        //     Debug.LogWarning("ËÀÍöUIÎ´¸³Öµ£¡ÇëÔÚInspectorÃæ°åÖĞÍÏ×§ËÀÍöUI¶ÔÏóµ½PlayerHealth½Å±¾µÄdeathUI×Ö¶Î");
+        //     Debug.LogWarning("ï¿½ï¿½ï¿½ï¿½UIÎ´ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Inspectorï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×§ï¿½ï¿½ï¿½ï¿½UIï¿½ï¿½ï¿½ï¿½PlayerHealthï¿½Å±ï¿½ï¿½ï¿½deathUIï¿½Ö¶ï¿½");
         // }
 
-        // ½âËøÊó±ê£¨GameManagerµÄÊ§°Ü½çÃæĞèÒªµã»÷°´Å¥£¬±£Áô£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê£¨GameManagerï¿½ï¿½Ê§ï¿½Ü½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½Å¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // ¿ÉÑ¡£º½ûÓÃÍæ¼ÒÒÆ¶¯/¹¥»÷µÈ×é¼ş
+        // ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¶ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         // GetComponent<PlayerMovement>().enabled = false;
         // GetComponent<PlayerShoot>().enabled = false;
     }
 
     /// <summary>
-    /// ÖØÖÃÍæ¼ÒÉúÃüÖµ£¨±ÈÈç¸´»î¡¢ÖØĞÂ¿ªÊ¼ÓÎÏ·Ê±µ÷ÓÃ£©
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ç¸´ï¿½î¡¢ï¿½ï¿½ï¿½Â¿ï¿½Ê¼ï¿½ï¿½Ï·Ê±ï¿½ï¿½ï¿½Ã£ï¿½
     /// </summary>
     public void ResetHealth()
     {
         currentHealth = maxHealth;
         UpdateHealthUI();
-        // »Ö¸´ÓÎÏ·Ê±¼ä
+        // ï¿½Ö¸ï¿½ï¿½ï¿½Ï·Ê±ï¿½ï¿½
         Time.timeScale = 1f;
-        // Òş²ØËÀÍöUI
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½UI
         if (deathUI != null)
         {
             deathUI.SetActive(false);
         }
-        // ÖØĞÂËø¶¨Êó±ê£¨¿ÉÑ¡£©
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê£¨ï¿½ï¿½Ñ¡ï¿½ï¿½
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
