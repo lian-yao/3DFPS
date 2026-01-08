@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // 添加UI命名空间
@@ -27,8 +27,13 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private AudioClip switchFireKirinSound; // 火麒麟切换音效
     [SerializeField] private AudioClip switchAWMSound; // AWM切换音效
 
+    [Header("换弹音效")]
+    public AudioClip rifleReloadSound;     // 步枪换弹音效
+    public AudioClip fireKirinReloadSound; // 火麒麟换弹音效  
+    public AudioClip awmReloadSound;       // AWM换弹音效
+
     [Header("弹药系统")]
-    [SerializeField] private WeaponAmmo weaponAmmo; // 引用弹药管理器
+    [SerializeField] private WeaponAmmo weaponAmmo;
     [SerializeField] private KeyCode reloadKey = KeyCode.R; // 装填键
 
     private int currentWeaponIndex = -1; // 当前武器索引
@@ -107,38 +112,29 @@ public class WeaponManager : MonoBehaviour
         }
 
         // 为三把武器注册弹药信息
-        if (weapons.Count >= 1)
+        if (weapons.Count >= 1 && weapons[0] != null)
         {
             // 步枪：35/120
             weaponAmmo.RegisterWeapon(weapons[0].name, 35, 120);
+            // 设置步枪换弹音效
+            weaponAmmo.SetWeaponReloadSound(weapons[0].name, rifleReloadSound);
         }
-        if (weapons.Count >= 2)
+        if (weapons.Count >= 2 && weapons[1] != null)
         {
             // 火麒麟：30/100
             weaponAmmo.RegisterWeapon(weapons[1].name, 30, 100);
+            // 设置火麒麟换弹音效
+            weaponAmmo.SetWeaponReloadSound(weapons[1].name, fireKirinReloadSound);
         }
-        if (weapons.Count >= 3)
+        if (weapons.Count >= 3 && weapons[2] != null)
         {
             // AWM：5/30
             weaponAmmo.RegisterWeapon(weapons[2].name, 5, 30);
+            // 设置AWM换弹音效
+            weaponAmmo.SetWeaponReloadSound(weapons[2].name, awmReloadSound);
         }
     }
 
-    void Update()
-    {
-        if (isSwitching) return;
-
-        // 检测武器切换输入
-        HandleWeaponSwitchInput();
-
-        // 检测装填输入
-        HandleReloadInput();
-
-        // 更新UI
-        UpdateWeaponUI();
-    }
-
-    // 保存武器的原始Transform
     void SaveWeaponOriginalTransforms()
     {
         foreach (GameObject weapon in weapons)
@@ -204,6 +200,20 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
+    void Update()
+    {
+        if (isSwitching) return;
+
+        // 检测武器切换输入
+        HandleWeaponSwitchInput();
+
+        // 检测装填输入
+        HandleReloadInput();
+
+        // 更新UI
+        UpdateWeaponUI();
+    }
+
     void HandleWeaponSwitchInput()
     {
         // 按数字键切换武器
@@ -220,7 +230,7 @@ public class WeaponManager : MonoBehaviour
             SwitchWeapon(2);
         }
 
-        // 使用滚轮切换（重点修改）
+        // 使用滚轮切换
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         if (scroll > 0f) // 向上滚动，切换到下一把武器
         {
@@ -238,7 +248,6 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    // 处理装填输入
     void HandleReloadInput()
     {
         if (Input.GetKeyDown(reloadKey) && !isSwitching)
@@ -247,7 +256,6 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    // 切换到指定索引的武器
     public void SwitchWeapon(int newIndex)
     {
         // 检查索引是否有效
@@ -311,13 +319,12 @@ public class WeaponManager : MonoBehaviour
         // 触发武器切换事件
         OnWeaponSwitched(previousWeaponIndex, newIndex);
 
-        // 检查是否需要自动装填（新增）
-        CheckAutoReload();
+        // 检查是否需要自动装填
+        //CheckAutoReload();
 
         isSwitching = false;
     }
 
-    // 检查是否需要自动装填
     void CheckAutoReload()
     {
         if (CurrentWeapon != null && weaponAmmo != null)
@@ -332,11 +339,10 @@ public class WeaponManager : MonoBehaviour
 
     IEnumerator AutoReloadAfterSwitch()
     {
-        yield return new WaitForSeconds(0.5f); // 等待一小段时间
+        yield return new WaitForSeconds(0.5f);
         ReloadCurrentWeapon();
     }
 
-    // 更新射击动画速度
     void UpdateFireAnimationSpeed()
     {
         if (weaponAnimator == null || currentWeaponIndex < 0)
@@ -368,7 +374,6 @@ public class WeaponManager : MonoBehaviour
         weaponAnimator.SetFloat(fireSpeedParam, calculatedSpeed);
     }
 
-    // 播放切换音效
     void PlaySwitchSound(int weaponIndex)
     {
         AudioClip soundToPlay = switchSound;
@@ -376,15 +381,15 @@ public class WeaponManager : MonoBehaviour
         // 根据武器索引选择不同的音效
         if (weaponIndex == 0 && switchRifleSound != null)
         {
-            soundToPlay = switchRifleSound; // 步枪
+            soundToPlay = switchRifleSound;
         }
         else if (weaponIndex == 1 && switchFireKirinSound != null)
         {
-            soundToPlay = switchFireKirinSound; // 火麒麟
+            soundToPlay = switchFireKirinSound;
         }
         else if (weaponIndex == 2 && switchAWMSound != null)
         {
-            soundToPlay = switchAWMSound; // AWM
+            soundToPlay = switchAWMSound;
         }
 
         if (soundToPlay != null && audioSource != null)
@@ -393,7 +398,6 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    // 装填当前武器
     public void ReloadCurrentWeapon()
     {
         if (currentWeaponIndex < 0 || weapons[currentWeaponIndex] == null) return;
@@ -414,7 +418,6 @@ public class WeaponManager : MonoBehaviour
         }
     }
 
-    // 射击检测，集成弹药消耗
     public bool TryShootCurrentWeapon()
     {
         if (currentWeaponIndex < 0 || weapons[currentWeaponIndex] == null)
@@ -449,7 +452,6 @@ public class WeaponManager : MonoBehaviour
         ReloadCurrentWeapon();
     }
 
-    // 获取当前武器弹药信息
     public (int current, int reserve) GetCurrentWeaponAmmo()
     {
         if (currentWeaponIndex < 0 || weapons[currentWeaponIndex] == null || weaponAmmo == null)
@@ -505,7 +507,6 @@ public class WeaponManager : MonoBehaviour
         UpdateWeaponUI();
     }
 
-    // 切换到下一把武器
     public void SwitchToNextWeapon()
     {
         if (weapons.Count <= 1) return;
@@ -514,7 +515,6 @@ public class WeaponManager : MonoBehaviour
         SwitchWeapon(newIndex);
     }
 
-    // 切换到上一把武器
     public void SwitchToPreviousWeapon()
     {
         if (weapons.Count <= 1) return;
@@ -524,7 +524,6 @@ public class WeaponManager : MonoBehaviour
         SwitchWeapon(newIndex);
     }
 
-    // 获取武器显示名称
     public string GetWeaponDisplayName(int index)
     {
         if (index < 0 || index >= weapons.Count || weapons[index] == null)
@@ -538,7 +537,6 @@ public class WeaponManager : MonoBehaviour
         return weaponName;
     }
 
-    // 获取武器名称
     public string GetWeaponName(int index)
     {
         if (index < 0 || index >= weapons.Count || weapons[index] == null)
@@ -547,7 +545,6 @@ public class WeaponManager : MonoBehaviour
         return weapons[index].name;
     }
 
-    // 更新武器UI
     void UpdateWeaponUI()
     {
         if (currentWeaponIndex < 0) return;
@@ -584,23 +581,19 @@ public class WeaponManager : MonoBehaviour
         if (weaponIcon != null)
         {
             // 这里可以根据武器类型设置不同的图标
-            // weaponIcon.sprite = GetWeaponIcon(currentWeaponIndex);
         }
     }
 
-    // 强制更新UI（供外部调用）
     public void RefreshUI()
     {
         UpdateWeaponUI();
     }
 
-    // 获取是否正在装填
     public bool IsReloading()
     {
         return weaponAmmo != null && weaponAmmo.IsReloading();
     }
 
-    // 获取当前武器的射速
     public float GetCurrentWeaponFireRate()
     {
         if (currentWeaponIndex < 0 || currentWeaponIndex >= weapons.Count) return 0.5f;
@@ -614,7 +607,6 @@ public class WeaponManager : MonoBehaviour
 
     void OnGUI()
     {
-        // 保留原有的调试信息显示
         if (weapons.Count == 0) return;
 
         GUI.Label(new Rect(10, 150, 300, 20), $"当前武器: {GetWeaponDisplayName(currentWeaponIndex)}");
@@ -631,9 +623,7 @@ public class WeaponManager : MonoBehaviour
                 var ammoInfo = GetCurrentWeaponAmmo();
                 GUI.color = weaponAmmo.IsReloading() ? Color.yellow : Color.white;
                 string reloadStatus = weaponAmmo.IsReloading() ? " [装填中]" : "";
-
-                GUI.Label(new Rect(10, 190, 300, 20),
-                         $"弹药: {ammoInfo.current} | 后备: {ammoInfo.reserve}{reloadStatus}");
+                GUI.Label(new Rect(10, 190, 300, 20), $"弹药: {ammoInfo.current}/{ammoInfo.reserve}{reloadStatus}");
             }
         }
     }

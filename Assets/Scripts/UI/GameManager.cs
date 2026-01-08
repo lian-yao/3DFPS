@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     [Header("音效设置")]
     public AudioClip gameOverSound; // 拖入游戏失败音效文件
-    public AudioClip gameWinSound;  // 拖入游戏通关音效文件
+    public AudioClip gameWinSound;  // 拖入通关音效文件
     [Range(0f, 1f)] // 限制音量范围在0-1之间，方便在Inspector面板调节
     public float gameOverVolume = 0.8f; // 失败音效音量（默认0.8）
     [Range(0f, 1f)]
@@ -27,6 +27,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // 强制恢复游戏时间（核心：避免初始就暂停）
+        Time.timeScale = 1;
+
         // 初始化音频组件（自动添加，避免手动遗漏）
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
@@ -52,7 +55,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError($"[{gameObject.name}] PlayerHealth未赋值！请检查新场景的GameManager配置");
         }
 
-        // 监听所有野怪死亡事件（增加日志）
+        // ========== 核心修改1：AllEnemies列表为空时不输出Error ==========
         if (allEnemies.Count > 0)
         {
             foreach (var enemy in allEnemies)
@@ -64,14 +67,12 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
+                    // 保留空引用的Error（因为是空值错误，需要提示）
                     Debug.LogError($"[{gameObject.name}] AllEnemies列表中有空引用！");
                 }
             }
         }
-        else
-        {
-            Debug.LogError($"[{gameObject.name}] AllEnemies列表为空！请拖入新场景的敌人");
-        }
+        // 列表为空时：完全不输出任何日志（去掉原来的Error）
 
         // 初始化面板（确保面板默认隐藏）
         if (gameOverPanel != null) gameOverPanel.SetActive(false);
@@ -92,6 +93,7 @@ public class GameManager : MonoBehaviour
         }
 
         gameOverPanel.SetActive(true);
+        // 仅在玩家主动死亡时暂停（其他情况不暂停）
         Time.timeScale = 0;
         UnlockCursor();
         Debug.Log($"[{gameObject.name}] 显示失败界面，鼠标已解锁");
@@ -108,10 +110,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 检查是否所有野怪都死亡
+    // ========== 核心修改2：检查敌人死亡时增加容错，避免空列表触发异常 ==========
     void CheckAllEnemiesDead()
     {
-        if (isGameEnded) return;
+        if (isGameEnded || allEnemies.Count == 0) return; // 列表为空时直接返回，不执行后续逻辑
 
         bool allDead = true;
         foreach (var enemy in allEnemies)
@@ -143,6 +145,7 @@ public class GameManager : MonoBehaviour
         }
 
         gameWinPanel.SetActive(true);
+        // 仅在通关时暂停（其他情况不暂停）
         Time.timeScale = 0;
         UnlockCursor();
         Debug.Log($"[{gameObject.name}] 显示通关界面，鼠标已解锁");
@@ -159,19 +162,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 按钮逻辑：重新开始
+    // 按钮逻辑：重新开始（强制恢复时间）
     public void RestartGame()
     {
-        Time.timeScale = 1;
+        Time.timeScale = 1; // 强制恢复游戏时间
         LockCursor();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Debug.Log($"[{gameObject.name}] 重新开始当前场景");
     }
 
-    // 按钮逻辑：下一关
+    // 按钮逻辑：下一关（强制恢复时间）
     public void NextLevel()
     {
-        Time.timeScale = 1;
+        Time.timeScale = 1; // 强制恢复游戏时间
         LockCursor();
 
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
@@ -187,10 +190,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // 按钮逻辑：结束游戏
+    // 按钮逻辑：结束游戏（强制恢复时间）
     public void QuitGame()
     {
-        Time.timeScale = 1;
+        Time.timeScale = 1; // 强制恢复游戏时间
         Debug.Log($"[{gameObject.name}] 退出游戏");
         Application.Quit();
 #if UNITY_EDITOR

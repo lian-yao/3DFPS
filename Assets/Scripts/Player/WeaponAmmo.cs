@@ -96,6 +96,30 @@ public class WeaponAmmo : MonoBehaviour
         }
     }
 
+    // 设置武器换弹音效
+    public void SetWeaponReloadSound(string weaponName, AudioClip reloadSound)
+    {
+        if (ammoDictionary.TryGetValue(weaponName, out AmmoInfo ammo))
+        {
+            ammo.reloadSound = reloadSound;
+            Debug.Log($"设置武器 {weaponName} 的换弹音效: {reloadSound?.name ?? "null"}");
+
+            // 同时更新列表中的对应项
+            foreach (var info in weaponAmmoList)
+            {
+                if (info.weaponName == weaponName)
+                {
+                    info.reloadSound = reloadSound;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"无法设置换弹音效: 未找到武器 {weaponName}");
+        }
+    }
+
     // 设置当前武器
     public void SetCurrentWeapon(string weaponName)
     {
@@ -141,8 +165,15 @@ public class WeaponAmmo : MonoBehaviour
             if (ammo.currentAmmo <= 0)
                 return true;
 
-            // 或者当子弹少于30%时
-            return ammo.currentAmmo < ammo.maxAmmo * 0.3f;
+            // 只有当弹匣不满且有后备弹药时才返回true
+            if (ammo.currentAmmo < ammo.maxAmmo && ammo.reserveAmmo > 0)
+            {
+                // 可以添加额外条件，比如子弹少于30%时
+                // return ammo.currentAmmo < ammo.maxAmmo * 0.3f;
+                return true; // 或者直接返回true允许任何不满弹匣的装填
+            }
+
+            return false;
         }
         return false;
     }
@@ -154,6 +185,13 @@ public class WeaponAmmo : MonoBehaviour
 
         if (ammoDictionary.TryGetValue(weaponName, out AmmoInfo ammo))
         {
+            // 新增：检查弹匣是否已满
+            if (ammo.currentAmmo >= ammo.maxAmmo)
+            {
+                Debug.Log($"{weaponName} 弹匣已满，无需装填");
+                return;
+            }
+
             // 检查是否有后备弹药
             if (ammo.reserveAmmo <= 0)
             {
@@ -162,6 +200,14 @@ public class WeaponAmmo : MonoBehaviour
                 {
                     audioSource.PlayOneShot(emptySound);
                 }
+                return;
+            }
+
+            // 检查是否需要装填（新增逻辑）
+            // 只有当需要装填时才能开始装填
+            if (!NeedReload(weaponName))
+            {
+                Debug.Log($"{weaponName} 不需要装填（弹药充足）");
                 return;
             }
 
@@ -185,34 +231,43 @@ public class WeaponAmmo : MonoBehaviour
         Debug.Log($"{ammo.weaponName} 开始装填...");
         OnReloadStarted?.Invoke(ammo.currentAmmo, ammo.reserveAmmo);
 
-        // 播放装填音效
-        if (ammo.reloadSound != null && audioSource != null)
+        // 获取音效
+        AudioClip soundToPlay = ammo.reloadSound;
+
+        // 如果音效太短，使用默认换弹时间
+        // 如果音效太长，延长换弹时间到音效长度
+        float effectiveReloadTime = ammo.reloadTime;
+
+        if (soundToPlay != null)
         {
-            audioSource.PlayOneShot(ammo.reloadSound);
+            float soundLength = soundToPlay.length;
+            Debug.Log($"音效长度: {soundLength:F2}秒, 原换弹时间: {ammo.reloadTime:F2}秒");
+
+            // 如果音效比换弹时间长，延长换弹时间
+            if (soundLength > ammo.reloadTime)
+            {
+                effectiveReloadTime = soundLength;
+                Debug.Log($"音效太长，延长换弹时间到: {effectiveReloadTime:F2}秒");
+            }
+
+            // 播放音效
+            audioSource.PlayOneShot(soundToPlay);
         }
-        else if (audioSource != null && audioSource.clip != null)
+        else
         {
-            audioSource.PlayOneShot(audioSource.clip);
+            Debug.LogWarning("没有设置换弹音效！");
         }
 
-        // 等待装填时间
-        yield return new WaitForSeconds(ammo.reloadTime);
-
-        // 计算需要装填的弹药量
-        int ammoNeeded = ammo.maxAmmo - ammo.currentAmmo;
-        int ammoToLoad = Mathf.Min(ammoNeeded, ammo.reserveAmmo);
+        // 等待换弹完成（使用调整后的时间）
+        yield return new WaitForSeconds(effectiveReloadTime);
 
         // 更新弹药
+        int ammoNeeded = ammo.maxAmmo - ammo.currentAmmo;
+        int ammoToLoad = Mathf.Min(ammoNeeded, ammo.reserveAmmo);
         ammo.currentAmmo += ammoToLoad;
         ammo.reserveAmmo -= ammoToLoad;
 
-        // 播放弹匣插入音效
-        if (magazineInsertSound != null && audioSource != null && ammoToLoad > 0)
-        {
-            audioSource.PlayOneShot(magazineInsertSound);
-        }
-
-        Debug.Log($"{ammo.weaponName} 装填完成! +{ammoToLoad} 发 (剩余:{ammo.reserveAmmo})");
+        Debug.Log($"{ammo.weaponName} 装填完成!");
         OnReloadCompleted?.Invoke(ammo.currentAmmo, ammo.reserveAmmo);
         OnAmmoChanged?.Invoke(ammo.currentAmmo, ammo.reserveAmmo);
 

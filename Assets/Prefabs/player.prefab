@@ -1520,6 +1520,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4524392720361431702}
   - component: {fileID: 3470263642226629046}
+  - component: {fileID: 6551479914579858641}
   m_Layer: 9
   m_Name: "\u6B66\u5668"
   m_TagString: Untagged
@@ -1563,12 +1564,50 @@ MonoBehaviour:
   - {fileID: 932972806496999583}
   - {fileID: 1692223930417207906}
   defaultWeaponIndex: 0
-  weaponAnimator: {fileID: 1948426674294225967}
+  weaponNameText: {fileID: 0}
+  ammoText: {fileID: 0}
+  weaponIcon: {fileID: 0}
+  weaponAnimator: {fileID: 0}
   fireSpeedParam: FireSpeed
   animationSpeedMultiplier: 1
   switchSpeed: 0.3
-  switchSound: {fileID: 0}
-  enableAutoReload: 1
+  switchSound: {fileID: 8300000, guid: 6c3c3ddf4b5170240b33f35e2173ebb5, type: 3}
+  switchRifleSound: {fileID: 0}
+  switchFireKirinSound: {fileID: 0}
+  switchAWMSound: {fileID: 0}
+  rifleReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4, type: 3}
+  fireKirinReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4,
+    type: 3}
+  awmReloadSound: {fileID: 8300000, guid: 44197af2f077925489d388a337f8bfae, type: 3}
+  weaponAmmo: {fileID: 0}
+  reloadKey: 114
+--- !u!114 &6551479914579858641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4542972239061671150}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 25
+  range: 100
+  fireRate: 0.5
+  rayStartOffset: 0.5
+  shootAnimationDuration: 0.25
+  playerCamera: {fileID: 0}
+  shootSound: {fileID: 0}
+  volume: 0.8
+  ignoredObjects: []
+  ignoreSelf: 1
+  autoGenerateEffects: 1
+  weaponManager: {fileID: 0}
+  useAmmoSystem: 1
+  animationController: {fileID: 0}
+  weaponAnimator: {fileID: 0}
 --- !u!1 &4606538763668855322
 GameObject:
   m_ObjectHideFlags: 0
@@ -2906,8 +2945,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 505e3d52395bd584a8d4fda84faee114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 4
-  runSpeed: 8
+  walkSpeed: 2
+  runSpeed: 4
   jumpForce: 1
   gravity: -9.81
   crouchSpeed: 2.5
@@ -2934,7 +2973,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  currentHealth: 0
+  currentHealth: 100
   healthBar: {fileID: 0}
   deathUI: {fileID: 0}
   clampHealth: 1
@@ -2953,9 +2992,9 @@ MonoBehaviour:
   crosshairImage: {fileID: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   enemyColor: {r: 1, g: 0, b: 0, a: 1}
-  defaultSize: 20
-  shootSize: 30
-  moveSize: 25
+  defaultSize: 5
+  shootSize: 10
+  moveSize: 8
   changeSpeed: 10
 --- !u!82 &8900168291213464068
 AudioSource:
@@ -3205,6 +3244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1948426674294225967}
+  shootSystem: {fileID: 0}
 --- !u!1 &8268890646836564321
 GameObject:
   m_ObjectHideFlags: 0
@@ -3470,15 +3510,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 35
+  damage: 40
   range: 100
-  fireRate: 0.5
+  fireRate: 0.2
   rayStartOffset: 0.5
+  shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
+  shootSound: {fileID: 8300000, guid: d6fc9a59307901f499da8bae6212f4e9, type: 3}
+  volume: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
-  autoGenerateEffects: 1
+  autoGenerateEffects: 0
+  weaponManager: {fileID: 3470263642226629046}
+  useAmmoSystem: 1
+  animationController: {fileID: 1749564098308860168}
+  weaponAnimator: {fileID: 0}
 --- !u!1001 &1998073637275690803
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3571,13 +3618,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 100
   range: 100
-  fireRate: 1
+  fireRate: 2
   rayStartOffset: 0.5
+  shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
+  shootSound: {fileID: 8300000, guid: 2f51313e4e1bfa84c85d6c162eb31aaa, type: 3}
+  volume: 1
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
-  autoGenerateEffects: 1
+  autoGenerateEffects: 0
+  weaponManager: {fileID: 3470263642226629046}
+  useAmmoSystem: 1
+  animationController: {fileID: 1749564098308860168}
+  weaponAnimator: {fileID: 0}
 --- !u!4 &2031171941290639576 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: fffaae3fba5ac124e9af517e52d963ae,
@@ -3685,15 +3739,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 25
+  damage: 30
   range: 100
   fireRate: 0.2
   rayStartOffset: 0.5
+  shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
+  shootSound: {fileID: 8300000, guid: 9e9480b4d07646942b555fd43f2a0f71, type: 3}
+  volume: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
-  autoGenerateEffects: 1
+  autoGenerateEffects: 0
+  weaponManager: {fileID: 3470263642226629046}
+  useAmmoSystem: 1
+  animationController: {fileID: 1749564098308860168}
+  weaponAnimator: {fileID: 0}
 --- !u!1001 &6148959032042804495
 PrefabInstance:
   m_ObjectHideFlags: 0
