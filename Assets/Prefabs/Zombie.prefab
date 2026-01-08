@@ -3234,7 +3234,7 @@ MonoBehaviour:
   stoppingDistance: 1.1
   gravity: 9.81
   groundedGravity: -2
-  detectionRange: 10
+  detectionRange: 50
   checkInterval: 0.1
   defaultAttackType: 0
   showGizmos: 0

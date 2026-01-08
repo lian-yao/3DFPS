@@ -10,6 +10,6 @@ public class Begin : MonoBehaviour
     // 方法需用大括号闭合
     public void OnLoginButtonClick()
     {
-        SceneManager.LoadScene("test");
+        SceneManager.LoadScene("map1sence");
     }
 }

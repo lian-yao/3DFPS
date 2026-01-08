@@ -115,21 +115,21 @@ public class WeaponManager : MonoBehaviour
         if (weapons.Count >= 1 && weapons[0] != null)
         {
             // 步枪：35/120
-            weaponAmmo.RegisterWeapon(weapons[0].name, 35, 120);
+            weaponAmmo.RegisterWeapon(weapons[0].name, 35, 70);
             // 设置步枪换弹音效
             weaponAmmo.SetWeaponReloadSound(weapons[0].name, rifleReloadSound);
         }
         if (weapons.Count >= 2 && weapons[1] != null)
         {
             // 火麒麟：30/100
-            weaponAmmo.RegisterWeapon(weapons[1].name, 30, 100);
+            weaponAmmo.RegisterWeapon(weapons[1].name, 30, 60);
             // 设置火麒麟换弹音效
             weaponAmmo.SetWeaponReloadSound(weapons[1].name, fireKirinReloadSound);
         }
         if (weapons.Count >= 3 && weapons[2] != null)
         {
             // AWM：5/30
-            weaponAmmo.RegisterWeapon(weapons[2].name, 5, 30);
+            weaponAmmo.RegisterWeapon(weapons[2].name, 5, 10);
             // 设置AWM换弹音效
             weaponAmmo.SetWeaponReloadSound(weapons[2].name, awmReloadSound);
         }
