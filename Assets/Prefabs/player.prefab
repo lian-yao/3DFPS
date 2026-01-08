@@ -1571,7 +1571,7 @@ MonoBehaviour:
   fireSpeedParam: FireSpeed
   animationSpeedMultiplier: 1
   switchSpeed: 0.3
-  switchSound: {fileID: 0}
+  switchSound: {fileID: 8300000, guid: 6c3c3ddf4b5170240b33f35e2173ebb5, type: 3}
   switchRifleSound: {fileID: 0}
   switchFireKirinSound: {fileID: 0}
   switchAWMSound: {fileID: 0}
