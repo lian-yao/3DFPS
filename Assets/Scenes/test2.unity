@@ -187,6 +187,16 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 1786939151}
+    - target: {fileID: 2827503980295346808, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: volume
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2827503980295346808, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: shootSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 2f51313e4e1bfa84c85d6c162eb31aaa, type: 3}
     - target: {fileID: 3103691207695618124, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: shootSound
@@ -216,7 +226,7 @@ PrefabInstance:
         type: 3}
       propertyPath: awmReloadSound
       value: 
-      objectReference: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4, type: 3}
+      objectReference: {fileID: 8300000, guid: 44197af2f077925489d388a337f8bfae, type: 3}
     - target: {fileID: 3470263642226629046, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: rifleReloadSound
@@ -282,6 +292,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8142278700275422588, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: shootSound
+      value: 
+      objectReference: {fileID: 8300000, guid: d6fc9a59307901f499da8bae6212f4e9, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4060,6 +4075,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04eb6f3ee39d308488a6407dd11d8d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  activeDuration: 3
+  inactiveDuration: 2
 --- !u!114 &738545964
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4072,8 +4089,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 449744aab4851464983483f8ed09ba98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  activeDuration: 3
-  inactiveDuration: 2
 --- !u!4 &772375675 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: ce1e1c6afeb8a4c4da4ab18e701d36cc,

@@ -1578,7 +1578,7 @@ MonoBehaviour:
   rifleReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4, type: 3}
   fireKirinReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4,
     type: 3}
-  awmReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4, type: 3}
+  awmReloadSound: {fileID: 8300000, guid: 44197af2f077925489d388a337f8bfae, type: 3}
   weaponAmmo: {fileID: 0}
   reloadKey: 114
 --- !u!114 &6551479914579858641
@@ -3516,7 +3516,7 @@ MonoBehaviour:
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
-  shootSound: {fileID: 0}
+  shootSound: {fileID: 8300000, guid: d6fc9a59307901f499da8bae6212f4e9, type: 3}
   volume: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
@@ -3622,8 +3622,8 @@ MonoBehaviour:
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
-  shootSound: {fileID: 0}
-  volume: 0.8
+  shootSound: {fileID: 8300000, guid: 2f51313e4e1bfa84c85d6c162eb31aaa, type: 3}
+  volume: 1
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
