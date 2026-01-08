@@ -90,14 +90,13 @@ public class RangedAttackBehaviour : MonoBehaviour, IAttackBehaviour
             
             // 设置投射物生命周期
             Destroy(projectile, projectileLifetime);
-            
-            lastAttackTime = Time.time;
         }
     }
 
     public void OnAttackAnimationEnd()
     {
-        // 远程攻击动画结束时的处理
+        // 远程攻击动画结束时更新冷却时间
+        lastAttackTime = Time.time;
     }
 }
 

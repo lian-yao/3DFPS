@@ -19,8 +19,7 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
-    animationImportWarnings: Event OnAttackAnimationEnd has a time (3.185122) outside
-      the clip's valid range (0.000000..3.000000). It will never be fired
+    animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -58,7 +57,15 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.50939417
+      - time: 0.5111952
+        functionName: OnAttackHit
+        data: 
+        objectReferenceParameter: {fileID: 3181810636856372950, guid: d69206936084fd540ae94196c33f7e3f,
+          type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 1
         functionName: OnAttackAnimationEnd
         data: 
         objectReferenceParameter: {fileID: 4127960938634840145, guid: a5295e78cd3f41f4d9ccd1f82ccb9e0e,

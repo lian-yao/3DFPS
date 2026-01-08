@@ -57,12 +57,14 @@ public class MeleeAttackBehaviour : MonoBehaviour, IAttackBehaviour
         if (target != null && !target.IsDead)
         {
             target.TakeDamage(attackDamage);
-            lastAttackTime = Time.time;
+            Debug.Log($"{attacker.name} 执行伤害: {attackDamage}，攻击类型: {attackType}");
         }
     }
 
     public void OnAttackAnimationEnd()
     {
-        // 近战攻击动画结束时的处理
+        // 攻击动画结束时更新冷却时间
+        lastAttackTime = Time.time;
+        Debug.Log($"{gameObject.name} 攻击动画结束，更新冷却时间");
     }
 }
