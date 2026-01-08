@@ -2457,7 +2457,7 @@ MonoBehaviour:
   detectionRange: 10
   checkInterval: 0.1
   defaultAttackType: 0
-  showGizmos: 1
+  showGizmos: 0
   debugLog: 1
   enemyAnimator: {fileID: 6742684344391258709}
   paramIsRunning: IsRunning
