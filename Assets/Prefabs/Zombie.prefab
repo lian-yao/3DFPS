@@ -3122,7 +3122,7 @@ GameObject:
   - component: {fileID: 7408259860652991883}
   - component: {fileID: 427669857714961588}
   - component: {fileID: 2560166309036907959}
-  - component: {fileID: 3703465998117343485}
+  - component: {fileID: -8467939393180521428}
   m_Layer: 0
   m_Name: Zombie
   m_TagString: Untagged
@@ -3237,17 +3237,15 @@ MonoBehaviour:
   detectionRange: 50
   checkInterval: 0.1
   defaultAttackType: 0
-  showGizmos: 1
+  showGizmos: 0
   debugLog: 1
   enemyAnimator: {fileID: 1456067023646580375}
   paramIsRunning: IsRunning
-  attackTriggerParamsList:
-  - attackType: 0
-    triggerName: AttackTrigger
+  attackTriggerParamsList: []
   paramIsAttacking: IsAttacking
   characterController: {fileID: 7408259860652991883}
   enemyModel: {fileID: 0}
---- !u!114 &3703465998117343485
+--- !u!114 &-8467939393180521428
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3263,7 +3261,7 @@ MonoBehaviour:
   attackDamage: 10
   attackCooldown: 1
   attackRange: 2
-  maxAttackHeight: 4
+  maxAttackHeight: 3
 --- !u!1 &6021074241927478474
 GameObject:
   m_ObjectHideFlags: 0

@@ -2457,7 +2457,7 @@ MonoBehaviour:
   detectionRange: 10
   checkInterval: 0.1
   defaultAttackType: 0
-  showGizmos: 1
+  showGizmos: 0
   debugLog: 1
   enemyAnimator: {fileID: 6742684344391258709}
   paramIsRunning: IsRunning
@@ -2549,7 +2549,7 @@ MonoBehaviour:
   hurtVolume: 0.7
   deathClip: {fileID: 8300000, guid: 62986df902a237641bfb629e047d438c, type: 3}
   deathVolume: 0.8
-  chaseClip: {fileID: 8300000, guid: c1225317b9467714eaa3fa0d43d70be9, type: 3}
+  chaseClip: {fileID: 8300000, guid: 41b9d19477502d645a4259be52c7cedf, type: 3}
   loopChase: 1
   attackClip0: {fileID: 0}
   attackClip1: {fileID: 0}

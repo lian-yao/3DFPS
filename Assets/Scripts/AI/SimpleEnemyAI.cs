@@ -305,26 +305,44 @@ public class SimpleEnemyAI : MonoBehaviour
         }
     }
 
-    /// <summary>攻击动画结束回调（由Animator事件调用）</summary>
-    public void OnAttackAnimationEnd()
+    /// <summary>攻击命中回调（由Animator事件调用，用于伤害结算）</summary>
+    public void OnAttackHit()
     {
-        Debug.Log($"{name} OnAttackAnimationEnd 被调用，当前状态: {currentState?.StateType}");
+        Debug.Log($"{name} OnAttackHit 被调用，当前状态: {currentState?.StateType}");
         
-        // 执行攻击行为的动画结束逻辑
-        if (currentAttackBehaviour != null) currentAttackBehaviour.OnAttackAnimationEnd();
-        // 玩家存活时执行攻击逻辑
+        // 玩家存活时执行伤害结算
         if (playerHealth != null && !playerHealth.IsDead)
         {
             if (currentAttackBehaviour != null)
             {
-                Debug.Log($"{name} 执行攻击伤害，攻击类型: {currentAttackBehaviour.AttackType}");
-                currentAttackBehaviour.ExecuteAttack(transform, playerHealth);
+                // 再次检查攻击条件，确保伤害结算时攻击条件仍然满足
+                if (currentAttackBehaviour.CanAttack(transform, player))
+                {
+                    Debug.Log($"{name} 执行攻击伤害，攻击类型: {currentAttackBehaviour.AttackType}");
+                    currentAttackBehaviour.ExecuteAttack(transform, playerHealth);
+                    
+                    // 播放攻击音效
+                    enemySound?.PlayAttackSound();
+                }
+                else
+                {
+                    Debug.Log($"{name} 伤害结算时攻击条件不满足，跳过伤害");
+                }
             }
         }
         else
         {
             Debug.Log($"{name} 玩家已死亡或无玩家健康系统，跳过伤害");
         }
+    }
+    
+    /// <summary>攻击动画结束回调（由Animator事件调用，用于动画结束处理）</summary>
+    public void OnAttackAnimationEnd()
+    {
+        Debug.Log($"{name} OnAttackAnimationEnd 被调用，当前状态: {currentState?.StateType}");
+        
+        // 执行攻击行为的动画结束逻辑
+        if (currentAttackBehaviour != null) currentAttackBehaviour.OnAttackAnimationEnd();
         
         // 随机切换攻击类型
         RandomizeAttackType();
