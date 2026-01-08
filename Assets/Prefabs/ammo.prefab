@@ -44,7 +44,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8e17270ea9813b4a92129c1c7d86f4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponAmmoList: []
+  weaponAmmoList:
+  - weaponName: 
+    currentAmmo: 0
+    maxAmmo: 0
+    reserveAmmo: 0
+    maxReserveAmmo: 0
+    reloadTime: 0
+    reloadSound: {fileID: 0}
   defaultMaxAmmo: 5
   defaultMaxReserve: 10
   defaultReloadTime: 2

@@ -14,9 +14,16 @@ public class AutoPlayerShoot : MonoBehaviour
     [Header("摄像机设置")]
     public Camera playerCamera;
 
+    [Header("枪声音效")]
+    public AudioClip shootSound;           // 射击音效
+    [Range(0f, 1f)] public float volume = 0.8f; // 音量控制
+
+
+
     [Header("忽略的物体")]
     [Tooltip("指定要忽略的物体（如玩家自身、武器等）")]
     public List<GameObject> ignoredObjects = new List<GameObject>();
+
     [Tooltip("自动忽略玩家自身")]
     public bool ignoreSelf = true;
 
@@ -33,10 +40,9 @@ public class AutoPlayerShoot : MonoBehaviour
 
     // 私有变量
     private float nextFireTime;
-    private AudioSource audioSource;
+    private AudioSource audioSource;       // 音效组件
     private GameObject simpleHitEffect;
     private List<int> ignoredInstanceIDs = new List<int>();
-    private bool isReloading = false;
 
     void Start()
     {
@@ -50,11 +56,13 @@ public class AutoPlayerShoot : MonoBehaviour
             }
         }
 
-        // 2. 初始化音频
+        // 2. 初始化音频组件
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.spatialBlend = 0.7f; // 半3D音效
         }
 
         // 3. 初始化忽略列表
@@ -127,16 +135,13 @@ public class AutoPlayerShoot : MonoBehaviour
 
     void Update()
     {
-        // 检查是否正在装填
-        if (weaponManager != null)
-        {
-            isReloading = weaponManager.IsReloading();
-        }
+        // 检查是否正在装填（从WeaponManager获取状态）
+        bool isReloading = weaponManager != null && weaponManager.IsReloading();
 
         // 如果正在装填，不能射击
         if (isReloading) return;
 
-        // 实际射击检测 - 只有这里检测射击输入！
+        // 实际射击检测
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
         {
             // 检查弹药
@@ -152,6 +157,15 @@ public class AutoPlayerShoot : MonoBehaviour
                 nextFireTime = Time.time + 0.5f;
             }
         }
+    }
+
+    // 播放射击音效
+    void PlayShootSound()
+    {
+        if (shootSound == null || audioSource == null) return;
+
+        audioSource.PlayOneShot(shootSound, volume);
+        Debug.Log("播放射击音效");
     }
 
     bool CanShoot()
@@ -200,9 +214,6 @@ public class AutoPlayerShoot : MonoBehaviour
         {
             // 触发射击动画
             animationController.TriggerShootAnimation();
-
-            // 设置射击状态
-            // 动画控制器现在会根据射击间隔自动管理状态
         }
     }
 
@@ -304,14 +315,6 @@ public class AutoPlayerShoot : MonoBehaviour
         ShowHitEffect(hit.point);
     }
 
-    void PlayShootSound()
-    {
-        if (audioSource != null && !audioSource.isPlaying)
-        {
-            audioSource.Play();
-        }
-    }
-
     void PlayEmptySound()
     {
         if (audioSource != null)
@@ -354,5 +357,20 @@ public class AutoPlayerShoot : MonoBehaviour
         {
             simpleHitEffect.SetActive(false);
         }
+    }
+
+    void OnGUI()
+    {
+        // 显示射击状态信息
+        GUILayout.BeginArea(new Rect(10, 50, 300, 200));
+        GUILayout.Label($"射击系统状态:");
+        GUILayout.Label($"武器管理器: {weaponManager != null}");
+        if (weaponManager != null)
+        {
+            GUILayout.Label($"正在换弹: {weaponManager.IsReloading()}");
+            var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
+            GUILayout.Label($"弹药: {ammoInfo.current} / {ammoInfo.reserve}");
+        }
+        GUILayout.EndArea();
     }
 }
