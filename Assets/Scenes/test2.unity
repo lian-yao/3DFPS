@@ -6481,15 +6481,20 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 427669857714961588, guid: cf2f0263c3b9f674ba0451d19d9cc421,
-        type: 3}
-      propertyPath: screenHealthSlider
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 2560166309036907959, guid: cf2f0263c3b9f674ba0451d19d9cc421,
         type: 3}
       propertyPath: detectionRange
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2560166309036907959, guid: cf2f0263c3b9f674ba0451d19d9cc421,
+        type: 3}
+      propertyPath: attackTriggerParamsList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2560166309036907959, guid: cf2f0263c3b9f674ba0451d19d9cc421,
+        type: 3}
+      propertyPath: attackTriggerParamsList.Array.data[0].triggerName
+      value: AttackTrigger
       objectReference: {fileID: 0}
     - target: {fileID: 2756806532984873631, guid: cf2f0263c3b9f674ba0451d19d9cc421,
         type: 3}
