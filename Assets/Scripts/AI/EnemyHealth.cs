@@ -107,6 +107,28 @@ public class EnemyHealth : MonoBehaviour, IHealth
             screenHealthSlider.maxValue = maxHealth;
             screenHealthSlider.value = currentHealth;
             screenHealthSlider.gameObject.SetActive(true);
+            
+            // 确保Boss血条所在的Canvas有正确的缩放设置
+            Canvas canvas = screenHealthSlider.GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                // 检查并配置Canvas Scaler
+                CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+                if (scaler == null)
+                {
+                    scaler = canvas.gameObject.AddComponent<CanvasScaler>();
+                }
+                
+                // 配置Canvas Scaler为自适应屏幕
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = new Vector2(1920, 1080);
+                scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+                scaler.matchWidthOrHeight = 0.5f;
+                
+                // 确保Canvas设置正确
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvas.sortingOrder = 1000;
+            }
         }
         else
         {
