@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI; // 添加UI命名空间
@@ -592,6 +592,12 @@ public class WeaponManager : MonoBehaviour
     public bool IsReloading()
     {
         return weaponAmmo != null && weaponAmmo.IsReloading();
+    }
+
+    // 获取弹药系统引用（供外部使用）
+    public WeaponAmmo WeaponAmmoSystem
+    {
+        get { return weaponAmmo; }
     }
 
     public float GetCurrentWeaponFireRate()

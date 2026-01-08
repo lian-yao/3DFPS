@@ -6,42 +6,42 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider))]
 public class AmmoBox : MonoBehaviour
 {
-    [Header("»ù´¡ÉèÖÃ")]
-    [Tooltip("µ¯Ò©ÏäÀàĞÍ£º²¹³äµ±Ç°ÎäÆ÷/ËùÓĞÎäÆ÷")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½ï¿½Ò©ï¿½ï¿½ï¿½ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½äµ±Ç°ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public AmmoBoxType ammoBoxType = AmmoBoxType.CurrentWeapon;
-    [Tooltip("ÊÇ·ñÎªÒ»´ÎĞÔµÀ¾ß")]
+    [Tooltip("ï¿½Ç·ï¿½ÎªÒ»ï¿½ï¿½ï¿½Ôµï¿½ï¿½ï¿½")]
     public bool isOneTimeUse = true;
-    [Tooltip("Ê¹ÓÃÀäÈ´Ê±¼ä£¨·ÇÒ»´ÎĞÔÊ±£©")]
+    [Tooltip("Ê¹ï¿½ï¿½ï¿½ï¿½È´Ê±ï¿½ä£¨ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½")]
     public float cooldownTime = 10f;
 
-    [Header("²¹¸øÅäÖÃ")]
-    [Tooltip("µ±Ç°ÎäÆ÷µ¯Ï»Ö±½ÓÌîÂú")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï»Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public bool fillCurrentMag = true;
-    [Tooltip("²¹³äµÄºó±¸µ¯Ò©Á¿£¨°´ÎäÆ÷ÀàĞÍÅäÖÃ£©")]
-    public int rifleReserveAmmo = 60;    // ²½Ç¹²¹³äÁ¿
-    public int fireKirinReserveAmmo = 50;// »ğ÷è÷ë²¹³äÁ¿
-    public int awmReserveAmmo = 15;      // AWM²¹³äÁ¿
-    [Tooltip("ËùÓĞÎäÆ÷Í¨ÓÃ²¹³äÁ¿£¨Î´Æ¥ÅäÊ±Ê¹ÓÃ£©")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½Äºó±¸µï¿½Ò©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½")]
+    public int rifleReserveAmmo = 60;    // ï¿½ï¿½Ç¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public int fireKirinReserveAmmo = 50;// ï¿½ï¿½ï¿½ï¿½ï¿½ë²¹ï¿½ï¿½ï¿½ï¿½
+    public int awmReserveAmmo = 15;      // AWMï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ã²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î´Æ¥ï¿½ï¿½Ê±Ê¹ï¿½Ã£ï¿½")]
     public int defaultReserveAmmo = 30;
 
-    [Header("½»»¥ÉèÖÃ")]
-    [Tooltip("½»»¥¾àÀë")]
+    [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public float interactDistance = 2f;
-    [Tooltip("½»»¥°´¼ü")]
+    [Tooltip("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
     public KeyCode interactKey = KeyCode.E;
-    [Tooltip("ÌáÊ¾ÎÄ±¾£¨Èç£º°´E²¹³äµ¯Ò©£©")]
-    public string promptText = "°´E²¹³äµ¯Ò©";
+    [Tooltip("ï¿½ï¿½Ê¾ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ç£ºï¿½ï¿½Eï¿½ï¿½ï¿½äµ¯Ò©ï¿½ï¿½")]
+    public string promptText = "ï¿½ï¿½Eï¿½ï¿½ï¿½äµ¯Ò©";
 
-    [Header("ÊÓ¾õ/ÒôĞ§")]
-    public GameObject pickupEffect;      // Ê°È¡ÌØĞ§
-    public AudioClip pickupSound;        // Ê°È¡ÒôĞ§
-    public Material normalMaterial;      // Õı³£²ÄÖÊ
-    public Material cooldownMaterial;    // ÀäÈ´²ÄÖÊ
+    [Header("ï¿½Ó¾ï¿½/ï¿½ï¿½Ğ§")]
+    public GameObject pickupEffect;      // Ê°È¡ï¿½ï¿½Ğ§
+    public AudioClip pickupSound;        // Ê°È¡ï¿½ï¿½Ğ§
+    public Material normalMaterial;      // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public Material cooldownMaterial;    // ï¿½ï¿½È´ï¿½ï¿½ï¿½ï¿½
 
-    [Header("ÊÂ¼ş")]
-    public UnityEvent OnAmmoCollected;   // Ê°È¡µ¯Ò©ÊÂ¼ş
+    [Header("ï¿½Â¼ï¿½")]
+    public UnityEvent OnAmmoCollected;   // Ê°È¡ï¿½ï¿½Ò©ï¿½Â¼ï¿½
 
-    // Ë½ÓĞ±äÁ¿
+    // Ë½ï¿½Ğ±ï¿½ï¿½ï¿½
     private Renderer ammoBoxRenderer;
     private Collider ammoBoxCollider;
     private Transform player;
@@ -49,41 +49,42 @@ public class AmmoBox : MonoBehaviour
     private float cooldownTimer = 0f;
     private WeaponManager playerWeaponManager;
     private WeaponAmmo playerWeaponAmmo;
-    // ¡¾ĞÂÔö¡¿±ê¼ÇÊÇ·ñĞèÒªÏÔÊ¾½»»¥ÌáÊ¾
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
     private bool showPrompt = false;
-    // ¡¾ĞÂÔö¡¿´æ´¢ÌáÊ¾ÎÄ±¾µÄÆÁÄ»Î»ÖÃ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½Ê¾ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½Ä»Î»ï¿½ï¿½
     private Vector3 promptScreenPos;
     public bool IsInCooldown => isInCooldown;
     public float InteractDistance => interactDistance;
-    // µ¯Ò©ÏäÀàĞÍÃ¶¾Ù
+    // ï¿½ï¿½Ò©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½
     public enum AmmoBoxType
     {
-        CurrentWeapon,   // Ö»²¹³äµ±Ç°ÊÖ³ÖÎäÆ÷
-        AllWeapons       // ²¹³äËùÓĞÎäÆ÷
+        CurrentWeapon,   // Ö»ï¿½ï¿½ï¿½äµ±Ç°ï¿½Ö³ï¿½ï¿½ï¿½ï¿½ï¿½
+        AllWeapons       // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     }
 
     void Start()
     {
-        // »ñÈ¡×é¼ş
+        // ï¿½ï¿½È¡ï¿½ï¿½ï¿½
         ammoBoxRenderer = GetComponent<Renderer>();
         ammoBoxCollider = GetComponent<Collider>();
 
-        // È·±£Åö×²ÌåÎª´¥·¢Æ÷
+        // È·ï¿½ï¿½ï¿½ï¿½×²ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         ammoBoxCollider.isTrigger = true;
 
-        // ³õÊ¼»¯²ÄÖÊ
+        // ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         if (ammoBoxRenderer != null && normalMaterial != null)
         {
             ammoBoxRenderer.material = normalMaterial;
         }
 
-        // ²éÕÒÍæ¼Ò£¨¿É¸ù¾İÄãµÄÏîÄ¿µ÷Õû£¬±ÈÈçTagÎªPlayer£©
-        player = GameObject.FindGameObjectWithTag("Gun")?.transform;
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò£ï¿½ï¿½É¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½TagÎªPlayerï¿½ï¿½
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        Debug.Log("å¼¹è¯ç®±: æŸ¥æ‰¾Playerå¯¹è±¡ - " + (player != null ? "æˆåŠŸ" : "å¤±è´¥"));
     }
 
     void Update()
     {
-        // ÀäÈ´¼ÆÊ±
+        // ï¿½ï¿½È´ï¿½ï¿½Ê±
         if (isInCooldown)
         {
             cooldownTimer -= Time.deltaTime;
@@ -97,39 +98,61 @@ public class AmmoBox : MonoBehaviour
             }
             if (!isInCooldown)
             {
-                transform.Rotate(0, 90 * Time.deltaTime, 0); // »ºÂıĞı×ª
+                transform.Rotate(0, 90 * Time.deltaTime, 0); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×ª
             }
-            // ÀäÈ´Ê±Òş²ØÌáÊ¾
+            // ï¿½ï¿½È´Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
             showPrompt = false;
             return;
         }
 
-        // ¼ì²âÍæ¼Ò¾àÀë²¢´¦Àí½»»¥
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò¾ï¿½ï¿½ë²¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        if (player == null)
+        {
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æœªæ‰¾åˆ°ç©å®¶å¯¹è±¡ï¼Œé‡æ–°æŸ¥æ‰¾
+            player = GameObject.FindGameObjectWithTag("Player")?.transform;
+            Debug.Log("å¼¹è¯ç®±: é‡æ–°æŸ¥æ‰¾Playerå¯¹è±¡ - " + (player != null ? "æˆåŠŸ" : "å¤±è´¥"));
+        }
+
         if (player != null && IsPlayerInRange())
         {
-            // »ñÈ¡Íæ¼ÒµÄÎäÆ÷×é¼ş£¨ÑÓ³Ù»ñÈ¡£¬±ÜÃâ³õÊ¼Îª¿Õ£©
+            // ï¿½ï¿½È¡ï¿½ï¿½Òµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³Ù»ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼Îªï¿½Õ£ï¿½
             if (playerWeaponManager == null)
             {
                 playerWeaponManager = player.GetComponent<WeaponManager>();
-                if (playerWeaponManager != null)
+                if (playerWeaponManager == null)
                 {
-                    playerWeaponAmmo = playerWeaponManager.GetComponent<WeaponAmmo>();
+                    // å¦‚æœç›´æ¥åœ¨Playerå¯¹è±¡ä¸Šæ‰¾ä¸åˆ°ï¼Œå°è¯•åœ¨å­å¯¹è±¡ä¸­æŸ¥æ‰¾
+                    playerWeaponManager = player.GetComponentInChildren<WeaponManager>();
                 }
+                Debug.Log("å¼¹è¯ç®±: è·å–WeaponManager - " + (playerWeaponManager != null ? "æˆåŠŸ" : "å¤±è´¥"));
             }
 
-            // ¡¾ĞŞ¸Ä¡¿Ö»¸üĞÂÌáÊ¾×´Ì¬ºÍÎ»ÖÃ£¬²»»æÖÆGUI
+            if (playerWeaponManager != null && playerWeaponAmmo == null)
+            {
+                playerWeaponAmmo = playerWeaponManager.WeaponAmmoSystem;
+                Debug.Log("å¼¹è¯ç®±: è·å–WeaponAmmo - " + (playerWeaponAmmo != null ? "æˆåŠŸ" : "å¤±è´¥"));
+            }
+
+            // ï¿½ï¿½ï¿½Ş¸Ä¡ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾×´Ì¬ï¿½ï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½GUI
             showPrompt = true;
             promptScreenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up);
 
-            // Íæ¼Ò°´¼ü½»»¥
-            if (Input.GetKeyDown(interactKey) && playerWeaponAmmo != null)
+            // ï¿½ï¿½Ò°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            if (Input.GetKeyDown(interactKey))
             {
-                CollectAmmo();
+                if (playerWeaponAmmo != null)
+                {
+                    CollectAmmo();
+                }
+                else
+                {
+                    Debug.Log("å¼¹è¯ç®±: æ— æ³•æ”¶é›†å¼¹è¯ - playerWeaponAmmoä¸ºç©º");
+                }
             }
         }
         else
         {
-            // Íæ¼Ò²»ÔÚ·¶Î§ÄÚ£¬Òş²ØÌáÊ¾
+            // ï¿½ï¿½Ò²ï¿½ï¿½Ú·ï¿½Î§ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
             showPrompt = false;
         }
     }
@@ -137,24 +160,28 @@ public class AmmoBox : MonoBehaviour
     void OnGUI()
     {
 #if UNITY_EDITOR
-        // ½öÔÚ±à¼­Æ÷ÖĞÏÔÊ¾µ÷ÊÔÌáÊ¾
+        // ï¿½ï¿½ï¿½Ú±à¼­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾
         if (showPrompt)
         {
             GUI.contentColor = Color.white;
-            // »æÖÆÌáÊ¾ÎÄ±¾£¨Î»ÖÃÎ¢µ÷£¬±ÜÃâ³¬³öÆÁÄ»£©
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ä±ï¿½ï¿½ï¿½Î»ï¿½ï¿½Î¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½â³¬ï¿½ï¿½ï¿½ï¿½Ä»ï¿½ï¿½
             GUI.Label(new Rect(promptScreenPos.x - 50, Screen.height - promptScreenPos.y - 50, 100, 30), promptText);
         }
 #endif
     }
 
-    // ¼ì²âÍæ¼ÒÊÇ·ñÔÚ½»»¥·¶Î§ÄÚ
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½
     private bool IsPlayerInRange()
     {
         float distance = Vector3.Distance(transform.position, player.position);
-        return distance <= interactDistance;
+        bool inRange = distance <= interactDistance;
+        Debug.Log("å¼¹è¯ç®±: ç©å®¶è·ç¦» - " + distance + 
+                  " äº¤äº’è·ç¦»:" + interactDistance + 
+                  " æ˜¯å¦åœ¨èŒƒå›´å†…:" + inRange);
+        return inRange;
     }
 
-    // ÏÔÊ¾½»»¥ÌáÊ¾£¨ÕâÀïÓÃOnGUIÊ¾Àı£¬½¨ÒéÌæ»»ÎªUGUI£©
+    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½OnGUIÊ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ»»ÎªUGUIï¿½ï¿½
 //    private void ShowInteractPrompt()
 //    {
 //#if UNITY_EDITOR
@@ -164,15 +191,20 @@ public class AmmoBox : MonoBehaviour
 //#endif
 //    }
 
-    // ÊÕ¼¯µ¯Ò©ºËĞÄÂß¼­
+    // æ”¶é›†å¼¹è¯æ ¸å¿ƒé€»è¾‘
     private void CollectAmmo()
     {
+        Debug.Log("å¼¹è¯ç®±: å¼€å§‹æ”¶é›†å¼¹è¯ - " + 
+                  "isInCooldown:" + isInCooldown + 
+                  " playerWeaponAmmo:" + (playerWeaponAmmo != null ? "å­˜åœ¨" : "ä¸å­˜åœ¨") + 
+                  " playerWeaponManager:" + (playerWeaponManager != null ? "å­˜åœ¨" : "ä¸å­˜åœ¨"));
+
         if (playerWeaponAmmo == null || isInCooldown) return;
 
-        // ²¥·ÅÊ°È¡ÌØĞ§ºÍÒôĞ§
+        // æ’­æ”¾æ‹¾å–ç‰¹æ•ˆå’ŒéŸ³æ•ˆ
         PlayPickupFeedback();
 
-        // ¸ù¾İÀàĞÍ²¹³äµ¯Ò©
+        // æ ¹æ®ç±»å‹è¡¥å……å¼¹è¯
         if (ammoBoxType == AmmoBoxType.CurrentWeapon)
         {
             RefillCurrentWeaponAmmo();
@@ -182,57 +214,76 @@ public class AmmoBox : MonoBehaviour
             RefillAllWeaponsAmmo();
         }
 
-        // ´¥·¢ÊÂ¼ş
+        // è§¦å‘äº‹ä»¶
         OnAmmoCollected?.Invoke();
 
-        // ´¦ÀíÊ¹ÓÃºóÂß¼­
+        // å¤„ç†ä½¿ç”¨åé€»è¾‘
         HandlePostCollection();
 
-        Debug.Log("µ¯Ò©Ïä£ºÒÑ²¹³äµ¯Ò©£¡");
+        Debug.Log("å¼¹è¯ç®±: å·²è¡¥å……å¼¹è¯");
     }
 
-    // ²¹³äµ±Ç°ÎäÆ÷µ¯Ò©
+    // ï¿½ï¿½ï¿½äµ±Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò©
     private void RefillCurrentWeaponAmmo()
     {
-        if (playerWeaponManager.CurrentWeapon == null) return;
+        Debug.Log("å¼¹è¯ç®±: å¼€å§‹è¡¥å……å½“å‰æ­¦å™¨å¼¹è¯");
+        if (playerWeaponManager.CurrentWeapon == null)
+        {
+            Debug.Log("å¼¹è¯ç®±: å½“å‰æ­¦å™¨ä¸ºç©º");
+            return;
+        }
 
         string currentWeaponName = playerWeaponManager.CurrentWeapon.name;
+        Debug.Log("å¼¹è¯ç®±: å½“å‰æ­¦å™¨åç§° - " + currentWeaponName);
 
-        // 1. ÌîÂúµ±Ç°µ¯Ï»
+        // 1. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½Ï»
         if (fillCurrentMag)
         {
+            Debug.Log("å¼¹è¯ç®±: å¼€å§‹è¡¥å……å½“å‰å¼¹åŒ£");
             var ammoInfo = playerWeaponManager.GetCurrentWeaponAmmo();
+            Debug.Log("å¼¹è¯ç®±: å½“å‰å¼¹åŒ£çŠ¶æ€ - å½“å‰:" + ammoInfo.current + " åå¤‡:" + ammoInfo.reserve);
             int maxAmmo = playerWeaponAmmo.GetCurrentWeaponMaxAmmo();
             int ammoToAdd = maxAmmo - ammoInfo.current;
+            Debug.Log("å¼¹è¯ç®±: å¼¹åŒ£è¡¥å……é‡ - éœ€è¦:" + ammoToAdd + " æœ€å¤§:" + maxAmmo);
 
             if (ammoToAdd > 0)
             {
                 playerWeaponAmmo.AddAmmo(currentWeaponName, ammoToAdd, false);
+                Debug.Log("å¼¹è¯ç®±: è¡¥å……å½“å‰å¼¹åŒ£ " + ammoToAdd + " å‘");
             }
         }
 
-        // 2. ²¹³äºó±¸µ¯Ò©
+        // 2. ï¿½ï¿½ï¿½ï¿½ó±¸µï¿½Ò©
         int reserveToAdd = GetReserveAmmoByWeaponName(currentWeaponName);
+        Debug.Log("å¼¹è¯ç®±: è¡¥å……åå¤‡å¼¹è¯ " + reserveToAdd + " å‘");
         playerWeaponAmmo.AddAmmo(currentWeaponName, reserveToAdd, true);
+        Debug.Log("å¼¹è¯ç®±: å½“å‰æ­¦å™¨å¼¹è¯è¡¥å……å®Œæˆ");
     }
 
-    // ²¹³äËùÓĞÎäÆ÷µ¯Ò©
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò©
     private void RefillAllWeaponsAmmo()
     {
-        // »ñÈ¡ËùÓĞÎäÆ÷µ¯Ò©ĞÅÏ¢
+        Debug.Log("å¼¹è¯ç®±: å¼€å§‹è¡¥å……æ‰€æœ‰æ­¦å™¨å¼¹è¯");
+        // ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò©ï¿½ï¿½Ï¢
         var allAmmoInfo = playerWeaponAmmo.GetAllAmmoInfo();
+        Debug.Log("å¼¹è¯ç®±: æ­¦å™¨æ•°é‡ - " + allAmmoInfo.Count);
 
         foreach (var weaponAmmo in allAmmoInfo)
         {
             string weaponName = weaponAmmo.Key;
+            Debug.Log("å¼¹è¯ç®±: æ­¦å™¨ - " + weaponName + 
+                      " å½“å‰:" + weaponAmmo.Value.current + 
+                      " åå¤‡:" + weaponAmmo.Value.reserve);
             int reserveToAdd = GetReserveAmmoByWeaponName(weaponName);
+            Debug.Log("å¼¹è¯ç®±: ä¸º" + weaponName + "è¡¥å……åå¤‡å¼¹è¯ " + reserveToAdd + " å‘");
 
-            // Ö»²¹³äºó±¸µ¯Ò©£¨µ¯Ï»±£³Öµ±Ç°×´Ì¬£©
+            // Ö»ï¿½ï¿½ï¿½ï¿½ó±¸µï¿½Ò©ï¿½ï¿½ï¿½ï¿½Ï»ï¿½ï¿½ï¿½Öµï¿½Ç°×´Ì¬ï¿½ï¿½
             playerWeaponAmmo.AddAmmo(weaponName, reserveToAdd, true);
         }
+        Debug.Log("å¼¹è¯ç®±: æ‰€æœ‰æ­¦å™¨å¼¹è¯è¡¥å……å®Œæˆ");
     }
 
-    // ¸ù¾İÎäÆ÷Ãû³Æ»ñÈ¡¶ÔÓ¦µÄºó±¸µ¯Ò©²¹³äÁ¿
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ»ï¿½È¡ï¿½ï¿½Ó¦ï¿½Äºó±¸µï¿½Ò©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     private int GetReserveAmmoByWeaponName(string weaponName)
     {
         if (weaponName.Contains("Rifle"))
@@ -253,16 +304,16 @@ public class AmmoBox : MonoBehaviour
         }
     }
 
-    // ²¥·ÅÊ°È¡·´À¡£¨ÌØĞ§+ÒôĞ§£©
+    // ï¿½ï¿½ï¿½ï¿½Ê°È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§+ï¿½ï¿½Ğ§ï¿½ï¿½
     private void PlayPickupFeedback()
     {
-        // ²¥·ÅÌØĞ§
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§
         if (pickupEffect != null)
         {
             Instantiate(pickupEffect, transform.position, Quaternion.identity);
         }
 
-        // ²¥·ÅÒôĞ§
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§
         if (pickupSound != null && player != null)
         {
             AudioSource playerAudio = player.GetComponent<AudioSource>();
@@ -273,17 +324,17 @@ public class AmmoBox : MonoBehaviour
         }
     }
 
-    // ´¦ÀíÊ°È¡ºóµÄÂß¼­£¨Ò»´ÎĞÔ/ÀäÈ´£©
+    // ï¿½ï¿½ï¿½ï¿½Ê°È¡ï¿½ï¿½ï¿½ï¿½ß¼ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½È´ï¿½ï¿½
     private void HandlePostCollection()
     {
         if (isOneTimeUse)
         {
-            // Ò»´ÎĞÔÊ¹ÓÃ£ºÏú»Ùµ¯Ò©Ïä
+            // Ò»ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½Ã£ï¿½ï¿½ï¿½ï¿½Ùµï¿½Ò©ï¿½ï¿½
             Destroy(gameObject);
         }
         else
         {
-            // ÀäÈ´Ä£Ê½£º½øÈëÀäÈ´×´Ì¬
+            // ï¿½ï¿½È´Ä£Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´×´Ì¬
             isInCooldown = true;
             cooldownTimer = cooldownTime;
 
@@ -294,7 +345,7 @@ public class AmmoBox : MonoBehaviour
         }
     }
 
-    // Gizmos»æÖÆ½»»¥·¶Î§
+    // Gizmosï¿½ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Î§
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
