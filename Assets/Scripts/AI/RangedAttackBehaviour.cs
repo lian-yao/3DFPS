@@ -67,35 +67,13 @@ public class RangedAttackBehaviour : MonoBehaviour, IAttackBehaviour
 
     public void ExecuteAttack(Transform attacker, IHealth target)
     {
-        if (target != null && !target.IsDead)
+        if (target != null && !target.IsDead && projectilePrefab != null)
         {
-            // 检查投射物预制体
-            if (projectilePrefab == null)
-            {
-                Debug.LogError($"{attacker.name} 远程攻击失败: 投射物预制体为空");
-                return;
-            }
-            
-            // 检查发射点
-            if (firePoint == null)
-            {
-                Debug.LogError($"{attacker.name} 远程攻击失败: 发射点为空");
-                return;
-            }
-            
             // 获取目标的Transform
             Transform targetTransform = ((MonoBehaviour)target).transform;
             
             // 创建投射物
             GameObject projectile = Instantiate(projectilePrefab, firePoint.position, firePoint.rotation);
-            
-            // 忽略投射物与敌人的碰撞，防止立即击中自己
-            Collider projectileCollider = projectile.GetComponent<Collider>();
-            Collider attackerCollider = attacker.GetComponent<Collider>();
-            if (projectileCollider != null && attackerCollider != null)
-            {
-                Physics.IgnoreCollision(projectileCollider, attackerCollider);
-            }
             
             // 设置投射物速度
             Rigidbody rb = projectile.GetComponent<Rigidbody>();
@@ -109,14 +87,11 @@ public class RangedAttackBehaviour : MonoBehaviour, IAttackBehaviour
             EnemyProjectile projectileComp = projectile.AddComponent<EnemyProjectile>();
             projectileComp.damage = attackDamage;
             projectileComp.targetHealth = target;
-            projectileComp.collisionLayers = LayerMask.GetMask("Player");
             
             // 设置投射物生命周期
             Destroy(projectile, projectileLifetime);
             
             lastAttackTime = Time.time;
-            
-            Debug.Log($"{attacker.name} 远程攻击执行成功: 投射物已发射");
         }
     }
 
