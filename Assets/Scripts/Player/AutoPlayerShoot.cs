@@ -18,7 +18,13 @@ public class AutoPlayerShoot : MonoBehaviour
     public AudioClip shootSound;           // 射击音效
     [Range(0f, 1f)] public float volume = 0.8f; // 音量控制
 
-
+    [Header("枪口火焰")]
+    public GameObject muzzleFlashPrefab;   // 枪口火焰预制体（可拖入）
+    public Material muzzleFlashMaterial;   // 枪火材质（可拖入）
+    public Transform muzzleFlashPosition;  // 枪口位置
+    public float muzzleFlashDuration = 0.1f; // 枪口火焰显示时长
+    public Vector3 muzzleFlashScale = new Vector3(0.5f, 0.5f, 0.5f); // 枪口火焰大小
+    [Range(0f, 1f)] public float muzzleFlashIntensity = 0.8f; // 枪口火焰强度
 
     [Header("忽略的物体")]
     [Tooltip("指定要忽略的物体（如玩家自身、武器等）")]
@@ -43,6 +49,7 @@ public class AutoPlayerShoot : MonoBehaviour
     private AudioSource audioSource;       // 音效组件
     private GameObject simpleHitEffect;
     private List<int> ignoredInstanceIDs = new List<int>();
+    private GameObject currentMuzzleFlash; // 当前枪口火焰实例
 
     void Start()
     {
@@ -86,6 +93,13 @@ public class AutoPlayerShoot : MonoBehaviour
 
         // 6. 初始化动画控制器
         InitializeAnimationController();
+
+        // 7. 验证枪口火焰位置
+        if (muzzleFlashPosition == null)
+        {
+            Debug.LogWarning("未设置枪口火焰位置，将使用主摄像机位置");
+            muzzleFlashPosition = playerCamera.transform;
+        }
 
         Debug.Log($"射击系统初始化完成！射速: {fireRate:F2}s/发, 动画时长: {shootAnimationDuration:F2}s");
     }
@@ -179,6 +193,9 @@ public class AutoPlayerShoot : MonoBehaviour
         // 播放射击音效
         PlayShootSound();
 
+        // 显示枪口火焰
+        ShowMuzzleFlash();
+
         // 关键：只在真正射击时触发射击动画
         TriggerShootAnimation();
 
@@ -206,6 +223,113 @@ public class AutoPlayerShoot : MonoBehaviour
         }
 
         Debug.Log($"射击完成 - 射击间隔: {fireRate:F2}s, 下次射击时间: {nextFireTime:F2}");
+    }
+
+    // 显示枪口火焰
+    void ShowMuzzleFlash()
+    {
+        // 如果有预制体，使用预制体
+        if (muzzleFlashPrefab != null)
+        {
+            // 销毁现有的枪口火焰
+            if (currentMuzzleFlash != null)
+            {
+                Destroy(currentMuzzleFlash);
+            }
+
+            // 创建新的枪口火焰
+            currentMuzzleFlash = Instantiate(muzzleFlashPrefab, muzzleFlashPosition);
+            currentMuzzleFlash.transform.localPosition = Vector3.zero;
+            currentMuzzleFlash.transform.localRotation = Quaternion.identity;
+            currentMuzzleFlash.transform.localScale = muzzleFlashScale;
+
+            // 设置自动销毁
+            Destroy(currentMuzzleFlash, muzzleFlashDuration);
+        }
+        // 如果没有预制体但有材质，创建基本枪口火焰
+        else if (muzzleFlashMaterial != null)
+        {
+            CreateBasicMuzzleFlash();
+        }
+    }
+
+    // 创建基本枪口火焰（使用提供的材质）
+    void CreateBasicMuzzleFlash()
+    {
+        // 销毁现有的枪口火焰
+        if (currentMuzzleFlash != null)
+        {
+            Destroy(currentMuzzleFlash);
+        }
+
+        // 创建四边形作为枪口火焰
+        currentMuzzleFlash = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        currentMuzzleFlash.name = "MuzzleFlash";
+
+        // 移除碰撞体
+        Destroy(currentMuzzleFlash.GetComponent<Collider>());
+
+        // 设置位置和旋转
+        currentMuzzleFlash.transform.SetParent(muzzleFlashPosition);
+        currentMuzzleFlash.transform.localPosition = Vector3.zero;
+        currentMuzzleFlash.transform.localRotation = Quaternion.Euler(0, 180, 0); // 面向摄像机
+        currentMuzzleFlash.transform.localScale = muzzleFlashScale;
+
+        // 设置材质
+        Renderer renderer = currentMuzzleFlash.GetComponent<Renderer>();
+        renderer.material = muzzleFlashMaterial;
+
+        // 设置透明度
+        Color materialColor = renderer.material.color;
+        materialColor.a = muzzleFlashIntensity;
+        renderer.material.color = materialColor;
+
+        // 添加发光效果
+        if (renderer.material.HasProperty("_EmissionColor"))
+        {
+            Color emissionColor = Color.yellow * muzzleFlashIntensity;
+            renderer.material.SetColor("_EmissionColor", emissionColor);
+        }
+
+        // 添加淡出效果
+        StartCoroutine(FadeOutMuzzleFlash());
+
+        // 设置自动销毁
+        Destroy(currentMuzzleFlash, muzzleFlashDuration + 0.5f);
+    }
+
+    // 枪口火焰淡出效果
+    IEnumerator FadeOutMuzzleFlash()
+    {
+        if (currentMuzzleFlash == null) yield break;
+
+        Renderer renderer = currentMuzzleFlash.GetComponent<Renderer>();
+        if (renderer == null) yield break;
+
+        Material material = renderer.material;
+        Color originalColor = material.color;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < muzzleFlashDuration)
+        {
+            if (currentMuzzleFlash == null) yield break;
+
+            elapsedTime += Time.deltaTime;
+            float alpha = Mathf.Lerp(muzzleFlashIntensity, 0f, elapsedTime / muzzleFlashDuration);
+
+            Color newColor = originalColor;
+            newColor.a = alpha;
+            material.color = newColor;
+
+            // 同时淡出发光效果
+            if (material.HasProperty("_EmissionColor"))
+            {
+                Color emissionColor = Color.yellow * alpha;
+                material.SetColor("_EmissionColor", emissionColor);
+            }
+
+            yield return null;
+        }
     }
 
     void TriggerShootAnimation()
@@ -371,6 +495,16 @@ public class AutoPlayerShoot : MonoBehaviour
             var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
             GUILayout.Label($"弹药: {ammoInfo.current} / {ammoInfo.reserve}");
         }
+        GUILayout.Label($"枪口火焰: {(muzzleFlashPrefab != null || muzzleFlashMaterial != null ? "已启用" : "未设置")}");
         GUILayout.EndArea();
+    }
+
+    // 清理枪口火焰
+    void OnDestroy()
+    {
+        if (currentMuzzleFlash != null)
+        {
+            Destroy(currentMuzzleFlash);
+        }
     }
 }
