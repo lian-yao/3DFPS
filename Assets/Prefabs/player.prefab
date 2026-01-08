@@ -1520,6 +1520,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4524392720361431702}
   - component: {fileID: 3470263642226629046}
+  - component: {fileID: 6551479914579858641}
   m_Layer: 9
   m_Name: "\u6B66\u5668"
   m_TagString: Untagged
@@ -1574,8 +1575,39 @@ MonoBehaviour:
   switchRifleSound: {fileID: 0}
   switchFireKirinSound: {fileID: 0}
   switchAWMSound: {fileID: 0}
+  rifleReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4, type: 3}
+  fireKirinReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4,
+    type: 3}
+  awmReloadSound: {fileID: 8300000, guid: 1fe5c2e1733f354428fe88c1a7cbafe4, type: 3}
   weaponAmmo: {fileID: 0}
   reloadKey: 114
+--- !u!114 &6551479914579858641
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4542972239061671150}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8695c270994d6734e9046c70db84144f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 25
+  range: 100
+  fireRate: 0.5
+  rayStartOffset: 0.5
+  shootAnimationDuration: 0.25
+  playerCamera: {fileID: 0}
+  shootSound: {fileID: 0}
+  volume: 0.8
+  ignoredObjects: []
+  ignoreSelf: 1
+  autoGenerateEffects: 1
+  weaponManager: {fileID: 0}
+  useAmmoSystem: 1
+  animationController: {fileID: 0}
+  weaponAnimator: {fileID: 0}
 --- !u!1 &4606538763668855322
 GameObject:
   m_ObjectHideFlags: 0
@@ -2960,9 +2992,9 @@ MonoBehaviour:
   crosshairImage: {fileID: 0}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   enemyColor: {r: 1, g: 0, b: 0, a: 1}
-  defaultSize: 20
-  shootSize: 30
-  moveSize: 25
+  defaultSize: 5
+  shootSize: 10
+  moveSize: 8
   changeSpeed: 10
 --- !u!82 &8900168291213464068
 AudioSource:
@@ -3484,6 +3516,8 @@ MonoBehaviour:
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
+  shootSound: {fileID: 0}
+  volume: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
@@ -3588,6 +3622,8 @@ MonoBehaviour:
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
+  shootSound: {fileID: 0}
+  volume: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
@@ -3709,6 +3745,8 @@ MonoBehaviour:
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
+  shootSound: {fileID: 8300000, guid: 9e9480b4d07646942b555fd43f2a0f71, type: 3}
+  volume: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1

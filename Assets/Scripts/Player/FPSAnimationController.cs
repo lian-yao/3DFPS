@@ -305,18 +305,18 @@ public class FPSAnimationController : MonoBehaviour
         else
             state = "奔跑";
 
-        GUI.Label(new Rect(10, 10, 300, 20), $"移动速度: {speed:F2}");
-        GUI.Label(new Rect(10, 30, 300, 20), $"射击动画速度: {fireSpeed:F2}x");
-        GUI.Label(new Rect(10, 50, 300, 20), $"动画播放中: {isShootingAnimationActive}");
-        GUI.Label(new Rect(10, 70, 300, 20), $"等待下一发: {waitingForNextShot}");
-        GUI.Label(new Rect(10, 90, 300, 20), $"动画剩余: {shootAnimationTimer:F2}s");
-        GUI.Label(new Rect(10, 110, 300, 20), $"射击冷却: {shootCooldownTimer:F2}s");
-        GUI.Label(new Rect(10, 130, 300, 20), $"状态: {state}");
+        //GUI.Label(new Rect(10, 10, 300, 20), $"移动速度: {speed:F2}");
+        //GUI.Label(new Rect(10, 30, 300, 20), $"射击动画速度: {fireSpeed:F2}x");
+        //GUI.Label(new Rect(10, 50, 300, 20), $"动画播放中: {isShootingAnimationActive}");
+        //GUI.Label(new Rect(10, 70, 300, 20), $"等待下一发: {waitingForNextShot}");
+        //GUI.Label(new Rect(10, 90, 300, 20), $"动画剩余: {shootAnimationTimer:F2}s");
+        //GUI.Label(new Rect(10, 110, 300, 20), $"射击冷却: {shootCooldownTimer:F2}s");
+        //GUI.Label(new Rect(10, 130, 300, 20), $"状态: {state}");
 
-        if (shootSystem != null)
-        {
-            float fireRate = shootSystem.GetFireRate();
-            GUI.Label(new Rect(10, 150, 300, 20), $"武器射速: {fireRate:F2}s/发");
-        }
+        //if (shootSystem != null)
+        //{
+        //    float fireRate = shootSystem.GetFireRate();
+        //    GUI.Label(new Rect(10, 150, 300, 20), $"武器射速: {fireRate:F2}s/发");
+        //}
     }
 }

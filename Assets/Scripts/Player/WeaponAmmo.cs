@@ -96,6 +96,30 @@ public class WeaponAmmo : MonoBehaviour
         }
     }
 
+    // 设置武器换弹音效
+    public void SetWeaponReloadSound(string weaponName, AudioClip reloadSound)
+    {
+        if (ammoDictionary.TryGetValue(weaponName, out AmmoInfo ammo))
+        {
+            ammo.reloadSound = reloadSound;
+            Debug.Log($"设置武器 {weaponName} 的换弹音效: {reloadSound?.name ?? "null"}");
+
+            // 同时更新列表中的对应项
+            foreach (var info in weaponAmmoList)
+            {
+                if (info.weaponName == weaponName)
+                {
+                    info.reloadSound = reloadSound;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"无法设置换弹音效: 未找到武器 {weaponName}");
+        }
+    }
+
     // 设置当前武器
     public void SetCurrentWeapon(string weaponName)
     {
@@ -207,34 +231,43 @@ public class WeaponAmmo : MonoBehaviour
         Debug.Log($"{ammo.weaponName} 开始装填...");
         OnReloadStarted?.Invoke(ammo.currentAmmo, ammo.reserveAmmo);
 
-        // 播放装填音效
-        if (ammo.reloadSound != null && audioSource != null)
+        // 获取音效
+        AudioClip soundToPlay = ammo.reloadSound;
+
+        // 如果音效太短，使用默认换弹时间
+        // 如果音效太长，延长换弹时间到音效长度
+        float effectiveReloadTime = ammo.reloadTime;
+
+        if (soundToPlay != null)
         {
-            audioSource.PlayOneShot(ammo.reloadSound);
+            float soundLength = soundToPlay.length;
+            Debug.Log($"音效长度: {soundLength:F2}秒, 原换弹时间: {ammo.reloadTime:F2}秒");
+
+            // 如果音效比换弹时间长，延长换弹时间
+            if (soundLength > ammo.reloadTime)
+            {
+                effectiveReloadTime = soundLength;
+                Debug.Log($"音效太长，延长换弹时间到: {effectiveReloadTime:F2}秒");
+            }
+
+            // 播放音效
+            audioSource.PlayOneShot(soundToPlay);
         }
-        else if (audioSource != null && audioSource.clip != null)
+        else
         {
-            audioSource.PlayOneShot(audioSource.clip);
+            Debug.LogWarning("没有设置换弹音效！");
         }
 
-        // 等待装填时间
-        yield return new WaitForSeconds(ammo.reloadTime);
-
-        // 计算需要装填的弹药量
-        int ammoNeeded = ammo.maxAmmo - ammo.currentAmmo;
-        int ammoToLoad = Mathf.Min(ammoNeeded, ammo.reserveAmmo);
+        // 等待换弹完成（使用调整后的时间）
+        yield return new WaitForSeconds(effectiveReloadTime);
 
         // 更新弹药
+        int ammoNeeded = ammo.maxAmmo - ammo.currentAmmo;
+        int ammoToLoad = Mathf.Min(ammoNeeded, ammo.reserveAmmo);
         ammo.currentAmmo += ammoToLoad;
         ammo.reserveAmmo -= ammoToLoad;
 
-        // 播放弹匣插入音效
-        if (magazineInsertSound != null && audioSource != null && ammoToLoad > 0)
-        {
-            audioSource.PlayOneShot(magazineInsertSound);
-        }
-
-        Debug.Log($"{ammo.weaponName} 装填完成! +{ammoToLoad} 发 (剩余:{ammo.reserveAmmo})");
+        Debug.Log($"{ammo.weaponName} 装填完成!");
         OnReloadCompleted?.Invoke(ammo.currentAmmo, ammo.reserveAmmo);
         OnAmmoChanged?.Invoke(ammo.currentAmmo, ammo.reserveAmmo);
 

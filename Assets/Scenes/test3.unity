@@ -580,6 +580,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: NewBoss
       objectReference: {fileID: 0}
+    - target: {fileID: 5844193323793369937, guid: d69206936084fd540ae94196c33f7e3f,
+        type: 3}
+      propertyPath: detectionRange
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 7341413523926161794, guid: d69206936084fd540ae94196c33f7e3f,
         type: 3}
       propertyPath: isBoss
@@ -871,7 +876,9 @@ PrefabInstance:
       value: 271
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8638242807400224037, guid: ff265891a5901004f842d6a493e89a48, type: 3}
+    - {fileID: 5904163263943560143, guid: ff265891a5901004f842d6a493e89a48, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ff265891a5901004f842d6a493e89a48, type: 3}
