@@ -49,7 +49,7 @@ MonoBehaviour:
   playerHealth: {fileID: 0}
   allEnemies:
   - {fileID: 0}
-  gameOverSound: {fileID: 8300000, guid: 94449b2302da7db4fa5fec1da48fc23e, type: 3}
-  gameWinSound: {fileID: 8300000, guid: c3af571820f0dac4ab87f9c4ce7324f8, type: 3}
-  gameOverVolume: 0.055
-  gameWinVolume: 0.055
+  gameOverSound: {fileID: 8300000, guid: b12419f6533cb77418d6c9c25249b29a, type: 3}
+  gameWinSound: {fileID: 8300000, guid: b465fb2f86fa029468930c86ed7ff776, type: 3}
+  gameOverVolume: 0.581
+  gameWinVolume: 0.569
