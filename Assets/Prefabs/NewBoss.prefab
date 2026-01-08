@@ -2430,8 +2430,7 @@ MonoBehaviour:
   screenHealthSlider: {fileID: 0}
   worldHealthSlider: {fileID: 0}
   lookAtCamera: 1
-  deathEffectPrefab: {fileID: 3490026887102114920, guid: e0a2ae8d8ae1c1f4b83e337da0b6f6b4,
-    type: 3}
+  deathEffectPrefab: {fileID: 0}
   damageMaterial: {fileID: 0}
   enemyAnimator: {fileID: 6742684344391258709}
   deathAnimBool: IsDead
@@ -2544,18 +2543,18 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   loopChaseSound: 1
   chaseSoundVolume: 0.5
-  oneShotVolume: 0.7
-  hurtClip: {fileID: 0}
-  hurtVolume: 0.7
-  deathClip: {fileID: 8300000, guid: 62986df902a237641bfb629e047d438c, type: 3}
-  deathVolume: 0.8
-  chaseClip: {fileID: 8300000, guid: 41b9d19477502d645a4259be52c7cedf, type: 3}
+  oneShotVolume: 1
+  hurtClip: {fileID: 8300000, guid: c1225317b9467714eaa3fa0d43d70be9, type: 3}
+  hurtVolume: 2
+  deathClip: {fileID: 8300000, guid: 41b9d19477502d645a4259be52c7cedf, type: 3}
+  deathVolume: 2
+  chaseClip: {fileID: 8300000, guid: 62986df902a237641bfb629e047d438c, type: 3}
   loopChase: 1
   attackClip0: {fileID: 0}
-  attackClip1: {fileID: 0}
+  attackClip1: {fileID: 8300000, guid: dc4ebbc41e86ccb40aaae2f6253fb804, type: 3}
   attackClip2: {fileID: 0}
   attackClip3: {fileID: 0}
-  attackVolume: 0.6
+  attackVolume: 2
 --- !u!1 &3333229992676482215
 GameObject:
   m_ObjectHideFlags: 0
