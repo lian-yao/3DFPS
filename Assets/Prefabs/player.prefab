@@ -1521,9 +1521,10 @@ GameObject:
   - component: {fileID: 4524392720361431702}
   - component: {fileID: 3470263642226629046}
   - component: {fileID: 6551479914579858641}
+  - component: {fileID: 6219131324582756712}
   m_Layer: 9
   m_Name: "\u6B66\u5668"
-  m_TagString: Untagged
+  m_TagString: Gun
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1544,6 +1545,7 @@ Transform:
   - {fileID: 2438507873400858399}
   - {fileID: 556552443252048421}
   - {fileID: 2031171941290639576}
+  - {fileID: 522464648088639750}
   m_Father: {fileID: 7423048613664018047}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3470263642226629046
@@ -1601,6 +1603,12 @@ MonoBehaviour:
   playerCamera: {fileID: 0}
   shootSound: {fileID: 0}
   volume: 0.8
+  muzzleFlashPrefab: {fileID: 0}
+  muzzleFlashMaterial: {fileID: 0}
+  muzzleFlashPosition: {fileID: 0}
+  muzzleFlashDuration: 0.1
+  muzzleFlashScale: {x: 0.5, y: 0.5, z: 0.5}
+  muzzleFlashIntensity: 0.8
   ignoredObjects: []
   ignoreSelf: 1
   autoGenerateEffects: 1
@@ -1608,6 +1616,27 @@ MonoBehaviour:
   useAmmoSystem: 1
   animationController: {fileID: 0}
   weaponAnimator: {fileID: 0}
+--- !u!114 &6219131324582756712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4542972239061671150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8f9ff548f0679f438746bdd17fd222d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponNameText: {fileID: 0}
+  ammoCountText: {fileID: 0}
+  reserveAmmoText: {fileID: 0}
+  weaponIcon: {fileID: 0}
+  reloadProgressBar: {fileID: 0}
+  reloadIndicator: {fileID: 0}
+  rifleIcon: {fileID: 0}
+  fireKirinIcon: {fileID: 0}
+  awmIcon: {fileID: 0}
 --- !u!1 &4606538763668855322
 GameObject:
   m_ObjectHideFlags: 0
@@ -2356,6 +2385,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1078721993887865335}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5811747486269793644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6582083283754996253}
+  m_Layer: 9
+  m_Name: "\u6B65\u67AA\u67AA\u53E3"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6582083283754996253
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5811747486269793644}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.2889074, y: 0.43706512, z: 0.5935788, w: 0.61087704}
+  m_LocalPosition: {x: 0.010150924, y: 0.039685845, z: -0.63397145}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2438507873400858399}
+  m_LocalEulerAnglesHint: {x: 0, y: -49.358, z: 0}
 --- !u!1 &6252572617390662277
 GameObject:
   m_ObjectHideFlags: 0
@@ -2514,6 +2574,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1164200735911015443}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7026515665971031009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 522464648088639750}
+  m_Layer: 9
+  m_Name: "AWM\u67AA\u53E3"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &522464648088639750
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7026515665971031009}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -0.46174863, z: 0, w: 0.8870109}
+  m_LocalPosition: {x: 0.909, y: -0.146, z: 0.32}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4524392720361431702}
+  m_LocalEulerAnglesHint: {x: 0, y: -55, z: 0}
+--- !u!1 &7043781547957865134
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 591440391420103878}
+  m_Layer: 9
+  m_Name: "\u706B\u67AA\u53E3"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &591440391420103878
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7043781547957865134}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.2889074, y: 0.43706512, z: 0.5935788, w: 0.61087704}
+  m_LocalPosition: {x: 0.018, y: 0.03, z: -0.58}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 556552443252048421}
+  m_LocalEulerAnglesHint: {x: 0, y: -49.358, z: 0}
 --- !u!1 &7109179290246236531
 GameObject:
   m_ObjectHideFlags: 0
@@ -2945,8 +3067,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 505e3d52395bd584a8d4fda84faee114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 2
-  runSpeed: 4
+  walkSpeed: 3
+  runSpeed: 6
   jumpForce: 1
   gravity: -9.81
   crouchSpeed: 2.5
@@ -2972,7 +3094,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d6cd7cf64703c646b284674ac7889bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 200
   currentHealth: 100
   healthBar: {fileID: 0}
   deathUI: {fileID: 0}
@@ -3479,7 +3601,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 884216c32500ba347aa641a57c18f956,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 591440391420103878}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 884216c32500ba347aa641a57c18f956,
         type: 3}
@@ -3511,13 +3637,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 40
-  range: 100
+  range: 50
   fireRate: 0.2
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
   shootSound: {fileID: 8300000, guid: d6fc9a59307901f499da8bae6212f4e9, type: 3}
   volume: 0.8
+  muzzleFlashPrefab: {fileID: 0}
+  muzzleFlashMaterial: {fileID: 2100000, guid: feaaf94c1c67c5c449e2b7ea49db3313, type: 2}
+  muzzleFlashPosition: {fileID: 591440391420103878}
+  muzzleFlashDuration: 0.1
+  muzzleFlashScale: {x: 0.5, y: 0.5, z: 0.5}
+  muzzleFlashIntensity: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
@@ -3624,6 +3756,12 @@ MonoBehaviour:
   playerCamera: {fileID: 5864857108828124829}
   shootSound: {fileID: 8300000, guid: 2f51313e4e1bfa84c85d6c162eb31aaa, type: 3}
   volume: 1
+  muzzleFlashPrefab: {fileID: 0}
+  muzzleFlashMaterial: {fileID: 2100000, guid: feaaf94c1c67c5c449e2b7ea49db3313, type: 2}
+  muzzleFlashPosition: {fileID: 522464648088639750}
+  muzzleFlashDuration: 0.1
+  muzzleFlashScale: {x: 0.5, y: 0.5, z: 0.5}
+  muzzleFlashIntensity: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
@@ -3708,7 +3846,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: ab910391752235e45bfbf0bfe2e5b38b,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6582083283754996253}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ab910391752235e45bfbf0bfe2e5b38b,
         type: 3}
@@ -3740,13 +3882,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 30
-  range: 100
+  range: 50
   fireRate: 0.2
   rayStartOffset: 0.5
   shootAnimationDuration: 0.25
   playerCamera: {fileID: 5864857108828124829}
   shootSound: {fileID: 8300000, guid: 9e9480b4d07646942b555fd43f2a0f71, type: 3}
   volume: 0.8
+  muzzleFlashPrefab: {fileID: 0}
+  muzzleFlashMaterial: {fileID: 2100000, guid: feaaf94c1c67c5c449e2b7ea49db3313, type: 2}
+  muzzleFlashPosition: {fileID: 6582083283754996253}
+  muzzleFlashDuration: 0.1
+  muzzleFlashScale: {x: 0.5, y: 0.5, z: 0.5}
+  muzzleFlashIntensity: 0.8
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1

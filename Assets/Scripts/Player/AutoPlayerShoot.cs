@@ -483,21 +483,21 @@ public class AutoPlayerShoot : MonoBehaviour
         }
     }
 
-    void OnGUI()
-    {
-        // 显示射击状态信息
-        GUILayout.BeginArea(new Rect(10, 50, 300, 200));
-        GUILayout.Label($"射击系统状态:");
-        GUILayout.Label($"武器管理器: {weaponManager != null}");
-        if (weaponManager != null)
-        {
-            GUILayout.Label($"正在换弹: {weaponManager.IsReloading()}");
-            var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
-            GUILayout.Label($"弹药: {ammoInfo.current} / {ammoInfo.reserve}");
-        }
-        GUILayout.Label($"枪口火焰: {(muzzleFlashPrefab != null || muzzleFlashMaterial != null ? "已启用" : "未设置")}");
-        GUILayout.EndArea();
-    }
+    //void OnGUI()
+    //{
+    //    // 显示射击状态信息
+    //    GUILayout.BeginArea(new Rect(10, 50, 300, 200));
+    //    GUILayout.Label($"射击系统状态:");
+    //    GUILayout.Label($"武器管理器: {weaponManager != null}");
+    //    if (weaponManager != null)
+    //    {
+    //        GUILayout.Label($"正在换弹: {weaponManager.IsReloading()}");
+    //        var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
+    //        GUILayout.Label($"弹药: {ammoInfo.current} / {ammoInfo.reserve}");
+    //    }
+    //    GUILayout.Label($"枪口火焰: {(muzzleFlashPrefab != null || muzzleFlashMaterial != null ? "已启用" : "未设置")}");
+    //    GUILayout.EndArea();
+    //}
 
     // 清理枪口火焰
     void OnDestroy()
