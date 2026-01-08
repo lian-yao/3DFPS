@@ -4,82 +4,241 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-
-public class EnemyHealth : MonoBehaviour
+/// <summary>
+/// æ•Œäººå¥åº·ç³»ç»Ÿï¼šå®ç°IHealthæ¥å£ï¼Œç®¡ç†è¡€é‡ã€å—å‡»ã€æ­»äº¡é€»è¾‘ï¼ŒåŒ…å«è¡€æ¡ã€è§†è§‰/åŠ¨ç”»æ•ˆæœï¼Œé¢„ç•™éŸ³æ•ˆæ‰©å±•
+/// </summary>
+public class EnemyHealth : MonoBehaviour, IHealth
 {
-    [Header("»ù´¡ÉèÖÃ")]
-    public float maxHealth = 500f;  // ÆÕÍ¨¹ÖÎï500£¬Boss¿É×Ô¶¨Òå
-    private float currentHealth;
-    public bool isDead = false;
+    [Header("åŸºç¡€é…ç½®")]
+    public float maxHealth = 500f; // æœ€å¤§è¡€é‡
+    private float currentHealth;   // å½“å‰è¡€é‡
+    public bool IsDead { get; private set; } = false; // æ˜¯å¦æ­»äº¡ï¼ˆå®ç°IHealthæ¥å£ï¼‰
 
-    [Header("ÑªÌõÀàĞÍÑ¡Ôñ")]
-    public bool isBoss = false; // ¹´Ñ¡=true£ºBoss¹Ì¶¨ÆÁÄ»ÑªÌõ£»²»¹´Ñ¡=false£º¹ÖÎï¸úËæÑªÌõ
-    public Slider screenHealthSlider; // Boss×¨ÓÃ£ºÍÏÈëCanvas_1ÏÂµÄSlider£¨¹Ì¶¨ÆÁÄ»£©
-    public Slider worldHealthSlider;  // ¹ÖÎï×¨ÓÃ£ºÍÏÈë¸úËæ¹ÖÎïµÄSlider
+    [Header("è¡€æ¡æ˜¾ç¤ºé…ç½®")]
+    public bool isBoss = false; // æ˜¯å¦ä¸ºBossï¼ˆåŒºåˆ†è¡€æ¡æ˜¾ç¤ºæ–¹å¼ï¼‰
+    public Slider screenHealthSlider; // Bosså±å¹•è¡€æ¡
+    public Slider worldHealthSlider;  // æ™®é€šæ•Œäººä¸–ç•Œç©ºé—´è¡€æ¡
+    private Canvas worldHealthCanvas; // ä¸–ç•Œè¡€æ¡ç”»å¸ƒ
+    public bool lookAtCamera = true;  // ä¸–ç•Œè¡€æ¡æ˜¯å¦æœå‘ç›¸æœº
 
-    [Header("¸úËæÑªÌõÉèÖÃ£¨½ö¹ÖÎïÓÃ£©")]
-    private Canvas worldHealthCanvas;
-    [Tooltip("ÑªÌõÊÇ·ñÊ¼ÖÕÃæÏòÉãÏñ»ú")]
-    public bool lookAtCamera = true;
+    [Header("è§†è§‰æ•ˆæœ")]
+    public GameObject deathEffectPrefab; // æ­»äº¡ç‰¹æ•ˆé¢„åˆ¶ä½“
+    public Material damageMaterial;      // å—å‡»å˜è‰²æè´¨
+    private Material originalMaterial;   // åŸå§‹æè´¨
+    private Renderer enemyRenderer;      // æ•Œäººæ¸²æŸ“å™¨
 
-    [Header("ÊÓ¾õĞ§¹û")]
-    public GameObject deathEffect;
-    public Material damageMaterial;
-    private Material originalMaterial;
-    private Renderer enemyRenderer;
+    [Header("åŠ¨ç”»é…ç½®")]
+    public Animator enemyAnimator; // æ•ŒäººåŠ¨ç”»å™¨
+    public string deathAnimBool = "IsDead"; // æ­»äº¡åŠ¨ç”»å‚æ•°å
+    public float deathAnimDelay = 4f; // æ­»äº¡åé”€æ¯å»¶è¿Ÿ
 
-    [Header("ËÀÍö¶¯»­ÉèÖÃ")]
-    public Animator enemyAnimator; // ÍÏÈëµĞÈËµÄAnimator×é¼ş
-    public string deathAnimTrigger = "IsDead"; // ¶¯»­´¥·¢²ÎÊıÃû£¨ºÍAnimator²ÎÊıÒ»ÖÂ£©
-    public float deathAnimDelay = 4f; // ËÀÍö¶¯»­²¥·ÅÊ±³¤£¨¸ù¾İÊµ¼Ê¶¯»­µ÷Õû£©
+    [Header("æ‰©å±•ç»„ä»¶")]
+    [SerializeField] private IEnemySound enemySound; // éŸ³æ•ˆç»„ä»¶ï¼ˆä¾èµ–æ³¨å…¥ï¼‰
+    public bool debugMode = true; // è°ƒè¯•æ—¥å¿—å¼€å…³
 
-    [Header("µ÷ÊÔ")]
-    public bool debugMode = true;
+    // äº‹ä»¶ï¼ˆè§£è€¦å¤–éƒ¨é€»è¾‘ï¼‰
+    public event Action OnEnemyDamaged;        // å—å‡»äº‹ä»¶
+    public event Action OnEnemyDeath;          // æ­»äº¡äº‹ä»¶
+    public event Action OnEnemyDead;           // å…¼å®¹æ—§ç‰ˆæœ¬æ­»äº¡äº‹ä»¶
+    public event Action<float> OnHealthChanged;// è¡€é‡å˜åŒ–äº‹ä»¶ï¼ˆå‚æ•°ï¼šè¡€é‡ç™¾åˆ†æ¯”ï¼‰
 
-
-    public event Action OnEnemyDead;
+    void Awake()
+    {
+        // è‡ªåŠ¨è·å–éŸ³æ•ˆç»„ä»¶
+        enemySound ??= GetComponent<IEnemySound>();
+    }
 
     void Start()
     {
-        // ³õÊ¼»¯ÉúÃüÖµ£¨Ç¿ÖÆÖØÖÃisDead£¬±ÜÃâÎóÅĞ£©
         currentHealth = maxHealth;
-        isDead = false; // ÏÔÊ½ÖØÖÃ£¬·ÀÖ¹±à¼­Æ÷ÎóÉèÎªtrue
+        IsDead = false;
 
-        // ³õÊ¼»¯¶ÔÓ¦ÀàĞÍµÄÑªÌõ
         InitHealthBar();
+        InitRenderer();
+        InitAnimator();
 
-        // »ñÈ¡äÖÈ¾Æ÷
-        enemyRenderer = GetComponent<Renderer>();
-        if (enemyRenderer != null)
-        {
-            originalMaterial = enemyRenderer.material;
-            Log($"ÕÒµ½¹ÖÎïäÖÈ¾Æ÷£¬Ô­Ê¼²ÄÖÊ£º{originalMaterial.name}");
-        }
-        else
-        {
-            LogWarning("Î´ÕÒµ½¹ÖÎïµÄRenderer×é¼ş£¬ÊÜÉË±äÉ«Ğ§¹ûÊ§Ğ§£¡");
-        }
-
-        // ¼ì²éAnimator×é¼şÊÇ·ñ¸³Öµ
-        if (enemyAnimator == null)
-        {
-            enemyAnimator = GetComponent<Animator>();
-            if (enemyAnimator == null)
-            {
-                LogWarning("Î´ÕÒµ½Animator×é¼ş£¡Çë¸øµĞÈËÌí¼ÓAnimator²¢¸³ÖµenemyAnimator±äÁ¿");
-            }
-            else
-            {
-                Log($"×Ô¶¯ÕÒµ½Animator×é¼ş£º{enemyAnimator.name}");
-            }
-        }
-
-        Log($"{(isBoss ? "Boss" : "µĞÈË")}³õÊ¼»¯Íê³É | Ãû³Æ£º{gameObject.name} | ³õÊ¼HP£º{currentHealth}/{maxHealth} | isDead£º{isDead}");
+        Log($"{(isBoss ? "Boss" : "æ™®é€šæ•Œäºº")}åˆå§‹åŒ– | åç§°:{gameObject.name} | åˆå§‹HP:{currentHealth}/{maxHealth}");
     }
 
     void Update()
     {
-        // ½ö¹ÖÎï¸úËæÑªÌõĞèÒªÃæÏòÉãÏñ»ú
+        // æ›´æ–°ä¸–ç•Œè¡€æ¡æœå‘
+        UpdateWorldHealthBarRotation();
+    }
+
+    #region åˆå§‹åŒ–ç›¸å…³æ–¹æ³•ï¼ˆå•ä¸€èŒè´£ï¼‰
+    private void InitRenderer()
+    {
+        // åˆå§‹åŒ–æ¸²æŸ“å™¨ï¼Œè®°å½•åŸå§‹æè´¨
+        enemyRenderer = GetComponent<Renderer>();
+        if (enemyRenderer != null)
+        {
+            originalMaterial = enemyRenderer.material;
+            Log($"æ‰¾åˆ°æ¸²æŸ“å™¨ï¼ŒåŸå§‹æè´¨:{originalMaterial.name}");
+        }
+        else
+        {
+            LogWarning("æœªæ‰¾åˆ°Rendererï¼Œå—å‡»å˜è‰²å¤±æ•ˆ");
+        }
+    }
+
+    private void InitAnimator()
+    {
+        // åˆå§‹åŒ–åŠ¨ç”»å™¨
+        enemyAnimator ??= GetComponent<Animator>();
+        if (enemyAnimator == null)
+        {
+            LogWarning("æœªæ‰¾åˆ°Animatorï¼Œæ­»äº¡åŠ¨ç”»å¤±æ•ˆ");
+        }
+    }
+
+    private void InitHealthBar()
+    {
+        // åˆå§‹åŒ–è¡€æ¡ï¼ˆåŒºåˆ†Boss/æ™®é€šæ•Œäººï¼‰
+        if (isBoss) InitBossHealthBar();
+        else InitNormalEnemyHealthBar();
+    }
+
+    private void InitBossHealthBar()
+    {
+        // åˆå§‹åŒ–Bosså±å¹•è¡€æ¡
+        if (screenHealthSlider != null)
+        {
+            screenHealthSlider.maxValue = maxHealth;
+            screenHealthSlider.value = currentHealth;
+            screenHealthSlider.gameObject.SetActive(true);
+        }
+        else
+        {
+            LogWarning("Bossæ¨¡å¼æœªèµ‹å€¼screenHealthSlider");
+        }
+    }
+
+    private void InitNormalEnemyHealthBar()
+    {
+        // åˆå§‹åŒ–æ™®é€šæ•Œäººä¸–ç•Œè¡€æ¡
+        if (worldHealthSlider != null)
+        {
+            worldHealthSlider.maxValue = maxHealth;
+            worldHealthSlider.value = currentHealth;
+
+            worldHealthCanvas = worldHealthSlider.GetComponentInParent<Canvas>();
+            if (worldHealthCanvas != null)
+            {
+                worldHealthCanvas.enabled = true;
+                var canvas = worldHealthCanvas.GetComponent<Canvas>();
+                canvas.sortingLayerName = "UI";
+                canvas.sortingOrder = 100;
+            }
+        }
+        else
+        {
+            LogWarning("æ™®é€šæ•Œäººæœªèµ‹å€¼worldHealthSlider");
+        }
+    }
+    #endregion
+
+    #region æ ¸å¿ƒé€»è¾‘ï¼ˆå—å‡»/æ­»äº¡ï¼‰
+    public void TakeDamage(float damage)
+    {
+        // å¤„ç†å—å‡»é€»è¾‘ï¼ˆå®ç°IHealthæ¥å£ï¼‰
+        if (IsDead)
+        {
+            Log($"{gameObject.name}å·²æ­»äº¡ï¼Œå¿½ç•¥ä¼¤å®³:{damage}");
+            return;
+        }
+
+        damage = Mathf.Abs(damage);
+        if (damage <= 0)
+        {
+            LogWarning($"æ— æ•ˆä¼¤å®³å€¼:{damage}");
+            return;
+        }
+
+        float oldHealth = currentHealth;
+        currentHealth = Mathf.Clamp(currentHealth - damage, 0, maxHealth);
+
+        // è§¦å‘è¡€é‡ç›¸å…³äº‹ä»¶
+        OnHealthChanged?.Invoke(currentHealth / maxHealth);
+        OnEnemyDamaged?.Invoke();
+
+        // æ’­æ”¾å—å‡»éŸ³æ•ˆï¼ˆæ‰©å±•ç‚¹ï¼‰
+        enemySound?.PlayHurtSound();
+
+        UpdateHealthBar();
+        StartCoroutine(ShowDamageVisualEffect());
+
+        if (currentHealth <= 0) Die();
+    }
+
+    private void Die()
+    {
+        // å¤„ç†æ­»äº¡é€»è¾‘
+        Log($"=== {gameObject.name} æ­»äº¡ ===");
+        IsDead = true;
+
+        // è§¦å‘æ­»äº¡äº‹ä»¶
+        OnEnemyDeath?.Invoke();
+        OnEnemyDead?.Invoke(); // è§¦å‘å…¼å®¹çš„æ­»äº¡äº‹ä»¶
+
+        // æ’­æ”¾æ­»äº¡éŸ³æ•ˆï¼ˆæ‰©å±•ç‚¹ï¼‰
+        enemySound?.PlayDeathSound();
+
+        // æ­»äº¡åå¤„ç†ï¼šç¦ç”¨ç»„ä»¶ã€éšè—è¡€æ¡ã€æ’­æ”¾ç‰¹æ•ˆ/åŠ¨ç”»ã€å»¶è¿Ÿé”€æ¯
+        DisableEnemyComponents();
+        HideHealthBar();
+        PlayDeathVisualEffect();
+        PlayDeathAnimation();
+        ScheduleDestroy();
+    }
+
+    private void DisableEnemyComponents()
+    {
+        // ç¦ç”¨æ•Œäººæ ¸å¿ƒç»„ä»¶ï¼ˆAIã€ç¢°æ’ä½“ï¼‰ï¼Œåœæ­¢éŸ³æ•ˆ
+        var ai = GetComponent<SimpleEnemyAI>();
+        if (ai != null) ai.enabled = false;
+
+        var collider = GetComponent<Collider>();
+        if (collider != null) collider.enabled = false;
+
+        enemySound?.StopAllSounds();
+    }
+
+    private void PlayDeathVisualEffect()
+    {
+        // æ’­æ”¾æ­»äº¡ç‰¹æ•ˆ
+        if (deathEffectPrefab != null)
+        {
+            Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+        }
+    }
+
+    private void PlayDeathAnimation()
+    {
+        // æ’­æ”¾æ­»äº¡åŠ¨ç”»ï¼ˆæ— åŠ¨ç”»æ—¶é™çº§ä¸ºå˜ç°è‰²ï¼‰
+        if (enemyAnimator != null && !string.IsNullOrEmpty(deathAnimBool))
+        {
+            enemyAnimator.SetBool(deathAnimBool, true);
+        }
+        else
+        {
+            enemyRenderer.material.color = Color.gray; // é™çº§å¤„ç†
+        }
+    }
+
+    private void ScheduleDestroy()
+    {
+        // è®¾ç½®æ­»äº¡åå»¶è¿Ÿé”€æ¯
+        float destroyDelay = isBoss ? (deathAnimDelay + 1f) : deathAnimDelay;
+        destroyDelay = Mathf.Max(destroyDelay, 0.1f);
+        Destroy(gameObject, destroyDelay);
+    }
+    #endregion
+
+    #region è¾…åŠ©æ–¹æ³•
+    private void UpdateWorldHealthBarRotation()
+    {
+        // æ›´æ–°ä¸–ç•Œè¡€æ¡æœå‘ç›¸æœº
         if (!isBoss && lookAtCamera && worldHealthCanvas != null)
         {
             worldHealthCanvas.transform.LookAt(Camera.main.transform);
@@ -87,104 +246,14 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-    // ³õÊ¼»¯ÑªÌõ£¨Çø·ÖBoss/¹ÖÎï£©
-    void InitHealthBar()
+    private void UpdateHealthBar()
     {
-        if (isBoss)
-        {
-            // Boss£º¹Ì¶¨ÆÁÄ»ÑªÌõ£¨Canvas_1£©
-            if (screenHealthSlider != null)
-            {
-                screenHealthSlider.maxValue = maxHealth;
-                screenHealthSlider.value = currentHealth;
-                screenHealthSlider.gameObject.SetActive(true);
-                Log($"BossÑªÌõ³õÊ¼»¯Íê³É£¬×î´óÖµ£º{screenHealthSlider.maxValue}£¬µ±Ç°Öµ£º{screenHealthSlider.value}");
-            }
-            else
-            {
-                LogWarning("BossÄ£Ê½ÏÂÎ´¸³ÖµscreenHealthSlider£¡ÇëÍÏÈëCanvas_1ÏÂµÄSlider");
-            }
-        }
-        else
-        {
-            // ÆÕÍ¨¹ÖÎï£º¸úËæÑªÌõ
-            if (worldHealthSlider != null)
-            {
-                worldHealthSlider.maxValue = maxHealth;
-                worldHealthSlider.value = currentHealth;
-                // »ñÈ¡¸úËæÑªÌõµÄCanvas
-                worldHealthCanvas = worldHealthSlider.GetComponentInParent<Canvas>();
-                if (worldHealthCanvas != null)
-                {
-                    worldHealthCanvas.enabled = true;
-                    Canvas canvasComp = worldHealthCanvas.GetComponent<Canvas>();
-                    canvasComp.sortingLayerName = "UI";
-                    canvasComp.sortingOrder = 100;
-                    Log($"¹ÖÎï¸úËæÑªÌõ³õÊ¼»¯Íê³É£¬Canvas²ã¼¶£º{canvasComp.sortingLayerName}/{canvasComp.sortingOrder}");
-                }
-                if (worldHealthSlider.fillRect != null)
-                {
-                    worldHealthSlider.fillRect.gameObject.SetActive(true);
-                }
-                Log($"¹ÖÎïÑªÌõ³õÊ¼»¯Íê³É£¬×î´óÖµ£º{worldHealthSlider.maxValue}£¬µ±Ç°Öµ£º{worldHealthSlider.value}");
-            }
-            else
-            {
-                LogWarning("¹ÖÎïÄ£Ê½ÏÂÎ´¸³ÖµworldHealthSlider£¡ÇëÍÏÈë¸úËæ¹ÖÎïµÄSlider");
-            }
-        }
-    }
-
-    // ºËĞÄ¿ÛÑª·½·¨£¨ÔöÇ¿µ÷ÊÔ+ĞŞ¸´Âß¼­£©
-    public void TakeDamage(float damage)
-    {
-        // ´òÓ¡µ÷ÓÃÈÕÖ¾£¬È·ÈÏÊÇ·ñ±»µ÷ÓÃ
-        Log($"ÊÕµ½¿ÛÑªµ÷ÓÃ | ´«ÈëÉËº¦Öµ£º{damage} | µ±Ç°isDead£º{isDead} | µ±Ç°ÑªÁ¿£º{currentHealth}");
-
-        // ËÀÍöºóºöÂÔÉËº¦
-        if (isDead)
-        {
-            Log($"{gameObject.name} ÒÑËÀÍö£¬ºöÂÔ±¾´ÎÉËº¦£¨´«ÈëÉËº¦£º{damage}£©");
-            return;
-        }
-
-        // È·±£ÉËº¦ÖµÎªÕı£¬ÇÒ´óÓÚ0
-        damage = Mathf.Abs(damage);
-        if (damage <= 0)
-        {
-            LogWarning($"´«ÈëµÄÉËº¦ÖµÎŞĞ§£¨{damage}£©£¬±ØĞë´óÓÚ0£¡");
-            return;
-        }
-
-        // ¿ÛÑª²¢ÏŞÖÆ·¶Î§
-        float oldHealth = currentHealth;
-        currentHealth -= damage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
-        // Í¬²½ÑªÌõ
-        UpdateHealthBar();
-
-        // ÊÜÉËÊÓ¾õĞ§¹û
-        StartCoroutine(ShowDamageEffect());
-
-        Log($"{gameObject.name} ¿ÛÑªÍê³É | Ô­Ê¼ÑªÁ¿£º{oldHealth} | ¿Û³ı£º{damage} | Ê£ÓàÑªÁ¿£º{currentHealth}");
-
-        // ËÀÍö¼ì²é
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-    }
-
-    // Í¬²½ÑªÌõÊıÖµ£¨Çø·ÖBoss/¹ÖÎï£©
-    void UpdateHealthBar()
-    {
+        // æ›´æ–°è¡€æ¡æ˜¾ç¤ºå€¼ï¼ˆæ·»åŠ ç©ºå¼•ç”¨æ£€æŸ¥ï¼‰
         if (isBoss)
         {
             if (screenHealthSlider != null)
             {
                 screenHealthSlider.value = currentHealth;
-                Log($"BossÑªÌõÍ¬²½ | µ±Ç°ÑªÁ¿£º{currentHealth} | ÑªÌõÏÔÊ¾Öµ£º{screenHealthSlider.value}");
             }
         }
         else
@@ -192,126 +261,62 @@ public class EnemyHealth : MonoBehaviour
             if (worldHealthSlider != null)
             {
                 worldHealthSlider.value = currentHealth;
-                Log($"¹ÖÎïÑªÌõÍ¬²½ | µ±Ç°ÑªÁ¿£º{currentHealth} | ÑªÌõÏÔÊ¾Öµ£º{worldHealthSlider.value}");
             }
         }
     }
 
-    IEnumerator ShowDamageEffect()
+    private IEnumerator ShowDamageVisualEffect()
     {
+        // æ’­æ”¾å—å‡»è§†è§‰æ•ˆæœï¼ˆæè´¨åˆ‡æ¢ï¼‰
         if (enemyRenderer != null && damageMaterial != null)
         {
             enemyRenderer.material = damageMaterial;
             yield return new WaitForSeconds(0.1f);
             enemyRenderer.material = originalMaterial;
-            Log("ÊÜÉËÊÓ¾õĞ§¹û²¥·ÅÍê³É");
-        }
-        else
-        {
-            LogWarning("äÖÈ¾Æ÷»òÊÜÉË²ÄÖÊÎ´¸³Öµ£¬ÎŞ·¨²¥·ÅÊÜÉËĞ§¹û");
         }
     }
 
-    void Die()
+    private void HideHealthBar()
     {
-        Log($"=== {gameObject.name} ËÀÍö ===");
-        isDead = true;
-
-        // ĞÂÔö£º½ûÓÃAI½Å±¾
-        SimpleEnemyAI enemyAI = GetComponent<SimpleEnemyAI>();
-        if (enemyAI != null)
-        {
-            enemyAI.enabled = false;
-            Log("½ûÓÃ¹ÖÎïAI½Å±¾£¬Í£Ö¹ÒÆ¶¯Âß¼­");
-        }
-
-        // Òş²ØÑªÌõ
-        HideHealthBar();
-
-        // ½ûÓÃÅö×²Ìå
-        Collider collider = GetComponent<Collider>();
-        if (collider != null)
-        {
-            collider.enabled = false;
-            Log("½ûÓÃ¹ÖÎïÅö×²Ìå£¬·ÀÖ¹ºóĞø½»»¥");
-        }
-        OnEnemyDead?.Invoke();
-        // ËÀÍöÌØĞ§
-        if (deathEffect != null)
-        {
-            Instantiate(deathEffect, transform.position, Quaternion.identity);
-            Log("Éú³ÉËÀÍöÌØĞ§");
-        }
-
-        // ²¥·ÅËÀÍö¶¯»­
-        PlayDeathAnimation();
-
-        // Í£Ö¹ÒÆ¶¯
-        Rigidbody rb = GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.velocity = Vector3.zero;
-            Log("ÖØÖÃ¹ÖÎï¸ÕÌåËÙ¶ÈÎª0");
-        }
-
-        // ĞŞ¸´ºóµÄÑÓ³ÙÏú»ÙÂß¼­
-        float destroyDelay = isBoss ? (deathAnimDelay + 1f) : deathAnimDelay;
-        destroyDelay = Mathf.Max(destroyDelay, 0.1f); // ·ÀÖ¹ÑÓ³ÙÊ±¼äÎª0/¸ºÊı
-        Destroy(gameObject, destroyDelay);
-        Log($"½«ÔÚ {destroyDelay} ÃëºóÏú»Ù¹ÖÎï");
-    }
-
-    void PlayDeathAnimation()
-    {
-        if (enemyAnimator != null && !string.IsNullOrEmpty(deathAnimTrigger))
-        {
-            // ¸øAnimatorµÄBool²ÎÊı¸³ÖµÎªtrue£¨´¥·¢ËÀÍö¶¯»­£©
-            enemyAnimator.SetBool(deathAnimTrigger, true);
-            Log($"´¥·¢ËÀÍö¶¯»­£¨Bool²ÎÊı£©£º{deathAnimTrigger} = true");
-        }
-        else
-        {
-            LogWarning("Animator×é¼şÎ´¸³Öµ»ò¶¯»­²ÎÊıÃûÎª¿Õ£¬ÎŞ·¨²¥·ÅËÀÍö¶¯»­£¡");
-            if (enemyRenderer != null)
-            {
-                enemyRenderer.material.color = Color.gray;
-                Log("ËÀÍö±¸ÓÃĞ§¹û£º¹ÖÎï±ä»ÒÉ«");
-            }
-        }
-    }
-
-    void HideHealthBar()
-    {
+        // éšè—è¡€æ¡
         if (isBoss)
         {
-            if (screenHealthSlider != null) screenHealthSlider.gameObject.SetActive(false);
+            if (screenHealthSlider != null)
+                screenHealthSlider.gameObject.SetActive(false);
         }
         else
         {
-            if (worldHealthCanvas != null) worldHealthCanvas.enabled = false;
-            if (worldHealthSlider != null) worldHealthSlider.gameObject.SetActive(false);
+            if (worldHealthCanvas != null)
+                worldHealthCanvas.enabled = false;
+            if (worldHealthSlider != null)
+                worldHealthSlider.gameObject.SetActive(false);
         }
-        Log("Òş²Ø¹ÖÎïÑªÌõ");
     }
+    #endregion
 
-    void Log(string message)
+    #region æ—¥å¿—/ç¼–è¾‘å™¨æ–¹æ³•
+    private void Log(string message)
     {
+        // è°ƒè¯•æ—¥å¿—ï¼ˆå¸¦å¼€å…³ï¼‰
         if (debugMode) Debug.Log($"[EnemyHealth] {message}");
     }
 
-    void LogWarning(string message)
+    private void LogWarning(string message)
     {
+        // è°ƒè¯•è­¦å‘Šæ—¥å¿—
         Debug.LogWarning($"[EnemyHealth] {message}");
     }
 
     void OnDrawGizmos()
     {
+        // ç¼–è¾‘å™¨Gizmosï¼šå¯è§†åŒ–æ˜¾ç¤ºè¡€é‡
         if (Application.isPlaying)
         {
             Vector3 pos = transform.position + Vector3.up * (isBoss ? 4f : 3f);
             float healthPercent = currentHealth / maxHealth;
 
-            Gizmos.color = GetHealthColor();
+            Gizmos.color = IsDead ? Color.gray :
+                (healthPercent > 0.6f ? Color.green : (healthPercent > 0.3f ? Color.yellow : Color.red));
             Gizmos.DrawWireCube(pos, new Vector3(isBoss ? 3f : 2f, 0.3f, 0.1f));
 
             Gizmos.color = Color.red;
@@ -320,25 +325,16 @@ public class EnemyHealth : MonoBehaviour
 
 #if UNITY_EDITOR
             UnityEditor.Handles.Label(pos + Vector3.up * 0.5f,
-                                    $"µ±Ç°HP: {currentHealth:F0}/{maxHealth} | ±ÈÀı: {healthPercent:P0}",
+                                    $"å½“å‰HP: {currentHealth:F0}/{maxHealth} | ç™¾åˆ†æ¯”: {healthPercent:P0}",
                                     new GUIStyle() { fontSize = 12, normal = { textColor = Color.white } });
 #endif
         }
     }
 
-
-    Color GetHealthColor()
-    {
-        if (isDead) return Color.gray;
-        float healthPercent = currentHealth / maxHealth;
-        return healthPercent > 0.6f ? Color.green : (healthPercent > 0.3f ? Color.yellow : Color.red);
-    }
-
     private void OnValidate()
     {
-        if (Application.isPlaying)
-        {
-            InitHealthBar();
-        }
+        // ç¼–è¾‘å™¨éªŒè¯ï¼šè¿è¡Œæ—¶é‡æ–°åˆå§‹åŒ–è¡€æ¡
+        if (Application.isPlaying) InitHealthBar();
     }
+    #endregion
 }

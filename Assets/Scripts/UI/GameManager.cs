@@ -118,7 +118,7 @@ public class GameManager : MonoBehaviour
         bool allDead = true;
         foreach (var enemy in allEnemies)
         {
-            if (enemy != null && !enemy.isDead)
+            if (enemy != null && !enemy.IsDead)
             {
                 allDead = false;
                 break;
