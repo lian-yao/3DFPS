@@ -1,4 +1,4 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,8 +7,9 @@ public class AutoPlayerShoot : MonoBehaviour
     [Header("射击参数")]
     public float damage = 25f;
     public float range = 100f;
-    public float fireRate = 0.5f;
+    public float fireRate = 0.5f;  // 射击间隔时间（秒）
     public float rayStartOffset = 0.5f;
+    public float shootAnimationDuration = 0.25f; // 射击动画时长
 
     [Header("摄像机设置")]
     public Camera playerCamera;
@@ -23,14 +24,18 @@ public class AutoPlayerShoot : MonoBehaviour
     public bool autoGenerateEffects = true;
 
     [Header("弹药系统")]
-    [SerializeField] private WeaponManager weaponManager; // 引用武器管理器
-    [SerializeField] private bool useAmmoSystem = true;   // 是否使用弹药系统
+    [SerializeField] private WeaponManager weaponManager;
+    [SerializeField] private bool useAmmoSystem = true;
+
+    [Header("动画控制")]
+    public FPSAnimationController animationController;
+    public Animator weaponAnimator;
 
     // 私有变量
     private float nextFireTime;
     private AudioSource audioSource;
     private GameObject simpleHitEffect;
-    private List<int> ignoredInstanceIDs = new List<int>(); // 缓存忽略物体的ID
+    private List<int> ignoredInstanceIDs = new List<int>();
     private bool isReloading = false;
 
     void Start()
@@ -61,7 +66,7 @@ public class AutoPlayerShoot : MonoBehaviour
             CreateSimpleHitEffect();
         }
 
-        // 5. 获取武器管理器（新增）
+        // 5. 获取武器管理器
         if (weaponManager == null)
         {
             weaponManager = GetComponent<WeaponManager>();
@@ -71,31 +76,51 @@ public class AutoPlayerShoot : MonoBehaviour
             }
         }
 
-        Debug.Log($"射击系统初始化完成！忽略 {ignoredObjects.Count} 个物体");
-        if (useAmmoSystem)
+        // 6. 初始化动画控制器
+        InitializeAnimationController();
+
+        Debug.Log($"射击系统初始化完成！射速: {fireRate:F2}s/发, 动画时长: {shootAnimationDuration:F2}s");
+    }
+
+    void InitializeAnimationController()
+    {
+        if (animationController == null)
         {
-            Debug.Log($"弹药系统: {(weaponManager != null ? "已连接" : "未找到武器管理器")}");
+            animationController = GetComponent<FPSAnimationController>();
+            if (animationController == null)
+            {
+                animationController = GetComponentInChildren<FPSAnimationController>();
+            }
+        }
+
+        if (animationController != null)
+        {
+            // 设置射击系统引用
+            animationController.SetShootSystem(this);
+
+            // 初始更新动画速度
+            UpdateShootAnimationSpeed();
+        }
+        else
+        {
+            Debug.LogWarning("未找到 FPSAnimationController，射击动画可能无法正确同步");
         }
     }
 
     void InitializeIgnoreList()
     {
-        // 清空缓存
         ignoredInstanceIDs.Clear();
 
-        // 如果启用自动忽略自身，添加玩家自己
         if (ignoreSelf && !ignoredObjects.Contains(gameObject))
         {
             ignoredObjects.Add(gameObject);
         }
 
-        // 缓存所有要忽略物体的InstanceID（性能优化）
         foreach (GameObject obj in ignoredObjects)
         {
             if (obj != null)
             {
                 ignoredInstanceIDs.Add(obj.GetInstanceID());
-                Debug.Log($"将忽略: {obj.name} (ID: {obj.GetInstanceID()})");
             }
         }
     }
@@ -111,6 +136,7 @@ public class AutoPlayerShoot : MonoBehaviour
         // 如果正在装填，不能射击
         if (isReloading) return;
 
+        // 实际射击检测 - 只有这里检测射击输入！
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
         {
             // 检查弹药
@@ -128,75 +154,137 @@ public class AutoPlayerShoot : MonoBehaviour
         }
     }
 
-    // 修改CanShoot方法
     bool CanShoot()
     {
         if (!useAmmoSystem || weaponManager == null) return true;
-
-        // 只检查是否有弹药，不消耗
-        var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
-        return ammoInfo.current > 0;
+        return weaponManager.TryShootCurrentWeapon();
     }
 
     void Shoot()
     {
-        // 在射击时消耗弹药
-        if (useAmmoSystem && weaponManager != null)
-        {
-            if (!weaponManager.TryShootCurrentWeapon())
-            {
-                return; // 消耗弹药失败（没有弹药）
-            }
-        }
         // 播放射击音效
         PlayShootSound();
 
+        // 关键：只在真正射击时触发射击动画
+        TriggerShootAnimation();
+
+        // 射击逻辑
         if (playerCamera != null)
         {
-            // 射线起点向前偏移
             Vector3 rayOrigin = playerCamera.transform.position +
                                playerCamera.transform.forward * rayStartOffset;
 
             Ray ray = new Ray(rayOrigin, playerCamera.transform.forward);
             RaycastHit[] hits = Physics.RaycastAll(ray, range);
 
-            // 按距离排序，找到最近的未忽略的击中点
             System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
 
             foreach (RaycastHit hit in hits)
             {
-                // 检查是否在忽略列表中
                 if (!IsIgnored(hit.collider.gameObject))
                 {
-                    // 找到第一个未忽略的目标
                     HandleHit(hit);
                     break;
                 }
             }
 
-            // 显示射击射线（调试用）
             Debug.DrawRay(ray.origin, ray.direction * range, Color.red, 0.1f);
+        }
+
+        Debug.Log($"射击完成 - 射击间隔: {fireRate:F2}s, 下次射击时间: {nextFireTime:F2}");
+    }
+
+    void TriggerShootAnimation()
+    {
+        if (animationController != null)
+        {
+            // 触发射击动画
+            animationController.TriggerShootAnimation();
+
+            // 设置射击状态
+            // 动画控制器现在会根据射击间隔自动管理状态
         }
     }
 
-    // 检查物体是否在忽略列表中
+    void UpdateShootAnimationSpeed()
+    {
+        if (animationController != null)
+        {
+            // 计算适当的动画速度
+            float animationSpeed;
+
+            if (fireRate < shootAnimationDuration)
+            {
+                // 快速射击：射击间隔小于动画时长，需要加速动画
+                animationSpeed = shootAnimationDuration / fireRate;
+                animationSpeed = Mathf.Clamp(animationSpeed, 1.0f, 3.0f);
+                Debug.Log($"快速射击模式: 射击间隔({fireRate:F2}s) < 动画时长({shootAnimationDuration:F2}s)");
+                Debug.Log($"动画速度设置为: {animationSpeed:F2}x");
+            }
+            else
+            {
+                // 慢速射击：正常速度
+                animationSpeed = 1.0f;
+                Debug.Log($"慢速射击模式: 射击间隔({fireRate:F2}s) >= 动画时长({shootAnimationDuration:F2}s)");
+                Debug.Log($"动画速度设置为: {animationSpeed:F2}x (正常速度)");
+            }
+
+            animationController.SetShootAnimationSpeed(animationSpeed);
+        }
+    }
+
+    // 供动画控制器调用的方法
+    public float GetFireRate()
+    {
+        return fireRate;
+    }
+
+    public float GetShootAnimationDuration()
+    {
+        return shootAnimationDuration;
+    }
+
+    public void SetFireRate(float newFireRate)
+    {
+        if (newFireRate > 0)
+        {
+            fireRate = newFireRate;
+            UpdateShootAnimationSpeed();
+            Debug.Log($"射速更新为: {fireRate:F2}s/发");
+        }
+    }
+
+    public void SetShootAnimationDuration(float duration)
+    {
+        if (duration > 0)
+        {
+            shootAnimationDuration = duration;
+            UpdateShootAnimationSpeed();
+            Debug.Log($"射击动画时长更新为: {shootAnimationDuration:F2}s");
+        }
+    }
+
+    public void SetShootingAnimationState(bool isShooting)
+    {
+        if (animationController != null)
+        {
+            animationController.SetShootingState(isShooting);
+        }
+    }
+
     bool IsIgnored(GameObject obj)
     {
-        // 方法1：直接检查GameObject引用（快速）
         if (ignoredObjects.Contains(obj))
             return true;
 
-        // 方法2：检查InstanceID（更快）
         int id = obj.GetInstanceID();
         if (ignoredInstanceIDs.Contains(id))
             return true;
 
-        // 方法3：检查是否是指定物体的子对象
         foreach (GameObject ignoredObj in ignoredObjects)
         {
             if (ignoredObj != null && obj.transform.IsChildOf(ignoredObj.transform))
             {
-                // 添加到缓存以便下次快速检查
                 ignoredInstanceIDs.Add(id);
                 return true;
             }
@@ -205,49 +293,14 @@ public class AutoPlayerShoot : MonoBehaviour
         return false;
     }
 
-    // 添加要忽略的物体（可以在运行时动态添加）
-    public void AddIgnoredObject(GameObject obj)
-    {
-        if (obj != null && !ignoredObjects.Contains(obj))
-        {
-            ignoredObjects.Add(obj);
-            ignoredInstanceIDs.Add(obj.GetInstanceID());
-            Debug.Log($"添加忽略物体: {obj.name}");
-        }
-    }
-
-    // 移除忽略的物体
-    public void RemoveIgnoredObject(GameObject obj)
-    {
-        if (ignoredObjects.Remove(obj))
-        {
-            ignoredInstanceIDs.Remove(obj.GetInstanceID());
-            Debug.Log($"移除忽略物体: {obj.name}");
-        }
-    }
-
-    // 清空所有忽略的物体
-    public void ClearIgnoredObjects()
-    {
-        ignoredObjects.Clear();
-        ignoredInstanceIDs.Clear();
-        Debug.Log("已清空所有忽略物体");
-    }
-
     void HandleHit(RaycastHit hit)
     {
-        string hitName = hit.transform.name;
-        Debug.Log($"击中: {hitName}");
-
-        // 对敌人造成伤害
         EnemyHealth enemy = hit.transform.GetComponent<EnemyHealth>();
         if (enemy != null)
         {
             enemy.TakeDamage(damage);
-            Debug.Log($"造成 {damage} 点伤害");
         }
 
-        // 显示击中效果
         ShowHitEffect(hit.point);
     }
 
@@ -259,32 +312,12 @@ public class AutoPlayerShoot : MonoBehaviour
         }
     }
 
-    // 新增：播放空枪声
     void PlayEmptySound()
     {
-        if (audioSource != null && Time.time >= nextFireTime)
+        if (audioSource != null)
         {
-            // 可以使用不同的音效或修改现有音效
             audioSource.PlayOneShot(audioSource.clip, 0.3f);
-            nextFireTime = Time.time + 0.5f; // 空枪延迟
         }
-    }
-
-    // 新增：检查是否有弹药
-    public bool HasAmmo()
-    {
-        if (!useAmmoSystem || weaponManager == null) return true;
-
-        var ammoInfo = weaponManager.GetCurrentWeaponAmmo();
-        return ammoInfo.current > 0;
-    }
-
-    // 新增：获取弹药信息
-    public (int current, int reserve) GetAmmoInfo()
-    {
-        if (!useAmmoSystem || weaponManager == null) return (0, 0);
-
-        return weaponManager.GetCurrentWeaponAmmo();
     }
 
     void CreateSimpleHitEffect()
@@ -321,89 +354,5 @@ public class AutoPlayerShoot : MonoBehaviour
         {
             simpleHitEffect.SetActive(false);
         }
-    }
-
-    // 在编辑器中显示调试信息
-    void OnDrawGizmosSelected()
-    {
-        if (playerCamera != null)
-        {
-            // 绘制射线起点
-            Gizmos.color = Color.green;
-            Vector3 rayOrigin = playerCamera.transform.position +
-                               playerCamera.transform.forward * rayStartOffset;
-            Gizmos.DrawWireSphere(rayOrigin, 0.05f);
-
-            // 绘制射线方向
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(rayOrigin, rayOrigin + playerCamera.transform.forward * 2f);
-
-            // 绘制忽略物体的范围
-            Gizmos.color = Color.red;
-            foreach (GameObject obj in ignoredObjects)
-            {
-                if (obj != null)
-                {
-                    Gizmos.DrawWireCube(obj.transform.position,
-                                       obj.transform.lossyScale * 1.2f);
-                }
-            }
-        }
-    }
-
-    // 在Inspector中显示当前信息
-    void OnGUI()
-    {
-        if (useAmmoSystem && weaponManager != null)
-        {
-            // 显示弹药信息
-            var ammoInfo = GetAmmoInfo();
-            GUI.color = ammoInfo.current > 0 ? Color.white : Color.red;
-
-            string reloadStatus = isReloading ? " [装填中...]" : "";
-            string ammoText = $"弹药: {ammoInfo.current} | 后备: {ammoInfo.reserve}{reloadStatus}";
-
-            // 在屏幕右上角显示
-            GUIStyle style = new GUIStyle(GUI.skin.label);
-            style.fontSize = 14;
-            style.fontStyle = FontStyle.Bold;
-
-            GUI.Label(new Rect(Screen.width - 200, 10, 190, 25), ammoText, style);
-
-            // 显示射击状态
-            if (isReloading)
-            {
-                GUI.color = Color.yellow;
-                GUI.Label(new Rect(Screen.width - 200, 60, 190, 25), "正在装填...", style);
-            }
-        }
-
-#if UNITY_EDITOR
-        if (UnityEditor.Selection.activeGameObject == gameObject)
-        {
-            GUI.color = Color.yellow;
-            GUI.Label(new Rect(10, 10, 300, 20),
-                     $"忽略物体数量: {ignoredObjects.Count}");
-
-            // 显示射击状态
-            GUI.Label(new Rect(10, 30, 300, 20),
-                     $"射速: {fireRate:F2}s/发 ({(60f/fireRate):F0} RPM)");
-
-            // 显示弹药状态（新增）
-            if (useAmmoSystem)
-            {
-                var ammoInfo = GetAmmoInfo();
-                GUI.color = ammoInfo.current > 0 ? Color.green : Color.red;
-                GUI.Label(new Rect(10, 50, 300, 20),
-                         $"弹药: {ammoInfo.current}/{ammoInfo.reserve}");
-
-                if (isReloading)
-                {
-                    GUI.color = Color.yellow;
-                    GUI.Label(new Rect(10, 70, 300, 20), "状态: 装填中");
-                }
-            }
-        }
-#endif
     }
 }
