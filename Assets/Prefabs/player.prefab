@@ -3521,7 +3521,7 @@ MonoBehaviour:
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
-  autoGenerateEffects: 1
+  autoGenerateEffects: 0
   weaponManager: {fileID: 3470263642226629046}
   useAmmoSystem: 1
   animationController: {fileID: 1749564098308860168}
@@ -3627,7 +3627,7 @@ MonoBehaviour:
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
-  autoGenerateEffects: 1
+  autoGenerateEffects: 0
   weaponManager: {fileID: 3470263642226629046}
   useAmmoSystem: 1
   animationController: {fileID: 1749564098308860168}
@@ -3750,7 +3750,7 @@ MonoBehaviour:
   ignoredObjects:
   - {fileID: 7759151255444879224}
   ignoreSelf: 1
-  autoGenerateEffects: 1
+  autoGenerateEffects: 0
   weaponManager: {fileID: 3470263642226629046}
   useAmmoSystem: 1
   animationController: {fileID: 1749564098308860168}

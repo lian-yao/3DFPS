@@ -329,16 +329,21 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 510148317}
+    - target: {fileID: 2827503980295346808, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: autoGenerateEffects
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3103691207695618124, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: autoGenerateEffects
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3470263642226629046, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: weaponAmmo
       value: 
       objectReference: {fileID: 1580360749}
-    - target: {fileID: 3470263642226629046, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
-        type: 3}
-      propertyPath: switchSound
-      value: 
-      objectReference: {fileID: 8300000, guid: 6c3c3ddf4b5170240b33f35e2173ebb5, type: 3}
     - target: {fileID: 7659401139059787802, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -393,6 +398,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8142278700275422588, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: autoGenerateEffects
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

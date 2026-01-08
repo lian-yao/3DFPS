@@ -320,7 +320,7 @@ public class WeaponManager : MonoBehaviour
         OnWeaponSwitched(previousWeaponIndex, newIndex);
 
         // 检查是否需要自动装填
-        CheckAutoReload();
+        //CheckAutoReload();
 
         isSwitching = false;
     }
