@@ -2367,6 +2367,7 @@ GameObject:
   - component: {fileID: 4907990876769774662}
   - component: {fileID: 6913245518666601400}
   - component: {fileID: 8714278432199204631}
+  - component: {fileID: 6449268475458282031}
   m_Layer: 0
   m_Name: NewBoss
   m_TagString: Untagged
@@ -2425,7 +2426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5abe2768cbc3da047ae78ed00e6e512e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 500
+  maxHealth: 5000
   isBoss: 1
   screenHealthSlider: {fileID: 0}
   worldHealthSlider: {fileID: 0}
@@ -2453,7 +2454,7 @@ MonoBehaviour:
   stoppingDistance: 2
   gravity: 9.81
   groundedGravity: -2
-  detectionRange: 10
+  detectionRange: 50
   checkInterval: 0.1
   defaultAttackType: 0
   showGizmos: 0
@@ -2465,6 +2466,8 @@ MonoBehaviour:
     triggerName: AttackTrigger
   - attackType: 1
     triggerName: AttackTrigger1
+  - attackType: 2
+    triggerName: AttackTrigger2
   paramIsAttacking: IsAttacking
   characterController: {fileID: 6730622327561644415}
   enemyModel: {fileID: 0}
@@ -2524,7 +2527,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackType: 1
-  attackDamage: 50
+  attackDamage: 30
   attackCooldown: 0.1
   attackRange: 3
   maxAttackHeight: 4
@@ -2555,6 +2558,23 @@ MonoBehaviour:
   attackClip2: {fileID: 0}
   attackClip3: {fileID: 0}
   attackVolume: 2
+--- !u!114 &6449268475458282031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3181810636856372950}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c512b36e35e783943acd8a245baf21f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackType: 2
+  attackDamage: 50
+  attackCooldown: 1
+  attackRange: 4.5
+  maxAttackHeight: 4
 --- !u!1 &3333229992676482215
 GameObject:
   m_ObjectHideFlags: 0
