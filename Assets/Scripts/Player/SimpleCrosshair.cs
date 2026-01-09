@@ -5,12 +5,12 @@ using UnityEngine.UI;
 
 public class SimpleCrosshair : MonoBehaviour
 {
-    [Header("准星设置")]
+    [Header("???????")]
     public Image crosshairImage;
     public Color normalColor = Color.white;
     public Color enemyColor = Color.red;
 
-    [Header("大小变化")]
+    [Header("??С?仯")]
     public float defaultSize = 20f;
     public float shootSize = 30f;
     public float moveSize = 25f;
@@ -22,46 +22,46 @@ public class SimpleCrosshair : MonoBehaviour
 
     void Start()
     {
-        // 获取摄像机
+        // ????????
         playerCamera = GetComponentInChildren<Camera>();
         if (playerCamera == null)
         {
             playerCamera = Camera.main;
-            Debug.Log("使用主摄像机");
+            Debug.Log("??????????");
         }
 
-        // 初始化准星
+        // ????????
         InitializeCrosshair();
 
-        Debug.Log("准星系统初始化完成");
+        Debug.Log("?????????????");
     }
 
     void InitializeCrosshair()
     {
-        // 如果crosshairImage未设置，尝试查找
+        // ???crosshairImageδ????????????
         if (crosshairImage == null)
         {
-            // 方法1：查找场景中现有的准星
+            // ????1??????????????е????
             crosshairImage = GameObject.Find("Crosshair")?.GetComponent<Image>();
 
             if (crosshairImage == null)
             {
-                // 方法2：自动创建准星
+                // ????2????????????
                 crosshairImage = CreateAutoCrosshair();
             }
         }
 
         if (crosshairImage == null)
         {
-            Debug.LogError("无法创建或找到准星图像！");
-            enabled = false; // 禁用脚本，避免进一步错误
+            Debug.LogError("??????????????????");
+            enabled = false; // ????????????????????
             return;
         }
 
         crosshairRect = crosshairImage.GetComponent<RectTransform>();
         currentSize = defaultSize;
 
-        // 确保初始大小正确
+        // ????????С???
         if (crosshairRect != null)
         {
             crosshairRect.sizeDelta = new Vector2(defaultSize, defaultSize);
@@ -70,31 +70,31 @@ public class SimpleCrosshair : MonoBehaviour
 
     Image CreateAutoCrosshair()
     {
-        Debug.Log("自动创建准星UI...");
+        Debug.Log("??????????UI...");
 
-        // 1. 创建Canvas
+        // 1. ????Canvas
         GameObject canvasObj = new GameObject("AutoCrosshairCanvas");
         Canvas canvas = canvasObj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 999; // 确保在最前面
+        canvas.sortingOrder = 999; // ??????????
 
-        // 添加Canvas Scaler（适应屏幕尺寸）
+        // ????Canvas Scaler??????????磩
         CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
 
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // 2. 创建准星图像
+        // 2. ??????????
         GameObject crosshairObj = new GameObject("AutoCrosshair");
         crosshairObj.transform.SetParent(canvas.transform);
 
         Image img = crosshairObj.AddComponent<Image>();
 
-        // 创建简单的十字准星纹理（代码生成）
+        // ????????????????????????????
         CreateCrosshairTexture(img);
 
-        // 3. 设置RectTransform
+        // 3. ????RectTransform
         RectTransform rt = crosshairObj.GetComponent<RectTransform>();
         rt.anchorMin = new Vector2(0.5f, 0.5f);
         rt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -107,23 +107,23 @@ public class SimpleCrosshair : MonoBehaviour
 
     void CreateCrosshairTexture(Image image)
     {
-        // 创建一个简单的红色圆点作为准星
-        // 实际项目中可以使用图片资源
+        // ?????????????????????
+        // ???????п???????????
         image.color = Color.white;
 
-        // 或者创建十字准星
+        // ?????????????
         CreateCrossCrosshair(image);
     }
 
     void CreateCrossCrosshair(Image parentImage)
     {
-        // 创建十字准星（由4个线条组成）
-        CreateCrossLine(parentImage.transform, 0, 10, 2, 20, Color.white);   // 上
-        CreateCrossLine(parentImage.transform, 0, -10, 2, 20, Color.white);  // 下
-        CreateCrossLine(parentImage.transform, 10, 0, 20, 2, Color.white);   // 右
-        CreateCrossLine(parentImage.transform, -10, 0, 20, 2, Color.white);  // 左
+        // ?????????????4??????????
+        CreateCrossLine(parentImage.transform, 0, 10, 2, 20, Color.white);   // ??
+        CreateCrossLine(parentImage.transform, 0, -10, 2, 20, Color.white);  // ??
+        CreateCrossLine(parentImage.transform, 10, 0, 20, 2, Color.white);   // ??
+        CreateCrossLine(parentImage.transform, -10, 0, 20, 2, Color.white);  // ??
 
-        // 中心点
+        // ?????
         CreateCrossLine(parentImage.transform, 0, 0, 4, 4, Color.red);
     }
 
@@ -145,17 +145,17 @@ public class SimpleCrosshair : MonoBehaviour
 
     void Update()
     {
-        // 如果准星图像为空，跳过更新
+        // ?????????????????????
         if (crosshairImage == null || crosshairRect == null)
         {
-            Debug.LogWarning("准星图像或RectTransform为空，跳过更新");
+            Debug.LogWarning("???????RectTransform????????????");
             return;
         }
 
         UpdateCrosshairColor();
         UpdateCrosshairSize();
 
-        // 应用大小变化
+        // ????С?仯
         crosshairRect.sizeDelta = Vector2.Lerp(
             crosshairRect.sizeDelta,
             new Vector2(currentSize, currentSize),
@@ -167,13 +167,13 @@ public class SimpleCrosshair : MonoBehaviour
     {
         if (crosshairImage == null || playerCamera == null) return;
 
-        // 从屏幕中心发射射线
+        // ????????????????
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, 100f))
         {
-            // 方法A：使用组件检测（推荐）
+            // ????A????????????????
             EnemyHealth enemy = hit.collider.GetComponent<EnemyHealth>();
             if (enemy != null)
             {
@@ -181,7 +181,7 @@ public class SimpleCrosshair : MonoBehaviour
                 return;
             }
 
-            // 方法B：检查物体名字
+            // ????B?????????????
             // if (hit.collider.gameObject.name.Contains("Enemy"))
             // {
             //     crosshairImage.color = enemyColor;
@@ -196,16 +196,16 @@ public class SimpleCrosshair : MonoBehaviour
     {
         if (crosshairRect == null) return;
 
-        // 重置为基础大小
+        // ???????????С
         currentSize = defaultSize;
 
-        // 射击时变大
+        // ???????
         if (Input.GetButton("Fire1"))
         {
             currentSize = shootSize;
         }
 
-        // 移动时稍大
+        // ???????
         float moveInput = Mathf.Abs(Input.GetAxis("Horizontal")) +
                          Mathf.Abs(Input.GetAxis("Vertical"));
         if (moveInput > 0.1f)
@@ -214,19 +214,19 @@ public class SimpleCrosshair : MonoBehaviour
         }
     }
 
-    // 外部调用：射击反馈
+    // ??????????????
     public void OnShoot()
     {
         currentSize = shootSize;
     }
 
-    // 调试：确保准星可见
+    // ?????????????
     void OnGUI()
     {
         if (crosshairImage == null)
         {
             GUI.color = Color.red;
-            GUI.Label(new Rect(10, 30, 300, 50), "准星图像为空！按R键重新初始化");
+            GUI.Label(new Rect(10, 30, 300, 50), "????????????R??????????");
 
             if (Input.GetKeyDown(KeyCode.R))
             {

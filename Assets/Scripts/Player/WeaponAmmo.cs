@@ -352,24 +352,24 @@ public class WeaponAmmo : MonoBehaviour
         return allAmmo;
     }
 
-    // 调试GUI
-    void OnGUI()
-    {
-        if (string.IsNullOrEmpty(currentWeaponName) || !ammoDictionary.ContainsKey(currentWeaponName))
-            return;
+    //// 调试GUI
+    //void OnGUI()
+    //{
+    //    if (string.IsNullOrEmpty(currentWeaponName) || !ammoDictionary.ContainsKey(currentWeaponName))
+    //        return;
 
-        var ammo = ammoDictionary[currentWeaponName];
+    //    var ammo = ammoDictionary[currentWeaponName];
 
-        GUI.color = isReloading ? Color.yellow : Color.white;
-        string reloadStatus = isReloading ? " [装填中]" : "";
+    //    GUI.color = isReloading ? Color.yellow : Color.white;
+    //    string reloadStatus = isReloading ? " [装填中]" : "";
 
-        GUI.Label(new Rect(10, 100, 300, 20),
-                 $"弹药: {ammo.currentAmmo}/{ammo.maxAmmo} | 后备: {ammo.reserveAmmo}{reloadStatus}");
+    //    GUI.Label(new Rect(10, 100, 300, 20),
+    //             $"弹药: {ammo.currentAmmo}/{ammo.maxAmmo} | 后备: {ammo.reserveAmmo}{reloadStatus}");
 
-        if (ammo.currentAmmo <= ammo.maxAmmo * 0.3f && !isReloading)
-        {
-            GUI.color = Color.yellow;
-            GUI.Label(new Rect(10, 120, 300, 20), "弹药不足，按R装填");
-        }
-    }
+    //    if (ammo.currentAmmo <= ammo.maxAmmo * 0.3f && !isReloading)
+    //    {
+    //        GUI.color = Color.yellow;
+    //        GUI.Label(new Rect(10, 120, 300, 20), "弹药不足，按R装填");
+    //    }
+    //}
 }

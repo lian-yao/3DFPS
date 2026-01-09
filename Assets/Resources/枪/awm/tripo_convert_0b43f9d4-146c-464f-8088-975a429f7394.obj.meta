@@ -3,7 +3,13 @@ guid: fffaae3fba5ac124e9af517e52d963ae
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tripo_mat_0b43f9d4-146c-464f-8088-975a429f7394
+    second: {fileID: -7856901454578064677, guid: a5aed70a40a37ff439aa9a818377783f,
+      type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -16,8 +22,7 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
-    rigImportErrors: "Invalid Avatar Rig Configuration. Missing or invalid transform:\n\tRequired
-      human bone 'Hips' not found\n"
+    rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 

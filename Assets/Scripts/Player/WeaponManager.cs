@@ -615,22 +615,82 @@ public class WeaponManager : MonoBehaviour
     {
         if (weapons.Count == 0) return;
 
-        GUI.Label(new Rect(10, 150, 300, 20), $"当前武器: {GetWeaponDisplayName(currentWeaponIndex)}");
+        // 定义尺寸变量，方便统一调整
+        int fontSize = 20;
+        float uiWidth = 350; // 增加宽度
+        float lineHeight = 30; // 增加行高
+        float padding = 15; // 增加内边距
+
+        // 创建基础样式
+        GUIStyle baseStyle = new GUIStyle(GUI.skin.label);
+        baseStyle.fontSize = fontSize;
+
+        float screenWidth = Screen.width;
+        float rightStartX = screenWidth - uiWidth;
+        float startY = padding;
+
+        // 添加半透明背景
+        GUI.color = new Color(0, 0, 0, 0.6f);
+        GUI.Box(new Rect(rightStartX - padding / 2, startY - padding / 2,
+                         uiWidth, lineHeight * 3 + padding), "");
+
+        // 武器名称 - 大号加粗
+        GUIStyle weaponStyle = new GUIStyle(baseStyle);
+        weaponStyle.fontSize = fontSize + 2;
+        weaponStyle.fontStyle = FontStyle.Bold;
+        weaponStyle.normal.textColor = Color.white;
+
+        GUI.color = Color.white;
+        GUI.Label(new Rect(rightStartX, startY, uiWidth, lineHeight),
+                  $"当前武器: {GetWeaponDisplayName(currentWeaponIndex)}",
+                  weaponStyle);
 
         if (currentWeaponIndex >= 0 && currentWeaponIndex < weapons.Count)
         {
             float fireRate = GetCurrentWeaponFireRate();
             float rpm = 60f / fireRate;
 
-            GUI.Label(new Rect(10, 170, 300, 20), $"射速: {fireRate:F2}s/发 ({rpm:F0} RPM)");
+            // 射速信息
+            GUIStyle fireRateStyle = new GUIStyle(baseStyle);
+            fireRateStyle.normal.textColor = new Color(0.8f, 0.8f, 1f); // 淡蓝色
+
+            GUI.Label(new Rect(rightStartX, startY + lineHeight, uiWidth, lineHeight),
+                      $"射速: {fireRate:F2}s/发 ({rpm:F0} RPM)",
+                      fireRateStyle);
 
             if (weaponAmmo != null)
             {
                 var ammoInfo = GetCurrentWeaponAmmo();
-                GUI.color = weaponAmmo.IsReloading() ? Color.yellow : Color.white;
+
+                // 弹药信息 - 根据状态变化
+                GUIStyle ammoStyle = new GUIStyle(baseStyle);
+                ammoStyle.fontSize = fontSize;
+                ammoStyle.fontStyle = FontStyle.Bold;
+
+                if (weaponAmmo.IsReloading())
+                {
+                    ammoStyle.normal.textColor = Color.yellow;
+                }
+                else if (ammoInfo.current == 0)
+                {
+                    ammoStyle.normal.textColor = Color.red;
+                }
+                else if (ammoInfo.current <= 3)
+                {
+                    ammoStyle.normal.textColor = new Color(1f, 0.5f, 0f); // 橙色
+                }
+                else
+                {
+                    ammoStyle.normal.textColor = Color.green;
+                }
+
                 string reloadStatus = weaponAmmo.IsReloading() ? " [装填中]" : "";
-                GUI.Label(new Rect(10, 190, 300, 20), $"弹药: {ammoInfo.current}/{ammoInfo.reserve}{reloadStatus}");
+                GUI.Label(new Rect(rightStartX, startY + lineHeight * 2, uiWidth, lineHeight),
+                          $"弹药: {ammoInfo.current}/{ammoInfo.reserve}{reloadStatus}",
+                          ammoStyle);
             }
         }
+
+        GUI.color = Color.white; // 重置颜色
     }
 }

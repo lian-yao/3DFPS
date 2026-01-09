@@ -9951,6 +9951,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1250650855443783482, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
+        type: 3}
+      propertyPath: runSpeed
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 1756187861624511238, guid: 3fd4d86c9c36a3a438dfd6c7c165c617,
         type: 3}
       propertyPath: healthBar
@@ -11456,6 +11461,74 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 2a67f3a3d4c67e54dbc646451a36a15f, type: 3}
+--- !u!1001 &1863478736
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 11.342422
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -13.767177
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139227596849411283, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7518883822884073065, guid: 7c6728215bb483e4a82f532a77b6f824,
+        type: 3}
+      propertyPath: m_Name
+      value: Health Pack
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7c6728215bb483e4a82f532a77b6f824, type: 3}
 --- !u!1 &1866020297
 GameObject:
   m_ObjectHideFlags: 0
@@ -12733,8 +12806,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8443597919374492519, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.64999
+      objectReference: {fileID: 0}
+    - target: {fileID: 8443597919374492519, guid: ff265891a5901004f842d6a493e89a48,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.64341354
+      objectReference: {fileID: 0}
+    - target: {fileID: 8443597919374492519, guid: ff265891a5901004f842d6a493e89a48,
+        type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -377
+      value: -461
       objectReference: {fileID: 0}
     - target: {fileID: 8443597919374492519, guid: ff265891a5901004f842d6a493e89a48,
         type: 3}
@@ -12888,7 +12971,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 40, y: 271}
+  m_AnchoredPosition: {x: 12, y: 259}
   m_SizeDelta: {x: 262.0048, y: 51.4126}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2086422879
@@ -13235,3 +13318,4 @@ SceneRoots:
   - {fileID: 1752182315}
   - {fileID: 1705790687}
   - {fileID: 582372720}
+  - {fileID: 1863478736}
